@@ -32,7 +32,6 @@ const AboutSection = ({ profileImg }) => {
                                 </div>
 
                                 <div className="profile-signature" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-start' }}>
-                                    <Logo variant="07" style={{ height: '32px', opacity: 0.7 }} />
                                 </div>
                             </div>
                         </div>
