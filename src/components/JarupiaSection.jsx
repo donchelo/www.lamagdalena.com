@@ -15,7 +15,7 @@ const JarupiaSection = ({ featureImg }) => {
                         <div className="product-image">
                             <img src={featureImg} alt="Jarupia por Chino Romero" />
                             <div className="product-logo-accent">
-                                <Logo variant="07" style={{ height: '40px', filter: 'brightness(0) invert(1)' }} />
+                                <Logo variant="07" style={{ height: '30px', filter: 'brightness(0) invert(1)' }} />
                             </div>
                             <span className="badge">Destacado</span>
                         </div>

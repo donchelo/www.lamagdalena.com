@@ -44,7 +44,7 @@ const JarupiaPage = () => {
                                 <h3>Adquiere tu ejemplar</h3>
                                 <p className="price">$170.000,00 COP</p>
                                 <p className="description">Incluye firma del autor y una colección de postales originales.</p>
-                                <a href="https://wa.me/573000000000" target="_blank" rel="noopener noreferrer" className="cta-button">
+                                <a href="https://wa.me/573042644962" target="_blank" rel="noopener noreferrer" className="cta-button">
                                     Comprar por WhatsApp
                                 </a>
                             </div>

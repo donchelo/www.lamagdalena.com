@@ -16,7 +16,7 @@ const ServicesSection = ({ storytellingImg, audiovisualImg, consultancyImg }) =>
                         <div className="service-image">
                             <img src={storytellingImg} alt="Storytelling" />
                             <div className="service-logo-accent">
-                                <Logo variant="10" style={{ height: '30px', opacity: 0.6 }} />
+                                <Logo variant="07" style={{ height: '24px', opacity: 0.5 }} />
                             </div>
                         </div>
                         <div className="service-content">
@@ -35,7 +35,7 @@ const ServicesSection = ({ storytellingImg, audiovisualImg, consultancyImg }) =>
                         <div className="service-image">
                             <img src={audiovisualImg} alt="Audiovisual" />
                             <div className="service-logo-accent">
-                                <Logo variant="13" style={{ height: '30px', opacity: 0.6 }} />
+                                <Logo variant="07" style={{ height: '24px', opacity: 0.5 }} />
                             </div>
                         </div>
                     </div>
@@ -44,7 +44,7 @@ const ServicesSection = ({ storytellingImg, audiovisualImg, consultancyImg }) =>
                         <div className="service-image">
                             <img src={consultancyImg} alt="Consultoría" />
                             <div className="service-logo-accent">
-                                <Logo variant="16" style={{ height: '30px', opacity: 0.6 }} />
+                                <Logo variant="07" style={{ height: '24px', opacity: 0.5 }} />
                             </div>
                         </div>
                         <div className="service-content">
