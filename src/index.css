@@ -301,7 +301,7 @@ img {
 
 .hero-static-logo-container {
   position: absolute;
-  top: clamp(2rem, 10vh, 5rem);
+  top: clamp(1rem, 5vh, 2.5rem);
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
