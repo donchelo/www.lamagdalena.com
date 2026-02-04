@@ -42,7 +42,7 @@ function App() {
                             MENU
                         </button>
                         <Link to="/" className="logo-link">
-                            <Logo variant="28" className="brand-logo" style={{ height: '40px' }} />
+                            <Logo variant="28" className="brand-logo" />
                         </Link>
                         <button className="search-btn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
