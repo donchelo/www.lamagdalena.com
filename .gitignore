@@ -1,0 +1,18 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+
+# Assets and Design files (Heavy)
+Marca-20260203T164309Z-3-001/
+Fotos gif/
+*.ai
+*.pdf
+*.psd
+
+# Prevenir imágenes muy pesadas (>1MB) de cámaras profesionales
+**/DSC*.jpg
+**/_DSC*.jpg
+**/DSC*.JPG
+**/_DSC*.JPG
