@@ -3,7 +3,7 @@ import { logos } from '../assets/logos';
 
 const Logo = ({ variant = '01', className = '', style = {} }) => {
     const logoKey = `logo${variant.padStart(2, '0')}`;
-    const logoSrc = logos[logoKey] || logos.logo01;
+    const logoSrc = logos[logoKey] || logos.logo07;
 
     return (
         <img
