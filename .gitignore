@@ -9,6 +9,7 @@ Marca-20260203T164309Z-3-001/
 Fotos gif/
 *.ai
 *.pdf
+!public/portfolio.pdf
 *.psd
 
 # Prevenir imágenes muy pesadas (>1MB) de cámaras profesionales
