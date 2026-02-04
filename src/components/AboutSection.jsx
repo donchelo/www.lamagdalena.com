@@ -20,12 +20,13 @@ const AboutSection = ({ profileImg }) => {
                             </div>
                             <div className="profile-info">
                                 <h3>Chino Romero</h3>
-                                <p className="role">Director de La Magdalena</p>
+                                <p className="role"><span className="case-study-label" style={{ fontSize: '0.7rem' }}>ROL:</span> Director de La Magdalena</p>
                                 <p className="description">Soy Chino Romero, contador de historias, fotógrafo y explorador de Colombia. Hace unos años dejé mi trabajo para dedicarme al storytelling de impacto, creando narrativas que conectan a las personas con el territorio y la vida.</p>
                                 <p className="description">Empecé La Magdalena, con la idea de acompañar a las organizaciones a amplificar su mensaje e inspirar cambios a través de estrategias de comunicación y contenido de valor.</p>
-                                <p className="books">Coautor de los libros: El Darién, El libro de la calidez / marca país, y Peces Geólogicos.</p>
+                                <p className="books"><span className="case-study-label" style={{ fontSize: '0.7rem' }}>PUBLICACIONES:</span> Coautor de los libros: El Darién, El libro de la calidez / marca país, y Peces Geólogicos.</p>
                                 
                                 <div className="profile-contact">
+                                    <span className="case-study-label" style={{ fontSize: '0.7rem', marginBottom: '0.5rem' }}>CONTACTO:</span>
                                     <a href="mailto:chino@lamagdalena.com.co" className="contact-link">chino@lamagdalena.com.co</a>
                                     <a href="tel:+573042644962" className="contact-link">+57 304 264 4962</a>
                                     <a href="https://www.instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="contact-link">@lamagdalena___</a>

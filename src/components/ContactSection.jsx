@@ -12,15 +12,15 @@ const ContactSection = () => {
                         
                         <div className="contact-methods">
                             <div className="method-item">
-                                <h3>Email</h3>
+                                <h3 className="case-study-label" style={{ fontSize: '0.7rem' }}>EMAIL</h3>
                                 <a href="mailto:chino@lamagdalena.com.co" className="method-link">chino@lamagdalena.com.co</a>
                             </div>
                             <div className="method-item">
-                                <h3>Teléfono</h3>
+                                <h3 className="case-study-label" style={{ fontSize: '0.7rem' }}>TELÉFONO</h3>
                                 <a href="tel:+573042644962" className="method-link">+57 304 264 4962</a>
                             </div>
                             <div className="method-item">
-                                <h3>Instagram</h3>
+                                <h3 className="case-study-label" style={{ fontSize: '0.7rem' }}>INSTAGRAM</h3>
                                 <a href="https://www.instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="method-link">@lamagdalena___</a>
                             </div>
                         </div>
@@ -28,7 +28,7 @@ const ContactSection = () => {
                     
                     <div className="contact-extra">
                         <div className="location-info">
-                            <h3>Colombia</h3>
+                            <h3 className="case-study-label" style={{ fontSize: '0.7rem' }}>TERRITORIO</h3>
                             <p>Explorando el territorio desde las selvas hasta las ciudades.</p>
                         </div>
                         <div className="closure-minimal">

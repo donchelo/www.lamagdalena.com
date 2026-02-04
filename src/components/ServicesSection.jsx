@@ -17,9 +17,9 @@ const ServicesSection = ({ storytellingImg, audiovisualImg, consultancyImg }) =>
                             <img src={storytellingImg} alt="Storytelling" />
                         </div>
                         <div className="service-content">
-                            <h3>Storytelling</h3>
-                            <p className="service-tagline">Storytelling centrado en las personas</p>
-                            <p>Diseñamos narrativas que nacen de la vida cotidiana: en organizaciones, ciudades, culturas y territorios. Historias que conectan propósito, emoción y acción, y ayudan a que lo importante sea entendido y recordado.</p>
+                            <h3><span className="case-study-label">ESTRATEGIA:</span> Storytelling</h3>
+                            <p className="service-tagline">Contar para conectar</p>
+                            <p>Diseñamos narrativas que nacen de la vida cotidiana: en organizaciones, ciudades, culturas y territorios. Historias que conectan propósito, emoción y acción.</p>
                         </div>
                     </div>
 
@@ -39,8 +39,8 @@ const ServicesSection = ({ storytellingImg, audiovisualImg, consultancyImg }) =>
                             <img src={consultancyImg} alt="Consultoría" />
                         </div>
                         <div className="service-content">
-                            <h3>Consultoría</h3>
-                            <p className="service-tagline">Consultoría en comunicación e impacto</p>
+                            <h3><span className="case-study-label">ACOMPAÑAMIENTO:</span> Consultoría</h3>
+                            <p className="service-tagline">Pensar para impactar</p>
                             <p>Acompañamos procesos estratégicos para alinear impacto, propósito y comunicación. Pensamos qué se hace, cómo se hace y cómo se cuenta.</p>
                         </div>
                     </div>

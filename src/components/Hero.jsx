@@ -64,7 +64,7 @@ const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default' }) =
                     <div className="hero-overlay" style={{
                         position: 'absolute',
                         top: 0, left: 0, width: '100%', height: '100%',
-                        background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.15) 100%)',
+                        background: 'rgba(0,0,0,0.3)',
                         zIndex: 5
                     }}></div>
                 </div>

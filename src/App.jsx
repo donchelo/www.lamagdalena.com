@@ -4,6 +4,7 @@ import './index.css'
 import HomePage from './pages/HomePage'
 import JarupiaPage from './pages/JarupiaPage'
 import HistoriasPage from './pages/HistoriasPage'
+import FontVisualizer from './pages/FontVisualizer'
 import Footer from './components/Footer'
 import Logo from './components/Logo'
 
@@ -60,6 +61,7 @@ function App() {
                         <Link to="/#servicios" onClick={closeMenu} className="neon-underline">SERVICIOS</Link>
                         <Link to="/jarupia-libro" onClick={closeMenu} className="neon-underline">JARUPIA</Link>
                         <Link to="/historias" onClick={closeMenu} className="neon-underline">HISTORIAS</Link>
+                        <Link to="/fonts" onClick={closeMenu} className="neon-underline">FUENTES</Link>
                         <Link to="/#contacto" onClick={closeMenu} className="neon-underline">CONTACTO</Link>
                     </nav>
                 </div>
@@ -69,6 +71,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/jarupia-libro" element={<JarupiaPage />} />
                 <Route path="/historias" element={<HistoriasPage />} />
+                <Route path="/fonts" element={<FontVisualizer />} />
             </Routes>
 
             <Footer />
