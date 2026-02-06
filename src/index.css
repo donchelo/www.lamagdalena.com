@@ -1,48 +1,4 @@
-/* ─── Neue Haas Display — Títulos ─── */
-@font-face {
-  font-family: 'Neue Haas Display';
-  src: url('./assets/fonts/NeueHaasDisplayBold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* ─── CoFo Sans — Cuerpo / UI ─── */
-@font-face {
-  font-family: 'CoFo Sans';
-  src: url('./assets/fonts/CoFoSans-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-:root {
-  --bg-cream: #ffffff;
-  --text-brown: #5c4a33;
-  --accent-lime: #d4ff00;
-  --bg-paper: none;
-
-  --font-heading: 'Neue Haas Display', 'Helvetica Neue', Helvetica, sans-serif;
-  --font-body: 'CoFo Sans', 'Helvetica Neue', Helvetica, sans-serif;
-
-  /* Aliases para retrocompatibilidad */
-  --font-logo: var(--font-heading);
-  --font-menu: var(--font-body);
-  --font-accent: var(--font-body);
-  --font-heading-classic: var(--font-heading);
-
-  --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* Fluid Spacing - Increased for minimalism */
-  --section-padding: clamp(6rem, 15vw, 12rem);
-  --container-padding: clamp(1.5rem, 8vw, 4rem);
-  
-  /* Fluid Typography - Reduced for minimalism */
-  --fs-h1: clamp(2.5rem, 8vw, 5.5rem);
-  --fs-h2: clamp(1.8rem, 6vw, 3.2rem);
-  --fs-h3: clamp(1.2rem, 4vw, 1.8rem);
-  --fs-lead: clamp(1rem, 2vw, 1.2rem);
-}
+@import './styles/tokens.css';
 
 html {
   scroll-behavior: smooth;

@@ -42,3 +42,23 @@
 {"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/","isDetailPage":false},"timestamp":1770414019480,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
 {"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770414067151,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
 {"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/","isDetailPage":false},"timestamp":1770414071599,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770414192455,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"StoryDetailPage.jsx:43","message":"Story back button rendered","data":{"slug":"viajando-por-colombia"},"timestamp":1770414195070,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias/viajando-por-colombia","isDetailPage":true},"timestamp":1770414195071,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770414210685,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/","isDetailPage":false},"timestamp":1770414767596,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770414838957,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/","isDetailPage":false},"timestamp":1770414845911,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770414934615,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"StoryDetailPage.jsx:43","message":"Story back button rendered","data":{"slug":"viajando-por-colombia"},"timestamp":1770414936702,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias/viajando-por-colombia","isDetailPage":true},"timestamp":1770414936704,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770415004430,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/","isDetailPage":false},"timestamp":1770415008436,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770415151105,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/","isDetailPage":false},"timestamp":1770415155769,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770415333314,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"StoryDetailPage.jsx:43","message":"Story back button rendered","data":{"slug":"viajando-por-colombia"},"timestamp":1770415334251,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"StoryDetailPage.jsx:43","message":"Story back button rendered","data":{"slug":"viajando-por-colombia"},"timestamp":1770415334253,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias/viajando-por-colombia","isDetailPage":true},"timestamp":1770415334253,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/historias","isDetailPage":false},"timestamp":1770415355733,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}
+{"location":"App.jsx:59","message":"Menu toggle rendered","data":{"pathname":"/","isDetailPage":false},"timestamp":1770415360357,"sessionId":"debug-session","runId":"post-fix","hypothesisId":"H1"}

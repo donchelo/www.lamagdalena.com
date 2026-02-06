@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Heading from '../atoms/Heading';
+import Text from '../atoms/Text';
 
 const BlogCard = ({ image, category, title, excerpt, date, slug }) => {
     const getImageUrl = (path) => {
@@ -15,15 +17,15 @@ const BlogCard = ({ image, category, title, excerpt, date, slug }) => {
             <div className="blog-card-image">
                 <img src={getImageUrl(image)} alt={title} />
                 <div className="blog-card-overlay"></div>
-                {category && <span className="blog-category">{category}</span>}
+                {category && <Text as="span" className="blog-category">{category}</Text>}
             </div>
             <div className="blog-card-content">
                 <div className="blog-card-bottom">
-                    <h3 className="blog-card-title">{title}</h3>
+                    <Heading level={3} className="blog-card-title">{title}</Heading>
                     <div className="blog-card-line"></div>
                     <div className="blog-card-meta">
-                        <span className="blog-author">{excerpt ? excerpt.split('.')[0] : 'La Magdalena'}</span>
-                        <span className="blog-location">{date}</span>
+                        <Text as="span" className="blog-author">{excerpt ? excerpt.split('.')[0] : 'La Magdalena'}</Text>
+                        <Text as="span" className="blog-location">{date}</Text>
                     </div>
                 </div>
             </div>

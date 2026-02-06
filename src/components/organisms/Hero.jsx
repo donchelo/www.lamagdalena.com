@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
-import Logo from './Logo'
+import Logo from '../atoms/Logo'
+import Heading from '../atoms/Heading'
+import Text from '../atoms/Text'
+import Button from '../atoms/Button'
 
 const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default' }) => {
     const photoList = images.length > 0 ? images : (imageUrl ? [imageUrl] : [])
@@ -71,23 +74,23 @@ const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default' }) =
 
                 {variant === 'with-text' && (
                     <div className="hero-content">
-                        {title && <h1 className="logo">{title}</h1>}
-                        {subtitle && <p className="hero-subtitle">{subtitle}</p>}
+                        {title && <Heading level={1} className="logo">{title}</Heading>}
+                        {subtitle && <Text className="hero-subtitle">{subtitle}</Text>}
                     </div>
                 )}
 
                 {photoList.length > 1 && (
                     <div className="hero-nav">
-                        <button className="nav-btn prev" onClick={prevSlide} aria-label="Previous photo">
+                        <Button variant="nav" className="prev" onClick={prevSlide} aria-label="Previous photo">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="15 18 9 12 15 6"></polyline>
                             </svg>
-                        </button>
-                        <button className="nav-btn next" onClick={nextSlide} aria-label="Next photo">
+                        </Button>
+                        <Button variant="nav" className="next" onClick={nextSlide} aria-label="Next photo">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
-                        </button>
+                        </Button>
 
                         <div className="hero-dots">
                             {photoList.map((_, index) => (

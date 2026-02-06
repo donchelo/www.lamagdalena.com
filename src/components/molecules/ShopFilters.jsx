@@ -1,4 +1,5 @@
 import React from 'react'
+import Button from '../atoms/Button'
 
 const ShopFilters = ({ categories, activeCategory, onCategoryChange }) => {
     return (
@@ -6,12 +7,13 @@ const ShopFilters = ({ categories, activeCategory, onCategoryChange }) => {
             <ul className="filter-list">
                 {categories.map((category) => (
                     <li key={category}>
-                        <button
+                        <Button
+                            variant="none"
                             className={`filter-button ${activeCategory === category ? 'active' : ''}`}
                             onClick={() => onCategoryChange(category)}
                         >
                             {category}
-                        </button>
+                        </Button>
                     </li>
                 ))}
             </ul>

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import BlogCard from '../components/BlogCard';
+import MainLayout from '../components/templates/MainLayout';
+import BlogCard from '../components/molecules/BlogCard';
 import { storiesData } from '../data/stories';
 
 const HistoriasPage = () => {

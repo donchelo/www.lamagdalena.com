@@ -1,4 +1,5 @@
 import React from 'react'
+import Text from '../atoms/Text'
 
 const ContentGrid = ({ children, reversed = false }) => {
     return (
@@ -24,7 +25,7 @@ export const GridItem = ({ imageUrl, text, type = 'image' }) => {
         <div className="grid-item grid-text">
             <div className="text-content">
                 {text.split('\n\n').map((p, i) => (
-                    <p key={i}>{p}</p>
+                    <Text key={i}>{p}</Text>
                 ))}
             </div>
         </div>
