@@ -1,12 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../atoms/Button';
+import NavBar from '../organisms/NavBar';
 
 const EditorialLayout = ({ children }) => {
     const navigate = useNavigate();
 
     return (
         <div className="editorial-layout">
+            <NavBar />
             <Button 
                 variant="none" 
                 className="story-back-btn" 
