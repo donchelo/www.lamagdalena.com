@@ -25,46 +25,81 @@ function App() {
 
     const closeMenu = () => setIsMenuOpen(false)
 
-    // Handle scroll to top on route change (already in JarupiaPage but good as global)
+    // Helper to determine if a menu link is active
+    const isActive = (path, hash = '') => {
+        // Special case for Inicio: active if at root with or without #inicio
+        if (path === '/' && hash === '#inicio') {
+            return location.pathname === '/' && (location.hash === '#inicio' || !location.hash);
+        }
+        if (hash) {
+            return location.pathname === path && location.hash === hash;
+        }
+        return location.pathname === path && !location.hash;
+    };
+
+    // Handle scroll to top on route change
     useEffect(() => {
         if (location.hash) {
             const element = document.getElementById(location.hash.substring(1))
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth' })
             }
+        } else {
+            window.scrollTo(0, 0)
         }
     }, [location])
 
     return (
         <div className="app">
-            <header className="navbar">
-                <div className="container">
-                    <div className="nav-inner">
-                        <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                            MENU
-                        </button>
-                    </div>
-                </div>
+            <header className="navbar" style={{ display: 'none' }}>
+                {/* Navbar elements moved to fixed positions for minimalism */}
             </header>
+
+            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                MENU
+            </button>
 
             {/* Menu Overlay */}
             <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={closeMenu}>
-                <div className="container" onClick={(e) => e.stopPropagation()}>
-                    <button className="menu-close" onClick={closeMenu}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
+                <div className="menu-container" onClick={(e) => e.stopPropagation()}>
+                    {/* Menu Header */}
+                    <div className="menu-header">
+                        <button className="menu-close-text" onClick={closeMenu}>
+                            Cerrar
+                        </button>
+                        <div className="menu-logo">
+                            <Logo variant="12" style={{ height: '30px' }} />
+                        </div>
+                        <button className="menu-search-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Main Navigation */}
                     <nav className="overlay-nav">
-                        <Link to="/#inicio" onClick={closeMenu} className="neon-underline active">INICIO</Link>
-                        <Link to="/#nosotros" onClick={closeMenu} className="neon-underline">NOSOTROS</Link>
-                        <Link to="/#servicios" onClick={closeMenu} className="neon-underline">SERVICIOS</Link>
-                        <Link to="/jarupia-libro" onClick={closeMenu} className="neon-underline">JARUPIA</Link>
-                        <Link to="/historias" onClick={closeMenu} className="neon-underline">HISTORIAS</Link>
-                        <Link to="/portafolio" onClick={closeMenu} className="neon-underline">PORTAFOLIO</Link>
-                        <Link to="/#contacto" onClick={closeMenu} className="neon-underline">CONTACTO</Link>
+                        <Link to="/#inicio" onClick={closeMenu} className={`menu-link ${isActive('/', '#inicio') ? 'active' : ''}`}>Inicio</Link>
+                        <Link to="/#nosotros" onClick={closeMenu} className={`menu-link ${isActive('/', '#nosotros') ? 'active' : ''}`}>Somos</Link>
+                        <Link to="/historias" onClick={closeMenu} className={`menu-link ${isActive('/historias') ? 'active' : ''}`}>Historias</Link>
+                        <Link to="/#servicios" onClick={closeMenu} className={`menu-link ${isActive('/', '#servicios') ? 'active' : ''}`}>Servicios</Link>
                     </nav>
+
+                    {/* Menu Footer */}
+                    <div className="menu-footer">
+                        <div className="shop-container">
+                            <span className="footer-link">SHOP</span>
+                            <div className="shop-dropdown">
+                                <Link to="/jarupia-libro" onClick={closeMenu}>Jarupia</Link>
+                                <Link to="/#historias" onClick={closeMenu}>Galería</Link>
+                            </div>
+                        </div>
+                        <span className="footer-divider">|</span>
+                        <Link to="/#contacto" onClick={closeMenu} className={`footer-link ${isActive('/', '#contacto') ? 'active' : ''}`}>CONTACTO</Link>
+                        <span className="footer-divider">|</span>
+                        <a href="https://instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="footer-link">SIGUENOS</a>
+                    </div>
                 </div>
             </div>
 

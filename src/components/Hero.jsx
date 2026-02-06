@@ -49,7 +49,7 @@ const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default' }) =
         >
             <div className="hero-container">
                 <div className="hero-static-logo-container">
-                    <Logo variant="15" className="hero-static-logo" />
+                    <Logo variant="12" className="hero-static-logo" />
                 </div>
                 <div className="hero-image-wrapper">
                     {photoList.map((img, index) => (
@@ -64,14 +64,14 @@ const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default' }) =
                     <div className="hero-overlay" style={{
                         position: 'absolute',
                         top: 0, left: 0, width: '100%', height: '100%',
-                        background: 'rgba(0,0,0,0.3)',
+                        background: 'linear-gradient(to top right, rgba(0,0,0,0.5), rgba(0,0,0,0))',
                         zIndex: 5
                     }}></div>
                 </div>
 
                 {variant === 'with-text' && (
                     <div className="hero-content">
-                        <h1 className="logo">{title}</h1>
+                        {title && <h1 className="logo">{title}</h1>}
                         {subtitle && <p className="hero-subtitle">{subtitle}</p>}
                     </div>
                 )}

@@ -5,35 +5,41 @@ const ContactSection = () => {
         <section id="contacto" className="contact-main-section">
             <div className="container">
                 <div className="contact-grid">
-                    <div className="contact-content">
-                        <h2 className="section-title">Hablemos</h2>
-                        <p className="lead">¿Tienes una historia que necesita ser contada? ¿Quieres que trabajemos juntos para visibilizar el impacto de tu organización?</p>
-                        <p>Estamos listos para escucharte y explorar nuevas formas de conectar a través del territorio y la vida.</p>
+                    <div className="contact-info-side">
+                        <h2 className="section-title">Contemos historias</h2>
                         
-                        <div className="contact-methods">
+                        <div className="contact-methods-vertical">
                             <div className="method-item">
-                                <h3 className="case-study-label" style={{ fontSize: '0.7rem' }}>EMAIL</h3>
+                                <span className="method-label">EMAIL</span>
                                 <a href="mailto:chino@lamagdalena.com.co" className="method-link">chino@lamagdalena.com.co</a>
                             </div>
                             <div className="method-item">
-                                <h3 className="case-study-label" style={{ fontSize: '0.7rem' }}>TELÉFONO</h3>
+                                <span className="method-label">TELÉFONO</span>
                                 <a href="tel:+573042644962" className="method-link">+57 304 264 4962</a>
                             </div>
                             <div className="method-item">
-                                <h3 className="case-study-label" style={{ fontSize: '0.7rem' }}>INSTAGRAM</h3>
+                                <span className="method-label">INSTAGRAM</span>
                                 <a href="https://www.instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="method-link">@lamagdalena___</a>
                             </div>
                         </div>
                     </div>
                     
-                    <div className="contact-extra">
-                        <div className="location-info">
-                            <h3 className="case-study-label" style={{ fontSize: '0.7rem' }}>TERRITORIO</h3>
-                            <p>Explorando el territorio desde las selvas hasta las ciudades.</p>
-                        </div>
-                        <div className="closure-minimal">
-                            <p className="highlight-text">Contamos lo que vemos.</p>
-                        </div>
+                    <div className="contact-form-side">
+                        <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+                            <div className="form-group">
+                                <label htmlFor="email">*email</label>
+                                <input type="email" id="email" name="email" required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="subject">*asunto</label>
+                                <input type="text" id="subject" name="subject" required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="message">*mensaje</label>
+                                <textarea id="message" name="message" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" className="submit-btn">ENVIAR</button>
+                        </form>
                     </div>
                 </div>
             </div>

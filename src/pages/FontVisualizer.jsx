@@ -7,28 +7,16 @@ const FontVisualizer = () => {
 
     const fonts = [
         {
-            name: 'Roboto',
+            name: 'Bebas Neue',
             variable: '--font-logo',
-            description: 'Usada para logos, encabezados y elementos de interfaz.',
+            description: 'Fuente para títulos y encabezados principales.',
             usage: 'font-family: var(--font-logo);'
         },
         {
-            name: 'CrimsonPro',
+            name: 'Roboto',
             variable: '--font-body',
-            description: 'Fuente principal para el cuerpo de texto.',
+            description: 'Fuente principal para todo el contenido (Cuerpo, Menú, Acentos).',
             usage: 'font-family: var(--font-body);'
-        },
-        {
-            name: 'Blue',
-            variable: '--font-accent',
-            description: 'Fuente de acento manuscrita/cursiva.',
-            usage: 'font-family: var(--font-accent);'
-        },
-        {
-            name: 'Caladea',
-            variable: '--font-heading-classic',
-            description: 'Fuente serif clásica para subtítulos y citas.',
-            usage: 'font-family: var(--font-heading-classic);'
         }
     ];
 

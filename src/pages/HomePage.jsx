@@ -27,7 +27,6 @@ const HomePage = () => {
     return (
         <main id="inicio">
             <Hero
-                title="Historias reales que conectan con las personas"
                 subtitle="Convertimos impacto real en narrativas creíbles, visibles y relevantes. Storytelling, audiovisual y consultoría para organizaciones con propósito."
                 images={[hero1, hero2, gallery1, gallery2, gallery3, gallery4, gallery5]}
                 variant="with-text"
