@@ -47,11 +47,9 @@ const NavBar = () => {
 
     return (
         <>
-            {!isDetailPage && (
-                <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                    Menú
-                </button>
-            )}
+            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                Menú
+            </button>
 
             <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={closeMenu}>
                 <div className="menu-container" onClick={(e) => e.stopPropagation()}>
