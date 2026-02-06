@@ -1,5 +1,5 @@
 import React from 'react';
-import { logos } from '../assets/logos';
+import { logos } from '../../assets/logos';
 
 const Logo = ({ variant = '01', className = '', style = {} }) => {
     const logoKey = `logo${variant.padStart(2, '0')}`;
