@@ -70,19 +70,16 @@ const NavBar = () => {
                     />
 
                     <div className="menu-footer">
-                        {footerMenuItems.map((item, index) => (
-                            <React.Fragment key={item.path + item.hash}>
-                                <Link 
-                                    to={item.path + item.hash} 
-                                    onClick={closeMenu} 
-                                    className={`footer-link ${isActive(item.path, item.hash) ? 'active' : ''}`}
-                                >
-                                    {item.label}
-                                </Link>
-                                {index < footerMenuItems.length - 1 && <Text as="span" className="footer-divider">|</Text>}
-                            </React.Fragment>
+                        {footerMenuItems.map((item) => (
+                            <Link 
+                                key={item.path + item.hash}
+                                to={item.path + item.hash} 
+                                onClick={closeMenu} 
+                                className={`footer-link ${isActive(item.path, item.hash) ? 'active' : ''}`}
+                            >
+                                {item.label}
+                            </Link>
                         ))}
-                        <Text as="span" className="footer-divider">|</Text>
                         <a href="https://instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="footer-link">Síguenos</a>
                     </div>
                 </div>
