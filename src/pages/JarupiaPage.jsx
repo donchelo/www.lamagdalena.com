@@ -86,7 +86,7 @@ const JarupiaPage = () => {
             </section>
 
             <section className="jarupia-conclusion">
-                <div className="container text-center">
+                <div className="container">
                     <p className="closure-text">Una oda a la ciénaga y sus misterios.</p>
                 </div>
             </section>

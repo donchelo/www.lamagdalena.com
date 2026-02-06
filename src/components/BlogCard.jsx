@@ -2,10 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const BlogCard = ({ image, category, title, excerpt, date, slug }) => {
+    const getImageUrl = (path) => {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+        const cleanPath = path.startsWith('/') ? path : `/${path}`;
+        return `${baseUrl}${cleanPath}`;
+    };
+
     return (
         <div className="blog-card">
             <div className="blog-card-image">
-                <img src={image} alt={title} />
+                <img src={getImageUrl(image)} alt={title} />
                 {category && <span className="blog-category">{category}</span>}
             </div>
             <div className="blog-card-content">

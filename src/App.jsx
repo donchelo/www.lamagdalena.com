@@ -4,6 +4,7 @@ import './index.css'
 import HomePage from './pages/HomePage'
 import JarupiaPage from './pages/JarupiaPage'
 import HistoriasPage from './pages/HistoriasPage'
+import StoryDetailPage from './pages/StoryDetailPage'
 import PortfolioPage from './pages/PortfolioPage'
 import FontVisualizer from './pages/FontVisualizer'
 import Logo from './components/Logo'
@@ -106,6 +107,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/jarupia-libro" element={<JarupiaPage />} />
                 <Route path="/historias" element={<HistoriasPage />} />
+                <Route path="/historias/:slug" element={<StoryDetailPage />} />
                 <Route path="/portafolio" element={<PortfolioPage />} />
                 <Route path="/fonts" element={<FontVisualizer />} />
             </Routes>

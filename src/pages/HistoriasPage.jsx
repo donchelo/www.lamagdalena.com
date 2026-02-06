@@ -1,60 +1,45 @@
 import React, { useEffect } from 'react';
 import BlogCard from '../components/BlogCard';
-
-// Temporary mock data for stories
-const stories = [
-    {
-        id: 1,
-        title: "El arte de contar historias en el Magdalena",
-        category: "Storytelling",
-        date: "03 Feb 2026",
-        excerpt: "Exploramos cómo las narrativas locales pueden transformar la percepción de una marca y conectar con la audiencia de manera profunda.",
-        image: "assets/blog/DSC03743.webp",
-        slug: "arte-contar-historias"
-    },
-    {
-        id: 2,
-        title: "Documentando lo invisible",
-        category: "Audiovisual",
-        date: "01 Feb 2026",
-        excerpt: "Detrás de cámaras de nuestro último proyecto en la Sierra Nevada, capturando momentos que las palabras no pueden describir.",
-        image: "assets/blog/DSC01959.webp",
-        slug: "documentando-lo-invisible"
-    },
-    {
-        id: 3,
-        title: "Consultoría creativa: Más que consejos",
-        category: "Consultoría",
-        date: "28 Jan 2026",
-        excerpt: "Por qué decidimos enfocarnos en una consultoría humanista y cómo esto impacta en el desarrollo de ideas sostenibles.",
-        image: "assets/blog/_DSC1935.webp",
-        slug: "consultoria-creativa"
-    }
-];
+import StoryView from '../components/StoryView';
+import { storiesData } from '../data/stories';
 
 const HistoriasPage = () => {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
-    return (
-        <div className="historias-page">
-            <section className="historias-hero">
-                <div className="container">
-                    <h1 className="section-title">Historias</h1>
-                    <p className="historias-intro">Un espacio para compartir nuestras vivencias, procesos creativos y las historias que dan vida a La Magdalena.</p>
-                </div>
-            </section>
+    // El primer elemento es la historia principal (Viajando por Colombia)
+    const mainStory = storiesData.find(s => s.slug === 'viajando-por-colombia') || storiesData[0];
+    const otherStories = storiesData.filter(s => s.id !== mainStory.id);
 
-            <section className="blog-section">
-                <div className="container">
-                    <div className="blog-grid">
-                        {stories.map(story => (
-                            <BlogCard key={story.id} {...story} />
-                        ))}
+    return (
+        <div className="historias-page" style={{ paddingTop: 0 }}>
+            {/* Historia Principal en formato ensayo */}
+            <StoryView story={mainStory} />
+
+            {/* Sección de Otras Historias */}
+            {otherStories.length > 0 && (
+                <section className="blog-section" style={{ borderTop: '1px solid rgba(92, 74, 51, 0.1)', marginTop: '4rem' }}>
+                    <div className="container">
+                        <h2 className="section-title" style={{ marginTop: '4rem', textAlign: 'center' }}>Más Historias</h2>
+                        <div className="blog-grid">
+                            {otherStories.map(story => (
+                                <BlogCard key={story.id} {...story} />
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+            
+            <footer className="story-footer container" style={{ paddingBottom: '6rem' }}>
+                <div className="story-footer-inner">
+                    <p className="story-date">{mainStory.date} • {mainStory.category}</p>
+                    <div className="story-share">
+                        <span className="share-label">Compartir:</span>
+                        <a href={`https://instagram.com/lamagdalena___`} target="_blank" rel="noopener noreferrer">Instagram</a>
                     </div>
                 </div>
-            </section>
+            </footer>
         </div>
     );
 };
