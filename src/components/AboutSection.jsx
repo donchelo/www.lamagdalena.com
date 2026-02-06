@@ -1,40 +1,19 @@
 import React from 'react'
-import Logo from './Logo'
 
-const AboutSection = ({ profileImg }) => {
+const AboutSection = () => {
     return (
-        <section id="nosotros" className="about-section">
+        <section id="somos" className="about-section">
             <div className="container">
-                <div className="about-grid">
+                <div className="about-content">
                     <div className="about-text">
-                        <h2 className="section-title">Nosotros</h2>
-                        <p className="lead">Un estudio de storytelling de impacto, inspirado por el territorio.</p>
-                        <p>Desde 2015, nuestros viajes por Colombia nos han acercado a personas y lugares que trabajan por los cambios urgentes que necesita el mundo. De esas experiencias nació La Magdalena: un estudio que crea y acompaña narrativas sobre acciones que mejoran las condiciones de vida, el entorno y las relaciones humanas.</p>
-                        <p>Hemos contado historias desde selvas, ciénagas y montañas junto a expediciones como Colombia Bio del Instituto Humboldt, y hemos acompañado a organizaciones como Bancolombia, ISA, Presentes, Comfama, Argos, ProColombia, entre otras, a visibilizar sus apuestas de impacto.</p>
-                        <p className="highlight-text">Contamos lo que vemos, y ayudamos a otros a contar lo que hacen.</p>
-                    </div>
-                    <div className="about-profile">
-                        <div className="profile-card">
-                            <div className="profile-image">
-                                <img src={profileImg} alt="Chino Romero" />
-                            </div>
-                            <div className="profile-info">
-                                <h3>Chino Romero</h3>
-                                <p className="role"><span className="case-study-label" style={{ fontSize: '0.7rem' }}>ROL:</span> Director de La Magdalena</p>
-                                <p className="description">Soy Chino Romero, contador de historias, fotógrafo y explorador de Colombia. Hace unos años dejé mi trabajo para dedicarme al storytelling de impacto, creando narrativas que conectan a las personas con el territorio y la vida.</p>
-                                <p className="description">Empecé La Magdalena, con la idea de acompañar a las organizaciones a amplificar su mensaje e inspirar cambios a través de estrategias de comunicación y contenido de valor.</p>
-                                <p className="books"><span className="case-study-label" style={{ fontSize: '0.7rem' }}>PUBLICACIONES:</span> Coautor de los libros: El Darién, El libro de la calidez / marca país, y Peces Geólogicos.</p>
-                                
-                                <div className="profile-contact">
-                                    <span className="case-study-label" style={{ fontSize: '0.7rem', marginBottom: '0.5rem' }}>CONTACTO:</span>
-                                    <a href="mailto:chino@lamagdalena.com.co" className="contact-link">chino@lamagdalena.com.co</a>
-                                    <a href="tel:+573042644962" className="contact-link">+57 304 264 4962</a>
-                                    <a href="https://www.instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="contact-link">@lamagdalena___</a>
-                                </div>
-
-                                <div className="profile-signature" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-start' }}>
-                                </div>
-                            </div>
+                        <h2 className="section-title">Somos</h2>
+                        <p className="lead">Un estudio de storytelling, enfocado en temas de impacto social y ambiental.</p>
+                        <p>En 2013 empecé a viajar por Colombia con mi cámara para hacer fotos de los paisajes increíbles que tenemos. Con el tiempo entendí que las personas también dan vida a estos lugares, la interacción con el entorno y las historias me inspiraron a hacerme nuevas preguntas que me ayudaran a entender mejor el territorio y los retos que tenemos como humanidad.</p>
+                        <p>Años después, en 2022 , nace La Magdalena, con la idea de crear narrativas que promuevan cambios y acciones que mejoren las relaciones entre todo lo vivo. Desde entonces hemos acompañado a diferentes organizaciones a diseñar estrategias para contar sus historias, desde las selvas, bosques, océanos, ciénagas, montañas y ciudades, conectando personas con propósitos reales que generan impacto.</p>
+                        
+                        <div className="about-signature">
+                            <p className="signature-name">Chino Romero Hoyos</p>
+                            <p className="signature-role">Fundador La Magdalena</p>
                         </div>
                     </div>
                 </div>

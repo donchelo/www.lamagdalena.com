@@ -10,10 +10,6 @@ import ContactSection from '../components/ContactSection'
 import hero1 from '../assets/photos/hero-1.jpg'
 import hero2 from '../assets/photos/hero-2.jpg'
 import content1 from '../assets/photos/content-1.jpg'
-import serviceStorytelling from '../assets/photos/service-storytelling.jpg'
-import serviceAudiovisual from '../assets/photos/service-audiovisual.jpg'
-import serviceConsultancy from '../assets/photos/service-consultancy.jpg'
-import profileImg from '../assets/photos/chino-profile.jpg'
 import jarupiaImg from '../assets/photos/jarupia-real.webp'
 import gallery1 from '../assets/photos/gallery-1.jpg'
 import gallery2 from '../assets/photos/gallery-2.jpg'
@@ -21,7 +17,6 @@ import gallery3 from '../assets/photos/gallery-3.jpg'
 import gallery4 from '../assets/photos/gallery-4.jpg'
 import gallery5 from '../assets/photos/gallery-5.jpg'
 import gallery6 from '../assets/photos/gallery-6.jpg'
-import illustration01 from '../assets/illustration-01.png'
 
 const HomePage = () => {
     return (
@@ -42,13 +37,9 @@ const HomePage = () => {
                 />
             </ContentGrid>
 
-            <AboutSection profileImg={profileImg} />
+            <AboutSection />
 
-            <ServicesSection
-                storytellingImg={serviceStorytelling}
-                audiovisualImg={serviceAudiovisual}
-                consultancyImg={serviceConsultancy}
-            />
+            <ServicesSection />
 
             <section className="differentiator-section">
                 <div className="container">
@@ -66,12 +57,6 @@ const HomePage = () => {
             </div>
 
             <ContactSection />
-
-            <section className="brand-decoration">
-                <div className="container">
-                    <img src={illustration01} alt="Decoration" className="illustration-main" />
-                </div>
-            </section>
         </main>
     )
 }

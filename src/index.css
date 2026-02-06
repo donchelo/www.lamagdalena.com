@@ -724,19 +724,6 @@ img {
   }
 }
 
-/* Brand Decoration */
-.brand-decoration {
-  display: flex;
-  justify-content: center;
-  padding: var(--section-padding) 0;
-}
-
-.illustration-main {
-  max-width: clamp(120px, 20vw, 200px);
-  margin: 0 auto;
-  opacity: 0.8;
-}
-
 /* Gallery Section */
 .gallery-section {
   padding: var(--section-padding) 0;
@@ -778,17 +765,17 @@ img {
   padding: var(--section-padding) 0;
 }
 
-.about-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: clamp(2rem, 5vw, 4rem);
-  align-items: center;
+.about-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .about-text p {
   margin-bottom: 2rem;
   font-size: 0.95rem;
-  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .about-text .lead {
@@ -797,75 +784,20 @@ img {
   font-weight: 300;
 }
 
-.highlight-text {
-  font-family: var(--font-body);
-  font-size: 1.2rem !important;
-  color: var(--text-brown);
-  margin-top: 3rem;
-  line-height: 1.6;
-  font-weight: 400;
-  font-style: italic;
-  opacity: 0.8;
+.about-signature {
+  margin-top: 4rem;
+  text-align: center;
 }
 
-.profile-card {
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  box-shadow: none;
-  border-top: 1px solid rgba(92, 74, 51, 0.1);
-  padding-top: 3rem;
+.signature-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.2rem !important;
 }
 
-.profile-image img {
-  border-radius: 4px;
-  margin-bottom: 2rem;
-  width: 100%;
-}
-
-.profile-info h3 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  margin-bottom: 0.5rem;
-}
-
-.profile-info .role {
-  font-family: var(--font-menu);
-  color: #888;
-  margin-bottom: 1.5rem;
+.signature-role {
+  opacity: 0.7;
   font-size: 0.9rem;
-}
-
-.profile-info .description {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-
-@media (max-width: 992px) {
-  .about-grid {
-    grid-template-columns: 1fr;
-    gap: 4rem;
-    text-align: center;
-  }
-  
-  .about-text .lead {
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .about-text p {
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .profile-card {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  
-  .profile-signature {
-    justify-content: center !important;
-  }
 }
 
 /* Jarupia Section */
@@ -1073,104 +1005,117 @@ img {
   }
 }
 
-/* Footer */
-.minimal-footer {
-  background-color: #836746;
-  padding: 1rem 0;
-  margin-top: var(--section-padding);
-}
-
-.footer-message {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  color: var(--accent-lime);
-  font-family: var(--font-logo);
-  font-size: clamp(1.2rem, 3vw, 2.5rem);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-@media (max-width: 768px) {
-  .footer-message {
-    flex-direction: column;
-    gap: 1.5rem;
-    font-size: 1.5rem;
-    text-align: center;
-  }
-}
-
 /* Services Section */
 .services-section {
   padding: var(--section-padding) 0;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  overflow-x: hidden;
 }
 
-.services-intro {
-  font-size: var(--fs-lead);
-  max-width: 800px;
-  margin-bottom: clamp(3rem, 8vw, 6rem);
-  line-height: 1.4;
-  color: var(--text-brown);
-}
-
-.services-grid {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(4rem, 10vw, 8rem);
-}
-
-.service-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(2rem, 5vw, 4rem);
-  align-items: center;
-}
-
-.service-card.reversed {
-  direction: rtl;
-}
-
-.service-card.reversed .service-content {
-  direction: ltr;
-}
-
-.service-image img {
-  border-radius: 4px;
-  width: 100%;
-}
-
-.service-content h3 {
-  font-size: 0.9rem;
+.services-label {
+  display: block;
+  font-size: 0.8rem;
   font-family: var(--font-menu);
   color: #888;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
-.service-tagline {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+.services-giant-title {
+  font-size: clamp(3.5rem, 12vw, 9rem);
   font-family: var(--font-logo);
-  line-height: 1.1;
-  margin-bottom: 2rem;
-  color: var(--text-brown);
+  line-height: 1;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.services-ticker {
+  overflow: hidden;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-bottom: clamp(4rem, 12vw, 10rem);
+  padding: 1rem 0;
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: scroll 40s linear infinite;
+}
+
+.ticker-track h2 {
+  padding-right: 0.5em;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+}
+
+.service-card {
+  display: block;
+}
+
+.service-content h3 {
+  font-size: 1.4rem;
+  font-family: var(--font-menu);
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.service-lead {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 1.2rem;
+  color: #ffffff;
 }
 
 .service-content p {
-  font-size: 1.1rem;
-  max-width: 500px;
-  color: var(--text-brown);
-  opacity: 0.8;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #a0a0a0;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4rem 2rem;
+  }
 }
 
 @media (max-width: 768px) {
-  .service-card {
+  .services-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 3.5rem;
   }
-
-  .service-card.reversed {
-    direction: ltr;
+  
+  .services-giant-title {
+    font-size: clamp(2.8rem, 15vw, 4.5rem);
+    margin-bottom: 4rem;
   }
 }
 

@@ -6,7 +6,6 @@ import JarupiaPage from './pages/JarupiaPage'
 import HistoriasPage from './pages/HistoriasPage'
 import PortfolioPage from './pages/PortfolioPage'
 import FontVisualizer from './pages/FontVisualizer'
-import Footer from './components/Footer'
 import Logo from './components/Logo'
 
 function App() {
@@ -81,7 +80,7 @@ function App() {
                     {/* Main Navigation */}
                     <nav className="overlay-nav">
                         <Link to="/#inicio" onClick={closeMenu} className={`menu-link ${isActive('/', '#inicio') ? 'active' : ''}`}>Inicio</Link>
-                        <Link to="/#nosotros" onClick={closeMenu} className={`menu-link ${isActive('/', '#nosotros') ? 'active' : ''}`}>Somos</Link>
+                        <Link to="/#somos" onClick={closeMenu} className={`menu-link ${isActive('/', '#somos') ? 'active' : ''}`}>Somos</Link>
                         <Link to="/historias" onClick={closeMenu} className={`menu-link ${isActive('/historias') ? 'active' : ''}`}>Historias</Link>
                         <Link to="/#servicios" onClick={closeMenu} className={`menu-link ${isActive('/', '#servicios') ? 'active' : ''}`}>Servicios</Link>
                     </nav>
@@ -110,8 +109,6 @@ function App() {
                 <Route path="/portafolio" element={<PortfolioPage />} />
                 <Route path="/fonts" element={<FontVisualizer />} />
             </Routes>
-
-            <Footer />
         </div>
     )
 }
