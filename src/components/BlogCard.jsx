@@ -11,24 +11,23 @@ const BlogCard = ({ image, category, title, excerpt, date, slug }) => {
     };
 
     return (
-        <div className="blog-card">
+        <Link to={`/historias/${slug}`} className="blog-card">
             <div className="blog-card-image">
                 <img src={getImageUrl(image)} alt={title} />
+                <div className="blog-card-overlay"></div>
                 {category && <span className="blog-category">{category}</span>}
             </div>
             <div className="blog-card-content">
-                <span className="blog-date">{date}</span>
-                <h3 className="blog-card-title">{title}</h3>
-                <p className="blog-card-excerpt">{excerpt}</p>
-                <Link to={`/historias/${slug}`} className="read-more">
-                    LEER MÁS
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </Link>
+                <div className="blog-card-bottom">
+                    <h3 className="blog-card-title">{title}</h3>
+                    <div className="blog-card-line"></div>
+                    <div className="blog-card-meta">
+                        <span className="blog-author">{excerpt ? excerpt.split('.')[0] : 'La Magdalena'}</span>
+                        <span className="blog-location">{date}</span>
+                    </div>
+                </div>
             </div>
-        </div>
+        </Link>
     );
 };
 

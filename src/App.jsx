@@ -7,7 +7,8 @@ import HistoriasPage from './pages/HistoriasPage'
 import StoryDetailPage from './pages/StoryDetailPage'
 import PortfolioPage from './pages/PortfolioPage'
 import FontVisualizer from './pages/FontVisualizer'
-import Logo from './components/Logo'
+import ShopPage from './pages/ShopPage'
+import ProductDetailPage from './pages/ProductDetailPage'
 
 function App() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -49,15 +50,39 @@ function App() {
         }
     }, [location])
 
+    // #region agent log
+    useEffect(() => {
+        fetch('http://127.0.0.1:7252/ingest/39485d24-6745-4f77-95f1-969776a5e3dd', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                location: 'App.jsx:59',
+                message: 'Menu toggle rendered',
+                data: { pathname: location.pathname, isDetailPage: ['/historias/', '/shop/', '/jarupia-libro'].some(p => location.pathname.includes(p)) },
+                timestamp: Date.now(),
+                sessionId: 'debug-session',
+                runId: 'post-fix',
+                hypothesisId: 'H1'
+            })
+        }).catch(() => { });
+    }, [location.pathname]);
+    // #endregion
+
+    const isDetailPage = ['/historias/', '/shop/', '/jarupia-libro', '/portafolio', '/fonts'].some(path => 
+        location.pathname.includes(path) && location.pathname !== '/historias' && location.pathname !== '/shop'
+    );
+
     return (
         <div className="app">
             <header className="navbar" style={{ display: 'none' }}>
                 {/* Navbar elements moved to fixed positions for minimalism */}
             </header>
 
-            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                MENU
-            </button>
+            {!isDetailPage && (
+                <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                    Menú
+                </button>
+            )}
 
             {/* Menu Overlay */}
             <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={closeMenu}>
@@ -66,15 +91,6 @@ function App() {
                     <div className="menu-header">
                         <button className="menu-close-text" onClick={closeMenu}>
                             Cerrar
-                        </button>
-                        <div className="menu-logo">
-                            <Logo variant="12" style={{ height: '30px' }} />
-                        </div>
-                        <button className="menu-search-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
                         </button>
                     </div>
 
@@ -88,17 +104,11 @@ function App() {
 
                     {/* Menu Footer */}
                     <div className="menu-footer">
-                        <div className="shop-container">
-                            <span className="footer-link">SHOP</span>
-                            <div className="shop-dropdown">
-                                <Link to="/jarupia-libro" onClick={closeMenu}>Jarupia</Link>
-                                <Link to="/#historias" onClick={closeMenu}>Galería</Link>
-                            </div>
-                        </div>
+                        <Link to="/shop" onClick={closeMenu} className="footer-link">Tienda</Link>
                         <span className="footer-divider">|</span>
-                        <Link to="/#contacto" onClick={closeMenu} className={`footer-link ${isActive('/', '#contacto') ? 'active' : ''}`}>CONTACTO</Link>
+                        <Link to="/#contacto" onClick={closeMenu} className={`footer-link ${isActive('/', '#contacto') ? 'active' : ''}`}>Contacto</Link>
                         <span className="footer-divider">|</span>
-                        <a href="https://instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="footer-link">SIGUENOS</a>
+                        <a href="https://instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="footer-link">Síguenos</a>
                     </div>
                 </div>
             </div>
@@ -109,6 +119,8 @@ function App() {
                 <Route path="/historias" element={<HistoriasPage />} />
                 <Route path="/historias/:slug" element={<StoryDetailPage />} />
                 <Route path="/portafolio" element={<PortfolioPage />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/shop/:productId" element={<ProductDetailPage />} />
                 <Route path="/fonts" element={<FontVisualizer />} />
             </Routes>
         </div>

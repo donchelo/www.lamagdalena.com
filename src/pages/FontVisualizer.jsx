@@ -7,15 +7,15 @@ const FontVisualizer = () => {
 
     const fonts = [
         {
-            name: 'Bebas Neue',
-            variable: '--font-logo',
+            name: 'Neue Haas Display',
+            variable: '--font-heading',
             description: 'Fuente para títulos y encabezados principales.',
-            usage: 'font-family: var(--font-logo);'
+            usage: 'font-family: var(--font-heading);'
         },
         {
-            name: 'Roboto',
+            name: 'CoFo Sans',
             variable: '--font-body',
-            description: 'Fuente principal para todo el contenido (Cuerpo, Menú, Acentos).',
+            description: 'Fuente principal para cuerpo de texto y UI.',
             usage: 'font-family: var(--font-body);'
         }
     ];

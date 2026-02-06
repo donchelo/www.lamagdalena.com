@@ -4,13 +4,11 @@ import ContentGrid, { GridItem } from '../components/ContentGrid'
 import Gallery from '../components/Gallery'
 import AboutSection from '../components/AboutSection'
 import ServicesSection from '../components/ServicesSection'
-import JarupiaSection from '../components/JarupiaSection'
 import ContactSection from '../components/ContactSection'
 
 import hero1 from '../assets/photos/hero-1.jpg'
 import hero2 from '../assets/photos/hero-2.jpg'
 import content1 from '../assets/photos/content-1.jpg'
-import jarupiaImg from '../assets/photos/jarupia-real.webp'
 import gallery1 from '../assets/photos/gallery-1.jpg'
 import gallery2 from '../assets/photos/gallery-2.jpg'
 import gallery3 from '../assets/photos/gallery-3.jpg'
@@ -49,8 +47,6 @@ const HomePage = () => {
                     </div>
                 </div>
             </section>
-
-            <JarupiaSection featureImg={jarupiaImg} />
 
             <div id="historias">
                 <Gallery photos={[gallery1, gallery2, gallery3, gallery4, gallery5, gallery6]} />

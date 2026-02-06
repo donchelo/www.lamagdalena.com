@@ -4,6 +4,9 @@ export const storiesData = [
         title: "Viajando por Colombia",
         category: "Fotografía",
         date: "06 Feb 2026",
+        author: "Manuel Bayo Gisbert",
+        location: "San Basilio de Palenque & Sierra Nevada",
+        tags: ["fotografía", "colombia", "territorio", "paisaje", "memoria"],
         excerpt: "Un recorrido visual por la riqueza cultural y los paisajes inexplorados de nuestro territorio.",
         image: "/assets/stories/viajando-por-colombia/DJI_0178.jpg",
         slug: "viajando-por-colombia",
@@ -15,43 +18,62 @@ export const storiesData = [
                 subtitle: 'Un ensayo fotográfico por La Magdalena'
             },
             {
+                type: 'metadata',
+                category: 'Fotografía',
+                author: 'Manuel Bayo Gisbert',
+                location: 'Colombia',
+                date: 'Febrero 2026'
+            },
+            {
+                type: 'lead',
+                text: '«La fotografía no apareció en mi vida como una elección calculada, sino como un modo de sobrevivir a preguntas de las que no tenía respuesta». En este viaje por el territorio colombiano, la cámara se convierte en una herramienta para escuchar el silencio de los paisajes y la memoria de su gente.'
+            },
+            {
+                type: 'image-text',
+                layout: 'image-left',
+                split: '60-40',
+                image: '/assets/stories/viajando-por-colombia/_MG_2168.jpg',
+                title: 'La Memoria del Territorio',
+                text: 'Colombia es un lienzo infinito de colores, texturas y sonidos. En este viaje, nos propusimos capturar no solo la belleza estética de sus paisajes, sino la esencia de las comunidades y los procesos de transformación que definen nuestra identidad.\n\nDurante mucho tiempo se pensó que la única manera válida de registrar el conocimiento era a través de la escritura. Sin embargo, en estas tierras, la oralidad y la imagen son las guardianas de la verdad.'
+            },
+            {
                 type: 'text',
-                text: 'Colombia es un lienzo infinito de colores, texturas y sonidos. En este viaje, nos propusimos capturar no solo la belleza estética de sus paisajes, sino la esencia de las comunidades y los procesos de transformación que definen nuestra identidad.'
+                text: 'Caminamos por senderos que el tiempo parece haber olvidado, encontrando en cada rincón una nueva perspectiva sobre lo que significa ser parte de este territorio. El agua, como hilo conductor, nos llevó desde las montañas hasta las llanuras, revelando historias que fluyen como los ríos que atraviesan nuestra geografía.'
+            },
+            {
+                type: 'image-duo',
+                split: '40-60',
+                imageLeft: '/assets/stories/viajando-por-colombia/Transforma-22.jpg',
+                imageRight: '/assets/stories/viajando-por-colombia/Transforma-33.jpg',
+                caption: 'Fragmentos de una cotidianidad que se transforma con cada amanecer.'
+            },
+            {
+                type: 'image-text',
+                layout: 'image-right',
+                split: '40-60',
+                image: '/assets/stories/viajando-por-colombia/Rio Chitamena-2.jpg',
+                title: 'Espejos de Agua',
+                text: 'El Río Chitamena no es solo un cuerpo de agua; es un testigo silencioso de la biodiversidad y la vida que se teje en sus orillas. Aquí, el agua negra —fuente de identidad— refleja los rostros de quienes han habitado estas riberas por generaciones.\n\nExplorar sus canales es adentrarse en un laberinto sensorial donde la materia y los saberes antiguos configuran un escenario vital sumergido en la calma.'
             },
             {
                 type: 'image-full',
-                image: '/assets/stories/viajando-por-colombia/_MG_2168.jpg',
-                caption: 'Atardeceres que cuentan historias en el horizonte colombiano.'
+                image: '/assets/stories/viajando-por-colombia/Transforma-7.jpg',
+                caption: 'La inmensidad del paisaje nos recuerda nuestra pequeña pero vital conexión con la naturaleza.'
             },
             {
-                type: 'text',
-                text: 'Caminamos por senderos que el tiempo parece haber olvidado, encontrando en cada rincón una nueva perspectiva sobre lo que significa ser parte de este territorio. El agua, como hilo conductor, nos llevó desde las montañas hasta las llanuras.'
+                type: 'image-text',
+                layout: 'image-left',
+                split: '60-40',
+                image: '/assets/stories/viajando-por-colombia/Transforma-65.jpg',
+                title: 'Raíces y Futuro',
+                text: 'Este proyecto es un homenaje a la resiliencia y la creatividad de nuestra gente. Cada fotografía es un fragmento de una historia mayor, una invitación a mirar más allá de lo evidente.\n\nAl escuchar estas historias, se activan nuestras propias imaginaciones. Cada vez que se cuenta un relato, este cambia y se enriquece, transformando los detalles sin afectar su esencia fundamental.'
             },
             {
-                type: 'grid',
-                images: [
-                    '/assets/stories/viajando-por-colombia/Transforma-22.jpg',
-                    '/assets/stories/viajando-por-colombia/Transforma-33.jpg'
-                ],
-                caption: 'Detalles de transformación y vida cotidiana.'
-            },
-            {
-                type: 'image-container',
-                image: '/assets/stories/viajando-por-colombia/Rio Chitamena-2.jpg',
-                caption: 'El Río Chitamena, un espejo de la biodiversidad local.'
-            },
-            {
-                type: 'text',
-                text: 'Este proyecto es un homenaje a la resiliencia y la creatividad de nuestra gente. Cada fotografía es un fragmento de una historia mayor, una invitación a mirar más allá de lo evidente y a reconocer el valor de lo nuestro.'
-            },
-            {
-                type: 'grid',
-                images: [
-                    '/assets/stories/viajando-por-colombia/Transforma-65.jpg',
-                    '/assets/stories/viajando-por-colombia/Transforma-67.jpg',
-                    '/assets/stories/viajando-por-colombia/Transforma-69.jpg'
-                ],
-                caption: 'La mirada puesta en el futuro, honrando nuestras raíces.'
+                type: 'image-stack',
+                mainImage: '/assets/stories/viajando-por-colombia/Transforma-67.jpg',
+                sideImage1: '/assets/stories/viajando-por-colombia/Transforma-69.jpg',
+                sideImage2: '/assets/stories/viajando-por-colombia/Transforma-72.jpg',
+                caption: 'Miradas que proyectan el mañana, honrando siempre el legado del ayer.'
             },
             {
                 type: 'quote',
@@ -59,9 +81,8 @@ export const storiesData = [
                 author: 'Henri Cartier-Bresson'
             },
             {
-                type: 'image-full',
-                image: '/assets/stories/viajando-por-colombia/Transforma-72.jpg',
-                caption: 'El final de una jornada es el comienzo de una nueva historia.'
+                type: 'tags',
+                tags: ["fotografía", "colombia", "territorio", "paisaje", "memoria"]
             }
         ]
     },

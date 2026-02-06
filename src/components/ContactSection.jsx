@@ -10,15 +10,15 @@ const ContactSection = () => {
                         
                         <div className="contact-methods-vertical">
                             <div className="method-item">
-                                <span className="method-label">EMAIL</span>
+                                <span className="method-label">Email</span>
                                 <a href="mailto:chino@lamagdalena.com.co" className="method-link">chino@lamagdalena.com.co</a>
                             </div>
                             <div className="method-item">
-                                <span className="method-label">TELÉFONO</span>
+                                <span className="method-label">Teléfono</span>
                                 <a href="tel:+573042644962" className="method-link">+57 304 264 4962</a>
                             </div>
                             <div className="method-item">
-                                <span className="method-label">INSTAGRAM</span>
+                                <span className="method-label">Instagram</span>
                                 <a href="https://www.instagram.com/lamagdalena___" target="_blank" rel="noopener noreferrer" className="method-link">@lamagdalena___</a>
                             </div>
                         </div>
@@ -38,7 +38,7 @@ const ContactSection = () => {
                                 <label htmlFor="message">*mensaje</label>
                                 <textarea id="message" name="message" rows="4" required></textarea>
                             </div>
-                            <button type="submit" className="submit-btn">ENVIAR</button>
+                            <button type="submit" className="submit-btn">Enviar</button>
                         </form>
                     </div>
                 </div>

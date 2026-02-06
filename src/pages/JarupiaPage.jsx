@@ -34,26 +34,26 @@ const JarupiaPage = () => {
                             
                             <div style={{ marginTop: '2rem' }}>
                                 <p style={{ marginBottom: '2rem' }}>
-                                    <span className="case-study-label">RETO:</span> 
+                                    <span className="case-study-label">Reto:</span> 
                                     Capturar la esencia mística y la fragilidad ambiental de la Ciénaga de Ayapel en una narrativa que resuene con niños y adultos por igual.
                                 </p>
                                 
                                 <p style={{ marginBottom: '2rem' }}>
-                                    <span className="case-study-label">SOLUCIÓN:</span> 
+                                    <span className="case-study-label">Solución:</span> 
                                     La creación de "Jarupia", una obra literaria donde la realidad y la fantasía se encuentran. Escrito por Chino Romero e ilustrado por Samuel Castaño, esta obra nos invita a reconectar con la naturaleza y sus guardianes.
                                 </p>
                                 
                                 <p style={{ marginBottom: '2rem' }}>
-                                    <span className="case-study-label">RESULTADOS:</span> 
+                                    <span className="case-study-label">Resultados:</span> 
                                     Un viaje sensorial a través del territorio, una herramienta pedagógica para la conservación y un objeto de arte coleccionable.
                                 </p>
                             </div>
 
                             <div className="spec-box">
-                                <p><span className="case-study-label" style={{ fontSize: '0.75rem' }}>AUTOR:</span> Chino Romero (Andrés Camilo Romero Hoyos)</p>
-                                <p><span className="case-study-label" style={{ fontSize: '0.75rem' }}>ILUSTRACIONES:</span> Samuel Castaño</p>
-                                <p><span className="case-study-label" style={{ fontSize: '0.75rem' }}>LANZAMIENTO:</span> 2025</p>
-                                <p><span className="case-study-label" style={{ fontSize: '0.75rem' }}>ISBN:</span> 978-628-019523-0</p>
+                                <p><span className="case-study-label" style={{ fontSize: '0.75rem' }}>Autor:</span> Chino Romero (Andrés Camilo Romero Hoyos)</p>
+                                <p><span className="case-study-label" style={{ fontSize: '0.75rem' }}>Ilustraciones:</span> Samuel Castaño</p>
+                                <p><span className="case-study-label" style={{ fontSize: '0.75rem' }}>Lanzamiento:</span> 2025</p>
+                                <p><span className="case-study-label" style={{ fontSize: '0.75rem' }}>Isbn:</span> 978-628-019523-0</p>
                             </div>
 
                             <div className="purchase-card">

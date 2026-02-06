@@ -5,13 +5,13 @@ const ServicesSection = () => {
     return (
         <section id="servicios" className="services-section">
             <div className="container">
-                <span className="services-label">NUESTROS SERVICIOS</span>
+                <span className="services-label">Nuestros servicios</span>
             </div>
 
             <div className="services-ticker">
                 <div className="ticker-track">
-                    <h2 className="services-giant-title">COMUNICACIÓN PARA EL IMPACTO REAL / COMUNICACIÓN PARA EL IMPACTO REAL / COMUNICACIÓN PARA EL IMPACTO REAL / </h2>
-                    <h2 className="services-giant-title">COMUNICACIÓN PARA EL IMPACTO REAL / COMUNICACIÓN PARA EL IMPACTO REAL / COMUNICACIÓN PARA EL IMPACTO REAL / </h2>
+                    <h2 className="services-giant-title">Comunicación para el impacto real / Comunicación para el impacto real / Comunicación para el impacto real / </h2>
+                    <h2 className="services-giant-title">Comunicación para el impacto real / Comunicación para el impacto real / Comunicación para el impacto real / </h2>
                 </div>
             </div>
             
