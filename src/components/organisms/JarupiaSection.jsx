@@ -18,7 +18,7 @@ const JarupiaSection = ({ featureImg }) => {
                         </div>
                         <div className="product-info">
                             <h3>Jarupia por Chino Romero</h3>
-                            <p className="price">A partir de $170.000,00 COP</p>
+                            <p className="price">A partir de $150.000,00 COP</p>
                             <Link to="/jarupia-libro">
                                 <button className="buy-button">Ver Detalles del Libro</button>
                             </Link>

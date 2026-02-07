@@ -47,7 +47,10 @@ const NavBar = () => {
 
     return (
         <>
-            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <button 
+                className={`menu-toggle ${isDetailPage ? 'on-detail' : ''}`} 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
                 Menú
             </button>
 

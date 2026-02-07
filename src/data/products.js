@@ -6,6 +6,13 @@ import gallery5 from '../assets/photos/gallery-5.jpg'
 import gallery6 from '../assets/photos/gallery-6.jpg'
 import jarupiaImg from '../assets/photos/jarupia-real.webp'
 
+// Jarupia specific images
+import jarupia1 from '../assets/photos/jarupia/image-1.webp'
+import jarupia2 from '../assets/photos/jarupia/image-2.webp'
+import jarupia3 from '../assets/photos/jarupia/image-3.webp'
+import jarupia4 from '../assets/photos/jarupia/image-4.webp'
+import jarupia5 from '../assets/photos/jarupia/image-5.webp'
+
 export const products = [
     {
         id: 1,
@@ -63,12 +70,13 @@ export const products = [
     },
     {
         id: 7,
-        title: "Jarupia - El secreto de Ayapel",
-        price: "$170.000",
+        title: "Jarupia - El libro de la Ciénaga",
+        price: "$150.000",
         category: "Libros",
-        location: "Ayapel, Córdoba, 2025",
+        location: "Ayapel, Córdoba",
         image: jarupiaImg,
-        description: "Una historia tejida en el territorio de Ayapel. Escrito por Chino Romero e ilustrado por Samuel Castaño."
+        images: [jarupiaImg, jarupia1, jarupia2, jarupia3, jarupia4, jarupia5],
+        description: "Un libro que mezcla la fantasía con la realidad en la Ciénaga de Ayapel. Incluye una colección de 5 fotografías/postales originales."
     }
 ]
 

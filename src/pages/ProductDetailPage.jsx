@@ -9,11 +9,13 @@ const ProductDetailPage = () => {
     const navigate = useNavigate()
     const [product, setProduct] = useState(null)
     const [selectedSize, setSelectedSize] = useState('34 x 76 cm')
+    const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
     useEffect(() => {
         const foundProduct = products.find(p => p.id === parseInt(productId))
         if (foundProduct) {
             setProduct(foundProduct)
+            setCurrentImageIndex(0)
             window.scrollTo(0, 0)
         } else {
             navigate('/shop')
@@ -21,6 +23,9 @@ const ProductDetailPage = () => {
     }, [productId, navigate])
 
     if (!product) return null
+
+    const productImages = product.images || [product.image]
+    const currentImage = productImages[currentImageIndex]
 
     // WhatsApp message formatting
     const message = encodeURIComponent(`Hola La Magdalena! Estoy interesado en adquirir el print: ${product.title} (Tamaño: ${selectedSize})`)
@@ -37,6 +42,14 @@ const ProductDetailPage = () => {
         '69 x 152 cm',
         'Tamaño Personalizado'
     ]
+
+    const nextImage = () => {
+        setCurrentImageIndex((prev) => (prev + 1) % productImages.length)
+    }
+
+    const prevImage = () => {
+        setCurrentImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length)
+    }
 
     return (
         <MainLayout>
@@ -63,9 +76,37 @@ const ProductDetailPage = () => {
                     </div>
 
                     <div className="product-detail-grid">
-                        {/* Left Side: Large Image */}
-                        <div className="product-detail-image">
-                            <img src={product.image} alt={product.title} />
+                        {/* Left Side: Large Image with Carousel Controls */}
+                        <div className="product-detail-image-container">
+                            <div className="product-detail-image">
+                                <img src={currentImage} alt={product.title} key={currentImageIndex} style={{ animation: 'fadeIn 0.5s ease' }} />
+                                
+                                {productImages.length > 1 && (
+                                    <>
+                                        <button className="carousel-control prev" onClick={prevImage}>⟨</button>
+                                        <button className="carousel-control next" onClick={nextImage}>⟩</button>
+                                        
+                                        <div className="image-counter">
+                                            {currentImageIndex + 1} / {productImages.length}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                            
+                            {/* Thumbnails */}
+                            {productImages.length > 1 && (
+                                <div className="product-thumbnails">
+                                    {productImages.map((img, index) => (
+                                        <div 
+                                            key={index} 
+                                            className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                                            onClick={() => setCurrentImageIndex(index)}
+                                        >
+                                            <img src={img} alt={`${product.title} view ${index + 1}`} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         {/* Right Side: Product Info */}

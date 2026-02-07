@@ -205,6 +205,11 @@ img {
   z-index: 1100;
 }
 
+.menu-toggle.on-detail {
+  left: auto;
+  right: var(--container-padding);
+}
+
 /* Menu Overlay */
 .menu-overlay {
   position: fixed;
@@ -1948,6 +1953,115 @@ figcaption {
 }
 
 /* Product Detail Page Commercial Styles */
+/* Product Detail Image & Carousel */
+.product-detail-image-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.product-detail-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.product-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+  color: var(--text-brown);
+}
+
+.carousel-control:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-control.prev {
+  left: 1rem;
+}
+
+.carousel-control.next {
+  right: 1rem;
+}
+
+.image-counter {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-family: var(--font-menu);
+}
+
+.product-thumbnails {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.thumbnail {
+  width: 80px;
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail.active {
+  border-color: var(--text-brown);
+}
+
+.thumbnail:hover {
+  opacity: 0.8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .product-detail-image {
+    aspect-ratio: 1 / 1;
+  }
+}
+
 .product-detail-page {
   padding-top: 8rem;
   background: white;

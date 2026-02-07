@@ -1,21 +1,17 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import MainLayout from '../components/templates/MainLayout'
 import Hero from '../components/organisms/Hero'
 import ContentGrid, { GridItem } from '../components/organisms/ContentGrid'
-import Gallery from '../components/organisms/Gallery'
+import ProductCard from '../components/molecules/ProductCard'
 import AboutSection from '../components/organisms/AboutSection'
 import ServicesSection from '../components/organisms/ServicesSection'
 import ContactSection from '../components/organisms/ContactSection'
+import { products } from '../data/products'
 
 import hero1 from '../assets/photos/hero-1.jpg'
 import hero2 from '../assets/photos/hero-2.jpg'
 import content1 from '../assets/photos/content-1.jpg'
-import gallery1 from '../assets/photos/gallery-1.jpg'
-import gallery2 from '../assets/photos/gallery-2.jpg'
-import gallery3 from '../assets/photos/gallery-3.jpg'
-import gallery4 from '../assets/photos/gallery-4.jpg'
-import gallery5 from '../assets/photos/gallery-5.jpg'
-import gallery6 from '../assets/photos/gallery-6.jpg'
 
 const HomePage = () => {
     return (
@@ -23,7 +19,7 @@ const HomePage = () => {
             <main id="inicio">
                 <Hero
                     subtitle="Convertimos impacto real en narrativas creíbles, visibles y relevantes. Storytelling, audiovisual y consultoría para organizaciones con propósito."
-                    images={[hero1, hero2, gallery1, gallery2, gallery3, gallery4, gallery5]}
+                    images={[hero1, hero2, ...products.slice(0, 5).map(p => p.image)]}
                     variant="with-text"
                 />
 
@@ -50,9 +46,19 @@ const HomePage = () => {
                     </div>
                 </section>
 
-                <div id="historias">
-                    <Gallery photos={[gallery1, gallery2, gallery3, gallery4, gallery5, gallery6]} />
-                </div>
+                <section className="shop-preview-section" id="shop" style={{ padding: 'var(--section-padding) 0', backgroundColor: 'white' }}>
+                    <div className="container">
+                        <h2 className="section-title">Shop</h2>
+                        <div className="products-grid-commercial">
+                            {products.slice(0, 6).map(product => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+                            <Link to="/shop" className="buy-button">VER TODOS LOS PRINTS</Link>
+                        </div>
+                    </div>
+                </section>
 
                 <ContactSection />
             </main>
