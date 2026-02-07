@@ -40,18 +40,18 @@ const HomePage = () => {
                 <section className="differentiator-section">
                     <div className="container">
                         <div className="differentiator-box">
-                            <h2>No hacemos greenwashing.</h2>
+                            <h2>No hacemos greenwashing</h2>
                             <p>Creemos en la comunicación honesta, basada en acciones reales y en las personas que las viven.</p>
                         </div>
                     </div>
                 </section>
 
-                <section className="shop-preview-section" id="shop" style={{ padding: 'var(--section-padding) 0', backgroundColor: 'white' }}>
+                <section className="shop-preview-section" id="galeria" style={{ padding: 'var(--section-padding) 0', backgroundColor: 'white' }}>
                     <div className="container">
-                        <h2 className="section-title">Shop</h2>
+                        <h2 className="section-title">Galería</h2>
                         <div className="products-grid-commercial">
                             {products.slice(0, 6).map(product => (
-                                <ProductCard key={product.id} product={product} />
+                                <ProductCard key={product.id} product={product} showPrice={false} />
                             ))}
                         </div>
                         <div style={{ textAlign: 'center', marginTop: '4rem' }}>

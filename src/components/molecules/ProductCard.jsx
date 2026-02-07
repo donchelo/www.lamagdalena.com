@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import Heading from '../atoms/Heading'
 import Text from '../atoms/Text'
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, showPrice = true }) => {
     return (
         <div className="product-card">
             <Link to={`/shop/${product.id}`} className="product-link">
@@ -13,7 +13,7 @@ const ProductCard = ({ product }) => {
                 <div className="product-info-commercial">
                     <Heading level={3} className="product-title-commercial">{product.title}</Heading>
                     <Text className="product-location-commercial">{product.location}</Text>
-                    <Text className="product-price-commercial">{product.price} COP</Text>
+                    {showPrice && <Text className="product-price-commercial">{product.price} COP</Text>}
                 </div>
             </Link>
         </div>
