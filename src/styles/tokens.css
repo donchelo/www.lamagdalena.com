@@ -17,6 +17,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('../assets/fonts/CrimsonPro-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-cream: #ffffff;
   --text-brown: #5c4a33;
@@ -37,10 +45,17 @@
   /* Fluid Spacing */
   --section-padding: clamp(6rem, 15vw, 12rem);
   --container-padding: clamp(1.5rem, 8vw, 4rem);
-  
+
   /* Fluid Typography */
   --fs-h1: clamp(2.5rem, 8vw, 5.5rem);
   --fs-h2: clamp(1.8rem, 6vw, 3.2rem);
   --fs-h3: clamp(1.2rem, 4vw, 1.8rem);
   --fs-lead: clamp(1rem, 2vw, 1.2rem);
+
+  /* Editorial Typography */
+  --fs-editorial-title: clamp(3rem, 6vw, 4.5rem);
+  /* ~72px equivalent scaling */
+  --fs-editorial-body: 1.125rem;
+  /* 18px */
+  --font-serif: 'Crimson Pro', 'Georgia', serif;
 }
