@@ -16,7 +16,7 @@ const StoryDetailPage = () => {
 
         const prev = index > 0 ? storiesData[index - 1] : null;
         const next = index < storiesData.length - 1 ? storiesData[index + 1] : null;
-        
+
         // Obtener hasta 3 historias relacionadas (excluyendo la actual)
         const currentCategory = storiesData[index].category;
         const related = storiesData
@@ -37,23 +37,7 @@ const StoryDetailPage = () => {
         }
     }, [slug, navigate]);
 
-    // #region agent log
-    useEffect(() => {
-        fetch('http://127.0.0.1:7252/ingest/39485d24-6745-4f77-95f1-969776a5e3dd', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                location: 'StoryDetailPage.jsx:43',
-                message: 'Story back button rendered',
-                data: { slug },
-                timestamp: Date.now(),
-                sessionId: 'debug-session',
-                runId: 'post-fix',
-                hypothesisId: 'H1'
-            })
-        }).catch(() => { });
-    }, [slug]);
-    // #endregion
+
 
     if (!story) return null;
 
@@ -91,7 +75,7 @@ const StoryDetailPage = () => {
                                     </div>
                                 </div>
                             )}
-                            
+
                             <div className="story-footer-inner" style={{ marginTop: '8rem', paddingBottom: '4rem', justifyContent: 'center', opacity: 0.5 }}>
                                 <p className="story-date">{story.date} • {story.category} • La Magdalena</p>
                             </div>
