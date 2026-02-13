@@ -1,6 +1,14 @@
 /* ─── Design Tokens ─── */
 
-/* Fonts are referenced from src/assets/fonts */
+/* ─── Font Restricted Family: Neue Haas Display ─── */
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayBlack.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @font-face {
   font-family: 'Neue Haas Display';
   src: url('../assets/fonts/NeueHaasDisplayBold.ttf') format('truetype');
@@ -10,17 +18,83 @@
 }
 
 @font-face {
-  font-family: 'CoFo Sans';
-  src: url('../assets/fonts/CoFoSans-Regular.otf') format('opentype');
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayMediu.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayRoman.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Crimson Pro';
-  src: url('../assets/fonts/CrimsonPro-Regular.ttf') format('truetype');
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayLight.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Font Restricted Family: CoFo Sans ─── */
+@font-face {
+  font-family: 'CoFo Sans';
+  src: url('../assets/fonts/CoFo Sans 8.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoFo Sans';
+  src: url('../assets/fonts/CoFo Sans 7.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoFo Sans';
+  src: url('../assets/fonts/CoFo Sans 6.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoFo Sans';
+  src: url('../assets/fonts/CoFo Sans 5.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoFo Sans';
+  src: url('../assets/fonts/CoFo Sans 4.otf') format('opentype');
+  font-weight: 450;
+  /* Book */
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoFo Sans';
+  src: url('../assets/fonts/CoFo Sans 3.otf') format('opentype');
   font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoFo Sans';
+  src: url('../assets/fonts/CoFo Sans 2.otf') format('opentype');
+  font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
@@ -31,8 +105,11 @@
   --accent-lime: #d4ff00;
   --bg-paper: none;
 
-  --font-heading: 'Neue Haas Display', 'Helvetica Neue', Helvetica, sans-serif;
-  --font-body: 'CoFo Sans', 'Helvetica Neue', Helvetica, sans-serif;
+  /* Strict Brand Compliance: Only Neue Haas and CoFo Sans */
+  --font-heading: 'Neue Haas Display', sans-serif;
+  --font-body: 'CoFo Sans', sans-serif;
+  --font-serif: 'Neue Haas Display', sans-serif;
+  /* REPLACED Crimson Pro: Using Haas Display Roman for long-form reading */
 
   /* Aliases para retrocompatibilidad */
   --font-logo: var(--font-heading);
@@ -54,8 +131,5 @@
 
   /* Editorial Typography */
   --fs-editorial-title: clamp(3rem, 6vw, 4.5rem);
-  /* ~72px equivalent scaling */
   --fs-editorial-body: 1.125rem;
-  /* 18px */
-  --font-serif: 'Crimson Pro', 'Georgia', serif;
 }

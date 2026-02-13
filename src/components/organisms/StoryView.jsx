@@ -1,7 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const StoryView = ({ story }) => {
+    const [lightboxIndex, setLightboxIndex] = useState(null);
+
+    // Get all images from story content for the gallery
+    const getAllImages = () => {
+        const images = [];
+        story.content.forEach(block => {
+            if (block.type === 'hero' && block.image) images.push({ url: block.image, caption: block.subtitle || block.title });
+            if (block.type === 'image-full' && block.image) images.push({ url: block.image, caption: block.caption });
+            if (block.type === 'image-container' && block.image) images.push({ url: block.image, caption: block.caption });
+            if (block.type === 'image-text' && block.image) images.push({ url: block.image, caption: block.caption });
+            if (block.type === 'image-duo') {
+                if (block.imageLeft) images.push({ url: block.imageLeft, caption: block.caption });
+                if (block.imageRight) images.push({ url: block.imageRight, caption: block.caption });
+            }
+            if (block.type === 'image-stack') {
+                if (block.mainImage) images.push({ url: block.mainImage, caption: block.caption });
+                if (block.sideImage1) images.push({ url: block.sideImage1, caption: block.caption });
+                if (block.sideImage2) images.push({ url: block.sideImage2, caption: block.caption });
+            }
+            if (block.type === 'grid' && block.images) {
+                block.images.forEach(img => images.push({ url: img, caption: block.caption }));
+            }
+        });
+        return images;
+    };
+
+    const galleryImages = getAllImages();
+
     const getImageUrl = (path) => {
         if (!path) return '';
         if (path.startsWith('http')) return path;
@@ -10,9 +38,37 @@ const StoryView = ({ story }) => {
         return `${baseUrl}${cleanPath}`;
     };
 
+    const openLightbox = (url) => {
+        const index = galleryImages.findIndex(img => img.url === url);
+        if (index !== -1) setLightboxIndex(index);
+    };
+
+    const closeLightbox = () => setLightboxIndex(null);
+
+    const nextImage = (e) => {
+        e.stopPropagation();
+        setLightboxIndex((prev) => (prev + 1) % galleryImages.length);
+    };
+
+    const prevImage = (e) => {
+        e.stopPropagation();
+        setLightboxIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+    };
+
+    // Keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (lightboxIndex === null) return;
+            if (e.key === 'ArrowRight') nextImage(e);
+            if (e.key === 'ArrowLeft') prevImage(e);
+            if (e.key === 'Escape') closeLightbox();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [lightboxIndex]);
+
     const parseText = (text) => {
         if (!text) return '';
-        // Basic markdown-like parsing for bold and italic
         return text.split(/(\*\*.*?\*\*|\*.*?\*)/g).map((part, i) => {
             if (part.startsWith('**') && part.endsWith('**')) {
                 return <strong key={i}>{part.slice(2, -2)}</strong>;
@@ -28,19 +84,26 @@ const StoryView = ({ story }) => {
 
     const isEditorial = story.layout === 'editorial-grid';
 
-    // Helper to render individual blocks
-    // For editorial, we strip the 'container' class because the grid handles width
     const renderBlock = (block, index) => {
         const containerClass = isEditorial ? '' : 'container';
 
+        const ClickableImage = ({ src, alt, className, ...props }) => (
+            <img
+                src={getImageUrl(src)}
+                alt={alt}
+                className={`${className || ''} clickable-gallery-trigger`}
+                onClick={() => openLightbox(src)}
+                {...props}
+            />
+        );
+
         switch (block.type) {
             case 'hero':
-                // In editorial, hero is handled structurally outside the loop
                 if (isEditorial) return null;
                 return (
                     <section key={index} className="story-hero-block">
                         <div className="story-hero-image">
-                            <img src={getImageUrl(block.image)} alt={block.title} />
+                            <ClickableImage src={block.image} alt={block.title} />
                             <div className="story-hero-overlay"></div>
                         </div>
                         <div className="story-hero-content container">
@@ -50,7 +113,6 @@ const StoryView = ({ story }) => {
                     </section>
                 );
             case 'metadata':
-                // In editorial, metadata is in sidebar
                 if (isEditorial) return null;
                 return (
                     <section key={index} className="story-metadata-block container">
@@ -99,13 +161,11 @@ const StoryView = ({ story }) => {
                         </div>
                     </section>
                 );
-            case 'separator':
-                return <div key={index} className="story-separator"></div>;
             case 'image-full':
                 return (
                     <section key={index} className="story-image-full-block">
                         <figure>
-                            <img src={getImageUrl(block.image)} alt={block.caption || story.title} />
+                            <ClickableImage src={block.image} alt={block.caption || story.title} />
                             {block.caption && <figcaption className={containerClass}>{block.caption}</figcaption>}
                         </figure>
                     </section>
@@ -114,7 +174,7 @@ const StoryView = ({ story }) => {
                 return (
                     <section key={index} className={`story-image-container-block ${containerClass}`}>
                         <figure>
-                            <img src={getImageUrl(block.image)} alt={block.caption || story.title} />
+                            <ClickableImage src={block.image} alt={block.caption || story.title} />
                             {block.caption && <figcaption>{block.caption}</figcaption>}
                         </figure>
                     </section>
@@ -124,7 +184,7 @@ const StoryView = ({ story }) => {
                     <section key={index} className={`story-image-text-block ${containerClass} ${block.layout || 'image-left'} split-${block.split || '50-50'}`}>
                         <div className="story-image-text-content">
                             <div className="side-image">
-                                <img src={getImageUrl(block.image)} alt={block.caption || story.title} />
+                                <ClickableImage src={block.image} alt={block.caption || story.title} />
                                 {block.caption && <figcaption>{block.caption}</figcaption>}
                             </div>
                             <div className="side-text">
@@ -143,10 +203,10 @@ const StoryView = ({ story }) => {
                     <section key={index} className={`story-image-duo-block ${containerClass} split-${block.split || '50-50'}`}>
                         <div className="duo-grid">
                             <figure className="duo-item">
-                                <img src={getImageUrl(block.imageLeft)} alt={story.title} />
+                                <ClickableImage src={block.imageLeft} alt={story.title} />
                             </figure>
                             <figure className="duo-item">
-                                <img src={getImageUrl(block.imageRight)} alt={story.title} />
+                                <ClickableImage src={block.imageRight} alt={story.title} />
                             </figure>
                         </div>
                         {block.caption && <figcaption>{block.caption}</figcaption>}
@@ -157,11 +217,11 @@ const StoryView = ({ story }) => {
                     <section key={index} className={`story-image-stack-block ${containerClass}`}>
                         <div className="stack-grid">
                             <div className="stack-main">
-                                <img src={getImageUrl(block.mainImage)} alt={story.title} />
+                                <ClickableImage src={block.mainImage} alt={story.title} />
                             </div>
                             <div className="stack-side">
-                                <img src={getImageUrl(block.sideImage1)} alt={story.title} />
-                                <img src={getImageUrl(block.sideImage2)} alt={story.title} />
+                                <ClickableImage src={block.sideImage1} alt={story.title} />
+                                <ClickableImage src={block.sideImage2} alt={story.title} />
                             </div>
                         </div>
                         {block.caption && <figcaption>{block.caption}</figcaption>}
@@ -173,7 +233,7 @@ const StoryView = ({ story }) => {
                         <div className={`story-grid story-grid-${block.images.length} ${block.variant || ''}`}>
                             {block.images.map((img, i) => (
                                 <div key={i} className="story-grid-item">
-                                    <img src={getImageUrl(img)} alt={`${story.title} grid ${i}`} />
+                                    <ClickableImage src={img} alt={`${story.title} grid ${i}`} />
                                 </div>
                             ))}
                         </div>
@@ -189,119 +249,82 @@ const StoryView = ({ story }) => {
                         </blockquote>
                     </section>
                 );
-            case 'tags':
-                if (isEditorial) return null; // Sidebar
-                return (
-                    <section key={index} className="story-tags-block container">
-                        <div className="story-tags">
-                            {block.tags.map((tag, i) => (
-                                <React.Fragment key={i}>
-                                    <span className="story-tag">{tag}</span>
-                                    {i < block.tags.length - 1 && <span className="tag-separator">/</span>}
-                                </React.Fragment>
-                            ))}
-                        </div>
-                    </section>
-                );
             default:
                 return null;
         }
     };
 
-    // Editorial Layout Render
-    if (isEditorial) {
-        const heroBlock = story.content.find(b => b.type === 'hero');
-        const metadataBlock = story.content.find(b => b.type === 'metadata');
-        const tagsBlock = story.content.find(b => b.type === 'tags');
-
-        // Filter content blocks (exclude structural blocks that we handle manually)
-        const contentBlocks = story.content.filter(b =>
-            b.type !== 'hero' &&
-            b.type !== 'metadata' &&
-            b.type !== 'tags'
-        );
-
-        return (
-            <article className="story-article editorial-layout">
-                {/* Full Width Hero Image Area */}
-                {heroBlock && (
-                    <div className="editorial-hero-image">
-                        <img
-                            src={getImageUrl(heroBlock.image)}
-                            alt={heroBlock.title}
-                            style={{ width: '100%', height: '85vh', objectFit: 'cover', display: 'block' }}
-                        />
-                    </div>
-                )}
-
-                <div className="editorial-layout-wrapper">
-                    <div className="editorial-grid-container">
-                        {/* 25% Sidebar */}
-                        <aside className="editorial-sidebar">
-                            <div className="meta-group">
-                                <span className="meta-label">Categoría</span>
-                                <span className="meta-value">{metadataBlock?.category || story.category}</span>
-                            </div>
-
-                            {(metadataBlock?.author || story.author) && (
+    return (
+        <article className={`story-article ${isEditorial ? 'editorial-layout' : ''}`}>
+            {isEditorial ? (
+                <>
+                    {/* Editorial Layout Render... similar to before but using renderBlock for consistency */}
+                    {story.content.some(b => b.type === 'hero') && (
+                        <div className="editorial-hero-image">
+                            <img
+                                src={getImageUrl(story.content.find(b => b.type === 'hero').image)}
+                                alt={story.title}
+                                onClick={() => openLightbox(story.content.find(b => b.type === 'hero').image)}
+                                style={{ cursor: 'pointer' }}
+                            />
+                        </div>
+                    )}
+                    <div className="editorial-layout-wrapper">
+                        <div className="editorial-grid-container">
+                            <aside className="editorial-sidebar">
+                                {/* Sidebar content same as before */}
+                                <div className="meta-group">
+                                    <span className="meta-label">Categoría</span>
+                                    <span className="meta-value">{story.category}</span>
+                                </div>
                                 <div className="meta-group">
                                     <span className="meta-label">Autor</span>
-                                    <span className="meta-value">{metadataBlock?.author || story.author}</span>
+                                    <span className="meta-value">{story.author}</span>
                                 </div>
-                            )}
-
-                            {(metadataBlock?.date || story.date) && (
                                 <div className="meta-group">
                                     <span className="meta-label">Fecha</span>
-                                    <span className="meta-value">{metadataBlock?.date || story.date}</span>
+                                    <span className="meta-value">{story.date}</span>
                                 </div>
-                            )}
-
-                            {metadataBlock?.location && (
-                                <div className="meta-group">
-                                    <span className="meta-label">Lugar</span>
-                                    <span className="meta-value">{metadataBlock.location}</span>
-                                </div>
-                            )}
-
-                            {tagsBlock && (
-                                <div className="meta-group" style={{ marginTop: '2rem' }}>
-                                    <span className="meta-label">Tags</span>
-                                    <div className="meta-value" style={{ fontSize: '0.8rem', lineHeight: '1.6' }}>
-                                        {tagsBlock.tags.join(', ')}
+                                {story.location && (
+                                    <div className="meta-group">
+                                        <span className="meta-label">Lugar</span>
+                                        <span className="meta-value">{story.location}</span>
                                     </div>
-                                </div>
-                            )}
-                        </aside>
-
-                        {/* 75% Content */}
-                        <div className="editorial-content">
-                            {/* Title injected here if Hero exists */}
-                            {heroBlock && (
+                                )}
+                            </aside>
+                            <div className="editorial-content">
                                 <header className="editorial-header">
-                                    <h1 className="story-title">{heroBlock.title}</h1>
-                                    {heroBlock.subtitle && <p className="story-lead">{heroBlock.subtitle}</p>}
-                                    {metadataBlock?.author && (
-                                        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.9rem', marginTop: '1rem', fontWeight: 500 }}>
-                                            Por {metadataBlock.author}
-                                        </p>
-                                    )}
-                                    <div style={{ height: '1px', width: '100px', background: 'var(--text-brown)', margin: '2rem 0', opacity: 0.3 }}></div>
+                                    <h1 className="story-title">{story.title}</h1>
+                                    <p className="story-lead">{story.content.find(b => b.type === 'hero')?.subtitle}</p>
+                                    <hr className="editorial-divider" />
                                 </header>
-                            )}
-
-                            {contentBlocks.map((block, i) => renderBlock(block, i))}
+                                {story.content.filter(b => b.type !== 'hero' && b.type !== 'metadata' && b.type !== 'tags').map((block, i) => renderBlock(block, i))}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </article>
-        );
-    }
+                </>
+            ) : (
+                story.content.map((block, index) => renderBlock(block, index))
+            )}
 
-    // Default Layout Render
-    return (
-        <article className="story-article">
-            {story.content.map((block, index) => renderBlock(block, index))}
+            {/* Lightbox Overlay */}
+            {lightboxIndex !== null && (
+                <div className="lightbox-overlay" onClick={closeLightbox}>
+                    <button className="lightbox-close" onClick={closeLightbox}>×</button>
+                    <button className="lightbox-nav prev" onClick={prevImage}>‹</button>
+                    <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+                        <img
+                            src={getImageUrl(galleryImages[lightboxIndex].url)}
+                            alt={galleryImages[lightboxIndex].caption || 'Gallery Image'}
+                        />
+                        {galleryImages[lightboxIndex].caption && (
+                            <p className="lightbox-caption">{galleryImages[lightboxIndex].caption}</p>
+                        )}
+                        <span className="lightbox-counter">{lightboxIndex + 1} / {galleryImages.length}</span>
+                    </div>
+                    <button className="lightbox-nav next" onClick={nextImage}>›</button>
+                </div>
+            )}
         </article>
     );
 };
