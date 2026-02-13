@@ -32,10 +32,13 @@ const StoryView = ({ story }) => {
 
     const getImageUrl = (path) => {
         if (!path) return '';
-        if (path.startsWith('http')) return path;
-        const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+        if (path.startsWith('http') || path.startsWith('data:')) return path;
+
+        // Ensure we don't have double slashes
+        const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
         const cleanPath = path.startsWith('/') ? path : `/${path}`;
-        return `${baseUrl}${cleanPath}`;
+
+        return `${base}${cleanPath}`;
     };
 
     const openLightbox = (url) => {

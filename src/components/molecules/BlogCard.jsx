@@ -6,10 +6,12 @@ import Text from '../atoms/Text';
 const BlogCard = ({ image, category, title, excerpt, date, slug }) => {
     const getImageUrl = (path) => {
         if (!path) return '';
-        if (path.startsWith('http')) return path;
-        const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+        if (path.startsWith('http') || path.startsWith('data:')) return path;
+
+        const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
         const cleanPath = path.startsWith('/') ? path : `/${path}`;
-        return `${baseUrl}${cleanPath}`;
+
+        return `${base}${cleanPath}`;
     };
 
     return (
