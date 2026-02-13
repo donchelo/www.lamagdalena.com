@@ -17,3 +17,7 @@ Fotos gif/
 **/_DSC*.jpg
 **/DSC*.JPG
 **/_DSC*.JPG
+
+# Permitir específicamente las fotos de las historias (aunque sean DSC)
+!**/public/assets/stories/**/DSC*.jpg
+!**/public/assets/stories/**/DSC*.JPG
