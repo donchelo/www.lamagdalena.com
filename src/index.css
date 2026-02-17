@@ -597,7 +597,7 @@ img {
 }
 
 .hero-static-logo {
-  height: clamp(2.5rem, 8vw, 3.7125rem) !important;
+  height: clamp(1.875rem, 6vw, 2.784375rem) !important;
   width: auto;
   opacity: 1;
   transition: filter 0.3s ease;
