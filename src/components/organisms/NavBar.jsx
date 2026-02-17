@@ -4,7 +4,7 @@ import NavLinks from '../molecules/NavLinks';
 import Button from '../atoms/Button';
 import Text from '../atoms/Text';
 
-const NavBar = () => {
+const NavBar = ({ theme = 'dark' }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
 
@@ -45,10 +45,12 @@ const NavBar = () => {
         { label: 'Contacto', path: '/', hash: '#contacto' },
     ];
 
+    const themeClass = theme === 'light' ? 'theme-light' : 'theme-dark';
+
     return (
         <>
             <button
-                className={`menu-toggle ${isDetailPage ? 'on-detail' : ''}`}
+                className={`menu-toggle ${isDetailPage ? 'on-detail' : ''} ${themeClass}`}
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
                 Menú
@@ -58,7 +60,7 @@ const NavBar = () => {
                 href="https://instagram.com/lamagdalena___"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`instagram-link-static ${isDetailPage ? 'on-detail' : ''}`}
+                className={`instagram-link-static ${isDetailPage ? 'on-detail' : ''} ${themeClass}`}
                 aria-label="Instagram"
             >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

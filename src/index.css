@@ -167,6 +167,11 @@ img {
   padding: 0 var(--container-padding);
 }
 
+:root {
+  --nav-dark: #eef151;
+  --nav-light: #513c25;
+}
+
 @media (max-width: 768px) {
   .logo {
     font-size: 1.8rem;
@@ -200,10 +205,13 @@ img {
   font-weight: 400;
   font-size: 0.8rem;
   letter-spacing: 0.1em;
-  color: white;
-  mix-blend-mode: difference;
+  color: var(--nav-dark);
   z-index: 1100;
-  transition: left 0.3s ease;
+  transition: left 0.3s ease, color 0.3s ease;
+}
+
+.menu-toggle.theme-light {
+  color: var(--nav-light);
 }
 
 .menu-toggle.on-detail {
@@ -214,13 +222,16 @@ img {
   position: fixed;
   top: clamp(1rem, 3dvh, 2rem);
   right: var(--container-padding);
-  color: white;
-  mix-blend-mode: difference;
+  color: var(--nav-dark);
   z-index: 1100;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+.instagram-link-static.theme-light {
+  color: var(--nav-light);
 }
 
 .instagram-link-static:hover {
@@ -583,13 +594,25 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  mix-blend-mode: difference;
 }
 
 .hero-static-logo {
   height: clamp(2.5rem, 8vw, 3.7125rem) !important;
   width: auto;
   opacity: 1;
+  transition: filter 0.3s ease;
+  filter: none;
+  /* Default for dark background: assuming logo is already oriented correctly or will be filtered */
+}
+
+/* Color #eef151 (Lime) - approximation with filter, forcing black first for consistency */
+.hero-static-logo.theme-dark {
+  filter: brightness(0) saturate(100%) invert(93%) sepia(21%) saturate(1637%) hue-rotate(1deg) brightness(101%) contrast(90%);
+}
+
+/* Color #513c25 (Brown) - approximation with filter, forcing black first for consistency */
+.hero-static-logo.theme-light {
+  filter: brightness(0) saturate(100%) invert(21%) sepia(23%) saturate(1212%) hue-rotate(344deg) brightness(96%) contrast(92%);
 }
 
 .hero-image-wrapper {

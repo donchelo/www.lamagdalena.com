@@ -4,7 +4,7 @@ import Heading from '../atoms/Heading'
 import Text from '../atoms/Text'
 import Button from '../atoms/Button'
 
-const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default' }) => {
+const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default', navTheme = 'dark' }) => {
     const photoList = images.length > 0 ? images : (imageUrl ? [imageUrl] : [])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [touchStart, setTouchStart] = useState(null)
@@ -52,7 +52,7 @@ const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default' }) =
         >
             <div className="hero-container">
                 <div className="hero-static-logo-container">
-                    <Logo variant="12" className="hero-static-logo" />
+                    <Logo variant="neon" className="hero-static-logo" theme={navTheme} />
                 </div>
                 <div className="hero-image-wrapper">
                     {photoList.map((img, index) => (
