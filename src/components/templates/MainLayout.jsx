@@ -42,7 +42,10 @@ const MainLayout = ({ children }) => {
             </header>
             {React.Children.map(children, child => {
                 if (React.isValidElement(child)) {
-                    return React.cloneElement(child, { navTheme });
+                    // Only pass navTheme to components, not native DOM elements (strings)
+                    if (typeof child.type !== 'string') {
+                        return React.cloneElement(child, { navTheme });
+                    }
                 }
                 return child;
             })}
