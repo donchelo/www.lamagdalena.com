@@ -31,8 +31,7 @@ export const storiesData = [
             },
             {
                 type: 'image-container',
-                image: '/assets/stories/armero/DSC09017.jpg',
-                caption: 'Las ruinas de lo que alguna vez fue un centro vibrante de comercio en el Tolima.'
+                image: '/assets/stories/armero/DSC09017.jpg'
             },
             {
                 type: 'image-text',
@@ -43,11 +42,8 @@ export const storiesData = [
                 text: 'El servicio Geológico Colombiano y expertos internacionales advirtieron sobre la erupción y recomendaron la evacuación de las zonas ribereñas, especialmente de Armero. \n\nSin embargo, se subestimaron las advertencias, temiendo generar pánico y pérdidas económicas.'
             },
             {
-                type: 'image-duo',
-                split: '50-50',
-                imageLeft: '/assets/stories/armero/DSC09051.jpg',
-                imageRight: '/assets/stories/armero/DSC09075.jpg',
-                caption: 'Fragmentos de vida cotidiana detenidos en el tiempo.'
+                type: 'image-container',
+                image: '/assets/stories/armero/DSC09051.jpg'
             },
             {
                 type: 'image-text',
@@ -59,15 +55,13 @@ export const storiesData = [
             },
             {
                 type: 'image-container',
-                image: '/assets/stories/armero/DSC09087.jpg',
-                caption: 'La vegetación reclama lo que el hombre construyó sobre el lodo.'
+                image: '/assets/stories/armero/DSC09087.jpg'
             },
             {
                 type: 'image-duo',
                 split: '50-50',
                 imageLeft: '/assets/stories/armero/DSC09116.jpg',
-                imageRight: '/assets/stories/armero/DSC09125.jpg',
-                caption: 'Estructuras que resisten el olvido.'
+                imageRight: '/assets/stories/armero/DSC09125.jpg'
             },
             {
                 type: 'text',
@@ -77,8 +71,7 @@ export const storiesData = [
                 type: 'image-stack',
                 mainImage: '/assets/stories/armero/DSC09137.jpg',
                 sideImage1: '/assets/stories/armero/DSC09141.jpg',
-                sideImage2: '/assets/stories/armero/DSC09123.jpg',
-                caption: 'El rastro de lo que quedó bajo el lodo.'
+                sideImage2: '/assets/stories/armero/DSC09123.jpg'
             },
             {
                 type: 'text',
@@ -86,15 +79,13 @@ export const storiesData = [
             },
             {
                 type: 'image-container',
-                image: '/assets/stories/armero/DSC09149.jpg',
-                caption: 'El silencio que quedó después del rugido del volcán.'
+                image: '/assets/stories/armero/DSC09149.jpg'
             },
             {
                 type: 'image-duo',
                 split: '50-50',
                 imageLeft: '/assets/stories/armero/DSC09157.jpg',
-                imageRight: '/assets/stories/armero/DSC09159.jpg',
-                caption: 'Detalles que narran el caos de aquella noche.'
+                imageRight: '/assets/stories/armero/DSC09159.jpg'
             },
             {
                 type: 'text',
@@ -102,15 +93,13 @@ export const storiesData = [
             },
             {
                 type: 'image-container',
-                image: '/assets/stories/armero/DSC09165.jpg',
-                caption: 'La iglesia, uno de los pocos puntos de referencia que permaneció en pie.'
+                image: '/assets/stories/armero/DSC09165.jpg'
             },
             {
                 type: 'image-duo',
                 split: '50-50',
                 imageLeft: '/assets/stories/armero/DSC09169.jpg',
-                imageRight: '/assets/stories/armero/DSC09182.jpg',
-                caption: 'Armero estaba construido en el lecho de un antiguo lahar.'
+                imageRight: '/assets/stories/armero/DSC09182.jpg'
             },
             {
                 type: 'interview',
@@ -119,22 +108,19 @@ export const storiesData = [
             },
             {
                 type: 'image-container',
-                image: '/assets/stories/armero/DSC09208.jpg',
-                caption: 'Caminando entre los restos de las esperanzas marchitas.'
+                image: '/assets/stories/armero/DSC09208.jpg'
             },
             {
                 type: 'image-duo',
                 split: '50-50',
                 imageLeft: '/assets/stories/armero/DSC09220.jpg',
-                imageRight: '/assets/stories/armero/DSC09229.jpg',
-                caption: 'Dualidades de la memoria: el pasado presente.'
+                imageRight: '/assets/stories/armero/DSC09229.jpg'
             },
             {
                 type: 'image-stack',
                 mainImage: '/assets/stories/armero/DSC09234.jpg',
                 sideImage1: '/assets/stories/armero/DSC09237.jpg',
-                sideImage2: '/assets/stories/armero/DSC09248.jpg',
-                caption: 'Fragmentos de una ciudad que se convirtió en cementerio.'
+                sideImage2: '/assets/stories/armero/DSC09248.jpg'
             },
             {
                 type: 'text',
@@ -142,8 +128,7 @@ export const storiesData = [
             },
             {
                 type: 'image-full',
-                image: '/assets/stories/armero/DSC09267.jpg',
-                caption: 'La vista final: lo que queda es la lección.'
+                image: '/assets/stories/armero/DSC09267.jpg'
             },
             {
                 type: 'tags',

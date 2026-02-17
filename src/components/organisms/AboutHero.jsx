@@ -14,7 +14,7 @@ const AboutHero = () => {
 
             <div className="about-hero-container container">
                 <div className="about-hero-content">
-                    <Heading level={1} className="about-hero-title">somos</Heading>
+                    <Heading level={1} className="about-hero-title">Somos</Heading>
                     <a href="#somos-content" className="about-hero-scroll">
                         Descubre más
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
