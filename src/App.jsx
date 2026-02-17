@@ -10,6 +10,7 @@ import FontVisualizer from './pages/FontVisualizer'
 import ShopPage from './pages/ShopPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import NavBar from './components/organisms/NavBar'
+import AboutPage from './pages/AboutPage'
 
 function App() {
     const location = useLocation()
@@ -30,6 +31,7 @@ function App() {
         <div className="app">
             <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/somos" element={<AboutPage />} />
                 <Route path="/jarupia-libro" element={<JarupiaPage />} />
                 <Route path="/historias" element={<HistoriasPage />} />
                 <Route path="/historias/:slug" element={<StoryDetailPage />} />

@@ -2,12 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import MainLayout from '../components/templates/MainLayout'
 import Hero from '../components/organisms/Hero'
-import ContentGrid, { GridItem } from '../components/organisms/ContentGrid'
+import BlogCard from '../components/molecules/BlogCard'
 import ProductCard from '../components/molecules/ProductCard'
-import AboutSection from '../components/organisms/AboutSection'
 import ServicesSection from '../components/organisms/ServicesSection'
 import ContactSection from '../components/organisms/ContactSection'
 import { products } from '../data/products'
+import { storiesData } from '../data/stories'
 
 import hero1 from '../assets/hero/DJI_0178.jpg'
 import hero2 from '../assets/hero/DSC00302.jpg'
@@ -28,7 +28,7 @@ import hero17 from '../assets/hero/_DSC9052.jpg'
 import hero18 from '../assets/hero/_MG_2298.jpg'
 import hero19 from '../assets/hero/_MG_2822.jpg'
 import hero20 from '../assets/hero/_MG_2848.jpg'
-import content1 from '../assets/photos/content-1.jpg'
+
 
 const HomePage = () => {
     return (
@@ -45,17 +45,21 @@ const HomePage = () => {
                     variant="with-text"
                 />
 
-                <ContentGrid>
-                    <GridItem
-                        imageUrl={content1}
-                    />
-                    <GridItem
-                        type="text"
-                        text={`En La Magdalena ponemos a las personas en el centro de las historias. Trabajamos con organizaciones que entienden que el impacto no solo se mide, también se comunica —con honestidad y sensibilidad.`}
-                    />
-                </ContentGrid>
+                <section className="blog-section" id="historias" style={{ padding: 'var(--section-padding) 0' }}>
+                    <div className="container">
+                        <h2 className="section-title">Historias</h2>
+                        <div className="blog-grid">
+                            {storiesData.slice(0, 3).map(story => (
+                                <BlogCard key={story.id} {...story} />
+                            ))}
+                        </div>
+                        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+                            <Link to="/historias" className="buy-button">VER TODAS LAS HISTORIAS</Link>
+                        </div>
+                    </div>
+                </section>
 
-                <AboutSection />
+
 
                 <ServicesSection />
 
