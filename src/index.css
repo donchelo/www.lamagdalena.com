@@ -203,11 +203,11 @@ img {
   color: white;
   mix-blend-mode: difference;
   z-index: 1100;
+  transition: left 0.3s ease;
 }
 
 .menu-toggle.on-detail {
-  left: auto;
-  right: var(--container-padding);
+  left: calc(var(--container-padding) + 6.5rem);
 }
 
 .instagram-link-static {
@@ -229,8 +229,9 @@ img {
 }
 
 .instagram-link-static.on-detail {
-  right: auto;
-  left: var(--container-padding);
+  /* Keep it on the right to avoid collision with Back button on the left */
+  right: var(--container-padding);
+  left: auto;
 }
 
 /* Menu Overlay */
