@@ -60,7 +60,12 @@ const Hero = ({ title, subtitle, images = [], imageUrl, variant = 'default' }) =
                             key={index}
                             className={`hero-slide ${index === currentIndex ? 'active' : ''}`}
                         >
-                            <img src={img} alt={`${title || 'Hero'} ${index + 1}`} />
+                            <img
+                                src={img}
+                                alt={`${title || 'Hero'} ${index + 1}`}
+                                loading={index === 0 ? 'eager' : 'lazy'}
+                                fetchpriority={index === 0 ? 'high' : 'auto'}
+                            />
                         </div>
                     ))}
                     {/* Add overlay to darken images for better text contrast if needed */}

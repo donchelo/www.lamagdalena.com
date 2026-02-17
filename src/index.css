@@ -906,7 +906,7 @@ img {
 /* Services Section */
 .services-section {
   padding: var(--section-padding) 0;
-  background-color: #1a1a1a;
+  background-color: #513c25;
   color: #ffffff;
   overflow-x: hidden;
 }
@@ -924,7 +924,7 @@ img {
   font-size: clamp(3.5rem, 12vw, 9rem);
   font-family: var(--font-logo);
   line-height: 1;
-  color: #ffffff;
+  color: #eef151;
   letter-spacing: -0.01em;
   white-space: nowrap;
   margin: 0;
@@ -987,13 +987,13 @@ img {
   font-weight: 400;
   line-height: 1.4;
   margin-bottom: 1.2rem;
-  color: #ffffff;
+  color: #eef151;
 }
 
 .service-content p {
   font-size: 1rem;
   line-height: 1.6;
-  color: #a0a0a0;
+  color: #eef151;
   margin-bottom: 1rem;
 }
 
@@ -2871,4 +2871,13 @@ figcaption {
     padding: 3rem 1.5rem 2rem;
     font-size: 0.85rem;
   }
-}.editorial-divider { border: none; height: 1px; width: 100px; background: var(--text-brown); margin: 3rem 0; opacity: 0.2; }
+}
+
+.editorial-divider {
+  border: none;
+  height: 1px;
+  width: 100px;
+  background: var(--text-brown);
+  margin: 3rem 0;
+  opacity: 0.2;
+}

@@ -9,8 +9,25 @@ import ServicesSection from '../components/organisms/ServicesSection'
 import ContactSection from '../components/organisms/ContactSection'
 import { products } from '../data/products'
 
-import hero1 from '../assets/photos/hero-1.jpg'
-import hero2 from '../assets/photos/hero-2.jpg'
+import hero1 from '../assets/hero/DJI_0178.jpg'
+import hero2 from '../assets/hero/DSC00302.jpg'
+import hero3 from '../assets/hero/DSC00636.jpg'
+import hero4 from '../assets/hero/DSC01976.jpg'
+import hero5 from '../assets/hero/DSC03314.jpg'
+import hero6 from '../assets/hero/DSC03743.jpg'
+import hero7 from '../assets/hero/DSC08047.jpg'
+import hero8 from '../assets/hero/DSCF2597.jpg'
+import hero10 from '../assets/hero/Rio-Chitamena-2.jpg'
+import hero11 from '../assets/hero/_DSC0619.jpg'
+import hero12 from '../assets/hero/_DSC1569.jpg'
+import hero13 from '../assets/hero/_DSC3237.jpg'
+import hero14 from '../assets/hero/_DSC4413.jpg'
+import hero15 from '../assets/hero/_DSC5128.jpg'
+import hero16 from '../assets/hero/_DSC5164.jpg'
+import hero17 from '../assets/hero/_DSC9052.jpg'
+import hero18 from '../assets/hero/_MG_2298.jpg'
+import hero19 from '../assets/hero/_MG_2822.jpg'
+import hero20 from '../assets/hero/_MG_2848.jpg'
 import content1 from '../assets/photos/content-1.jpg'
 
 const HomePage = () => {
@@ -19,7 +36,12 @@ const HomePage = () => {
             <main id="inicio">
                 <Hero
                     subtitle="Convertimos impacto real en narrativas creíbles, visibles y relevantes. Storytelling, audiovisual y consultoría para organizaciones con propósito."
-                    images={[hero1, hero2, ...products.slice(0, 5).map(p => p.image)]}
+                    images={[
+                        hero1, hero2, hero3, hero4, hero5,
+                        hero6, hero7, hero8, hero10,
+                        hero11, hero12, hero13, hero14, hero15,
+                        hero16, hero17, hero18, hero19, hero20
+                    ]}
                     variant="with-text"
                 />
 

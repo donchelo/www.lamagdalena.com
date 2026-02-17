@@ -13,7 +13,7 @@ const FontVisualizer = () => {
             usage: 'font-family: var(--font-heading);'
         },
         {
-            name: 'CoFo Sans',
+            name: 'Helvetica Neue Light',
             variable: '--font-body',
             description: 'Fuente principal para cuerpo de texto y UI.',
             usage: 'font-family: var(--font-body);'
@@ -21,9 +21,9 @@ const FontVisualizer = () => {
     ];
 
     return (
-        <div style={{ 
-            padding: '120px 20px 60px', 
-            maxWidth: '1200px', 
+        <div style={{
+            padding: '120px 20px 60px',
+            maxWidth: '1200px',
             margin: '0 auto',
             minHeight: '100vh',
             backgroundColor: 'var(--bg-cream)',
@@ -32,10 +32,10 @@ const FontVisualizer = () => {
             backgroundAttachment: 'fixed'
         }}>
             <header style={{ marginBottom: '60px', borderBottom: '1px solid var(--text-brown)', paddingBottom: '20px' }}>
-                <Link to="/" style={{ 
-                    fontFamily: 'var(--font-menu)', 
-                    fontSize: '0.9rem', 
-                    textTransform: 'uppercase', 
+                <Link to="/" style={{
+                    fontFamily: 'var(--font-menu)',
+                    fontSize: '0.9rem',
+                    textTransform: 'uppercase',
                     letterSpacing: '0.1em',
                     color: 'var(--text-brown)',
                     display: 'inline-block',
@@ -49,10 +49,10 @@ const FontVisualizer = () => {
                 </p>
             </header>
 
-            <section style={{ 
-                marginBottom: '40px', 
-                background: 'white', 
-                padding: '30px', 
+            <section style={{
+                marginBottom: '40px',
+                background: 'white',
+                padding: '30px',
                 borderRadius: '8px',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
                 display: 'flex',
@@ -64,9 +64,9 @@ const FontVisualizer = () => {
                     <label style={{ display: 'block', marginBottom: '10px', fontFamily: 'var(--font-menu)', fontSize: '0.8rem', color: '#888', textTransform: 'uppercase' }}>
                         Texto de prueba
                     </label>
-                    <input 
-                        type="text" 
-                        value={sampleText} 
+                    <input
+                        type="text"
+                        value={sampleText}
                         onChange={(e) => setSampleText(e.target.value)}
                         style={{
                             width: '100%',
@@ -82,11 +82,11 @@ const FontVisualizer = () => {
                     <label style={{ display: 'block', marginBottom: '10px', fontFamily: 'var(--font-menu)', fontSize: '0.8rem', color: '#888', textTransform: 'uppercase' }}>
                         Tamaño: {fontSize}px
                     </label>
-                    <input 
-                        type="range" 
-                        min="16" 
-                        max="120" 
-                        value={fontSize} 
+                    <input
+                        type="range"
+                        min="16"
+                        max="120"
+                        value={fontSize}
                         onChange={(e) => setFontSize(parseInt(e.target.value))}
                         style={{ width: '100%' }}
                     />
@@ -95,9 +95,9 @@ const FontVisualizer = () => {
 
             <div style={{ display: 'grid', gap: '40px' }}>
                 {fonts.map((font) => (
-                    <div key={font.name} style={{ 
-                        background: 'white', 
-                        padding: '40px', 
+                    <div key={font.name} style={{
+                        background: 'white',
+                        padding: '40px',
                         borderRadius: '8px',
                         boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
                         borderLeft: '4px solid var(--accent-lime)'
@@ -116,24 +116,24 @@ const FontVisualizer = () => {
                                 </code>
                             </div>
                         </div>
-                        
-                        <div style={{ 
+
+                        <div style={{
                             marginTop: '30px',
                             overflow: 'hidden',
                             wordBreak: 'break-word'
                         }}>
-                            <div style={{ 
-                                fontFamily: `var(${font.variable})`, 
+                            <div style={{
+                                fontFamily: `var(${font.variable})`,
                                 fontSize: `${fontSize}px`,
                                 lineHeight: '1.2',
                                 color: 'var(--text-brown)'
                             }}>
                                 {sampleText}
                             </div>
-                            
-                            <div style={{ 
-                                marginTop: '20px', 
-                                display: 'grid', 
+
+                            <div style={{
+                                marginTop: '20px',
+                                display: 'grid',
                                 gap: '10px',
                                 opacity: 0.6
                             }}>
@@ -144,7 +144,7 @@ const FontVisualizer = () => {
                                     abcdefghijklmnopqrstuvwxyz
                                 </div>
                                 <div style={{ fontFamily: `var(${font.variable})`, fontSize: '1.2rem' }}>
-                                    0123456789 !@#$%^&*()_+-=[]{}|;':",./?
+                                    0123456789 !@#$%^&*()_+-=[]{ }|;':",./?
                                 </div>
                             </div>
                         </div>
