@@ -24,11 +24,16 @@ const ContactSection = () => {
         e.preventDefault();
         setStatus('submitting');
 
-        // TODO: Reemplazar 'x' con tu ID real de Formspree (https://formspree.io/)
-        const FORMSPREE_ID = 'x';
+        // Usar variable de entorno para el ID de Formspree
+        // Si no está definida, usaremos 'x' como fallback (error controlado)
+        const FORMSPREE_ID = import.meta.env.VITE_FORMSPREE_ID || 'x';
         const endpoint = `https://formspree.io/f/${FORMSPREE_ID}`;
 
         try {
+            if (FORMSPREE_ID === 'x') {
+                throw new Error('Formspree ID no configurado. Por favor, configura VITE_FORMSPREE_ID.');
+            }
+
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
@@ -47,7 +52,7 @@ const ContactSection = () => {
                 throw new Error('Submission failed');
             }
         } catch (error) {
-            console.error('Submission error:', error);
+            console.error('Submission error:', error.message || error);
             setStatus('error');
         }
     };
