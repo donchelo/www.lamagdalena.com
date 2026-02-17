@@ -3,10 +3,8 @@ import { Link } from 'react-router-dom'
 import MainLayout from '../components/templates/MainLayout'
 import Hero from '../components/organisms/Hero'
 import BlogCard from '../components/molecules/BlogCard'
-import ProductCard from '../components/molecules/ProductCard'
 import ServicesSection from '../components/organisms/ServicesSection'
 import ContactSection from '../components/organisms/ContactSection'
-import { products } from '../data/products'
 import { storiesData } from '../data/stories'
 
 import hero1 from '../assets/hero/DJI_0178.webp'
@@ -62,29 +60,6 @@ const HomePage = () => {
 
 
                 <ServicesSection />
-
-                <section className="differentiator-section">
-                    <div className="container">
-                        <div className="differentiator-box">
-                            <h2>No hacemos greenwashing</h2>
-                            <p>Creemos en la comunicación honesta, basada en acciones reales y en las personas que las viven.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="shop-preview-section" id="galeria" style={{ padding: 'var(--section-padding) 0', backgroundColor: 'white' }}>
-                    <div className="container">
-                        <h2 className="section-title">Galería</h2>
-                        <div className="products-grid-commercial">
-                            {products.slice(0, 6).map(product => (
-                                <ProductCard key={product.id} product={product} showPrice={false} />
-                            ))}
-                        </div>
-                        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-                            <Link to="/shop" className="buy-button">VER TODOS LOS PRINTS</Link>
-                        </div>
-                    </div>
-                </section>
 
                 <ContactSection />
             </main>
