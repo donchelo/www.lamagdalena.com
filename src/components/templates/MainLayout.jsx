@@ -4,7 +4,9 @@ import NavBar from '../organisms/NavBar';
 const MainLayout = ({ children }) => {
     return (
         <div className="main-layout">
-            <NavBar />
+            <header>
+                <NavBar />
+            </header>
             {children}
         </div>
     );
