@@ -552,7 +552,12 @@ img {
 
 @media (max-width: 768px) {
   .about-hero {
-    height: 70dvh;
+    height: 65vw;
+    min-height: 350px;
+  }
+
+  .about-hero-container {
+    padding-bottom: 3rem;
   }
 
   .about-body-columns {
@@ -577,7 +582,9 @@ img {
 /* For mobile, if the hero has too much height, we can adjust it */
 @media (max-width: 768px) {
   .hero {
-    height: clamp(350px, 60dvh, 70dvh);
+    height: 65vw;
+    min-height: 300px;
+    max-height: 500px;
   }
 }
 
