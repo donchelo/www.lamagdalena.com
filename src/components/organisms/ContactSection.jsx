@@ -24,12 +24,28 @@ const ContactSection = () => {
         e.preventDefault();
         setStatus('submitting');
 
+        // TODO: Reemplazar 'x' con tu ID real de Formspree (https://formspree.io/)
+        const FORMSPREE_ID = 'x';
+        const endpoint = `https://formspree.io/f/${FORMSPREE_ID}`;
+
         try {
-            // Simulamos un envío asíncrono
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            console.log('Form data submitted:', formData);
-            setStatus('success');
-            setFormData({ email: '', subject: '', message: '' });
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                setStatus('success');
+                setFormData({ email: '', subject: '', message: '' });
+            } else {
+                const data = await response.json();
+                console.error('Submission error response:', data);
+                throw new Error('Submission failed');
+            }
         } catch (error) {
             console.error('Submission error:', error);
             setStatus('error');
