@@ -2,7 +2,7 @@ import React from 'react';
 import Text from '../atoms/Text';
 import Heading from '../atoms/Heading';
 import Logo from '../atoms/Logo';
-import heroImage from '../../assets/hero/_DSC5128.jpg';
+import heroImage from '../../assets/hero/_DSC5128.webp';
 
 const AboutHero = () => {
     return (
