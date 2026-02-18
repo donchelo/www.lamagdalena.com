@@ -35,9 +35,9 @@ const HomePage = () => {
                 <Hero
                     subtitle="Convertimos impacto real en narrativas creíbles, visibles y relevantes. Storytelling, audiovisual y consultoría para organizaciones con propósito."
                     images={[
-                        hero1, hero2, hero3, hero4, hero5,
+                        hero13, hero1, hero2, hero3, hero4, hero5,
                         hero6, hero7, hero8, hero10,
-                        hero11, hero12, hero13, hero14, hero15,
+                        hero11, hero12, hero14, hero15,
                         hero16, hero17, hero18, hero19, hero20
                     ]}
                     variant="with-text"
