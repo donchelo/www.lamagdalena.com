@@ -96,6 +96,8 @@ const StoryView = ({ story }) => {
                 alt={alt}
                 className={`${className || ''} clickable-gallery-trigger`}
                 onClick={() => openLightbox(src)}
+                loading="lazy"
+                decoding="async"
                 {...props}
             />
         );
@@ -269,6 +271,8 @@ const StoryView = ({ story }) => {
                                 alt={story.title}
                                 onClick={() => openLightbox(story.content.find(b => b.type === 'hero').image)}
                                 style={{ cursor: 'pointer' }}
+                                loading="lazy"
+                                decoding="async"
                             />
                         </div>
                     )}
