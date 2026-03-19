@@ -11,6 +11,10 @@ import ShopPage from './pages/ShopPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import NavBar from './components/organisms/NavBar'
 import AboutPage from './pages/AboutPage'
+import Dashboard from './pages/private/Dashboard'
+import ClientManager from './pages/private/tools/ClientManager'
+import ContentGenerator from './pages/private/tools/ContentGenerator'
+import AudioTranscriber from './pages/private/tools/AudioTranscriber'
 
 function App() {
     const location = useLocation()
@@ -39,6 +43,12 @@ function App() {
                 <Route path="/shop" element={<ShopPage />} />
                 <Route path="/shop/:productId" element={<ProductDetailPage />} />
                 <Route path="/fonts" element={<FontVisualizer />} />
+                
+                {/* Private Dashboard Routes */}
+                <Route path="/private" element={<Dashboard />} />
+                <Route path="/private/clients" element={<ClientManager />} />
+                <Route path="/private/content" element={<ContentGenerator />} />
+                <Route path="/private/audio" element={<AudioTranscriber />} />
             </Routes>
         </div>
     )
