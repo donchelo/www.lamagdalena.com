@@ -1,0 +1,86 @@
+/* ─── Design Tokens ─── */
+
+/* ─── Font Restricted Family: Neue Haas Display ─── */
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayBlack.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayMediu.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayRoman.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('../assets/fonts/NeueHaasDisplayLight.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Font Restricted Family: Helvetica Neue Light ─── */
+@font-face {
+  font-family: 'Helvetica Neue Light';
+  src: url('../assets/fonts/HelveticaNeueLight.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg-cream: #ffffff;
+  --text-brown: #5c4a33;
+  --accent-lime: #d4ff00;
+  --bg-paper: none;
+
+  /* Strict Brand Compliance: Neue Haas Display and Helvetica Neue Light */
+  --font-heading: 'Neue Haas Display', sans-serif;
+  --font-body: 'Helvetica Neue Light', sans-serif;
+  --font-serif: 'Neue Haas Display', sans-serif;
+  /* REPLACED Crimson Pro: Using Haas Display Roman for long-form reading */
+
+  /* Aliases para retrocompatibilidad */
+  --font-logo: var(--font-heading);
+  --font-menu: var(--font-body);
+  --font-accent: var(--font-body);
+  --font-heading-classic: var(--font-heading);
+
+  --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Fluid Spacing */
+  --section-padding: clamp(6rem, 15vw, 12rem);
+  --container-padding: clamp(1.5rem, 8vw, 4rem);
+
+  /* Fluid Typography */
+  --fs-h1: clamp(2.5rem, 8vw, 5.5rem);
+  --fs-h2: clamp(1.8rem, 6vw, 3.2rem);
+  --fs-h3: clamp(1.2rem, 4vw, 1.8rem);
+  --fs-lead: clamp(1rem, 2vw, 1.2rem);
+
+  /* Editorial Typography */
+  --fs-editorial-title: clamp(3rem, 6vw, 4.5rem);
+  --fs-editorial-body: 1.125rem;
+}
