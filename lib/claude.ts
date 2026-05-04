@@ -1,5 +1,4 @@
-import { generateObject } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
+import { generateText, Output } from 'ai'
 import { z } from 'zod'
 
 const AnalysisSchema = z.object({
@@ -26,9 +25,30 @@ const AnalysisSchema = z.object({
     })).max(5),
   }),
   sentimentAnalysis: z.object({
-    positivePercent: z.number(),
-    neutralPercent: z.number(),
-    negativePercent: z.number(),
+    positivePercent: z.number().min(0).max(100),
+    neutralPercent: z.number().min(0).max(100),
+    negativePercent: z.number().min(0).max(100),
+    dominantTopics: z.array(z.string()),
+    sentimentDrivers: z.object({
+      positive: z.array(z.string()),
+      negative: z.array(z.string()),
+    }),
+  }),
+  keyInsights: z.array(z.string()).max(6),
+  recommendations: z.array(z.object({
+    title: z.string(),
+    description: z.string(),
+    priority: z.enum(['high', 'medium', 'low']),
+  })).max(5),
+})
+
+const QualitativeSchema = z.object({
+  executiveSummary: z.string(),
+  methodology: z.string(),
+  sentimentAnalysis: z.object({
+    positivePercent: z.number().min(0).max(100),
+    neutralPercent: z.number().min(0).max(100),
+    negativePercent: z.number().min(0).max(100),
     dominantTopics: z.array(z.string()),
     sentimentDrivers: z.object({
       positive: z.array(z.string()),
@@ -54,69 +74,142 @@ interface ReportContext {
   hashtags: string[]
 }
 
+interface ComputedMetrics {
+  volumeMetrics: Analysis['volumeMetrics']
+  engagementMetrics: Analysis['engagementMetrics']
+}
+
+function isVideo(item: any): boolean {
+  return item.playCount !== undefined || item.videoMeta !== undefined || item.webVideoUrl !== undefined
+}
+
+function toDateStr(createTime: any): string | null {
+  if (!createTime) return null
+  try {
+    const d = typeof createTime === 'number' ? new Date(createTime * 1000) : new Date(createTime)
+    if (isNaN(d.getTime())) return null
+    return d.toISOString().split('T')[0]
+  } catch {
+    return null
+  }
+}
+
+function computeMetrics(rawData: any[], networks: string[], dateFrom?: string, dateTo?: string): ComputedMetrics {
+  const allVideos = rawData.filter(isVideo)
+  const videos = allVideos.filter(v => {
+    if (!dateFrom && !dateTo) return true
+    const d = toDateStr(v.createTimeISO || v.createTime)
+    if (!d) return true
+    if (dateFrom && d < dateFrom) return false
+    if (dateTo && d > dateTo) return false
+    return true
+  })
+  const platform = networks[0] ?? 'tiktok'
+
+  const totalLikes = videos.reduce((s, v) => s + (v.diggCount || 0), 0)
+  const totalViews = videos.reduce((s, v) => s + (v.playCount || 0), 0)
+  const totalComments = videos.reduce((s, v) => s + (v.commentCount || 0), 0)
+  const totalShares = videos.reduce((s, v) => s + (v.shareCount || 0), 0)
+  const avgEngagementRate = totalViews > 0
+    ? +((totalLikes + totalComments) / totalViews * 100).toFixed(2)
+    : 0
+
+  const dateCounts: Record<string, number> = {}
+  videos.forEach(v => {
+    const d = toDateStr(v.createTimeISO || v.createTime)
+    if (d) dateCounts[d] = (dateCounts[d] || 0) + 1
+  })
+  const timeSeries = Object.entries(dateCounts)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, count]) => ({ date, count }))
+  const peakDay = timeSeries.length > 0
+    ? timeSeries.reduce((best, cur) => cur.count > best.count ? cur : best).date
+    : 'N/A'
+
+  const topPosts = [...videos]
+    .sort((a, b) => ((b.diggCount || 0) + (b.commentCount || 0)) - ((a.diggCount || 0) + (a.commentCount || 0)))
+    .slice(0, 5)
+    .map(v => ({
+      url: v.webVideoUrl || v.url || v.videoUrl || '',
+      platform,
+      likes: v.diggCount || 0,
+      comments: v.commentCount || 0,
+      caption: String(v.text || v.desc || v.description || '').slice(0, 250),
+    }))
+
+  return {
+    volumeMetrics: {
+      totalPosts: videos.length,
+      totalReach: totalViews,
+      peakDay,
+      volumeByNetwork: { [platform]: videos.length },
+      timeSeries,
+    },
+    engagementMetrics: {
+      avgEngagementRate,
+      totalLikes,
+      totalComments,
+      totalShares,
+      topPosts,
+    },
+  }
+}
+
 export async function analyzeData(rawData: unknown[], context: ReportContext): Promise<Analysis> {
-  // Limpiar datos para no saturar los tokens de la IA
-  const cleanedData = (rawData as any[]).map(item => ({
-    type: item.videoMeta ? 'video' : 'comment',
-    platform: 'TikTok',
-    text: item.text || item.videoMeta?.description,
-    date: item.createTimeISO || item.createTime,
-    likes: item.diggCount || 0,
-    views: item.playCount || 0,
-    comments: item.commentCount || 0,
-    shares: item.shareCount || 0,
-    author: item.authorMeta?.name || item.uniqueId
-  }));
+  const items = rawData as any[]
+  const videos = items.filter(isVideo).filter(v => {
+    const d = toDateStr(v.createTimeISO || v.createTime)
+    if (!d) return true
+    if (context.dateFrom && d < context.dateFrom) return false
+    if (context.dateTo && d > context.dateTo) return false
+    return true
+  })
+  const comments = items.filter(i => !isVideo(i) && i.text)
+  const computed = computeMetrics(items, context.selectedNetworks, context.dateFrom, context.dateTo)
 
-  // Calcular métricas agregadas reales para dar confianza total a la IA
-  const totalItems = cleanedData.length;
-  const videos = cleanedData.filter(i => i.type === 'video');
-  const comments = cleanedData.filter(i => i.type === 'comment');
-  
-  const realTotalLikes = videos.reduce((s, i) => s + i.likes, 0);
-  const realTotalViews = videos.reduce((s, i) => s + i.views, 0);
-  const realTotalComments = videos.reduce((s, i) => s + i.comments, 0);
+  const videoSample = videos.slice(0, 50).map(v => ({
+    caption: String(v.text || v.desc || '').slice(0, 300),
+    likes: v.diggCount || 0,
+    views: v.playCount || 0,
+    comments: v.commentCount || 0,
+    date: toDateStr(v.createTimeISO || v.createTime),
+  }))
 
-  const sample = cleanedData.slice(0, 100); // Ahora podemos enviar 100 sin problema
+  const commentTexts = comments.slice(0, 150).map((c: any) => c.text).filter(Boolean)
 
-  // Calcular volumen por red manualmente para asegurar que nunca esté vacío
-  const volumeByNetwork: Record<string, number> = {};
-  cleanedData.forEach(item => {
-    const net = item.platform || 'TikTok';
-    volumeByNetwork[net] = (volumeByNetwork[net] || 0) + 1;
-  });
+  const { output: qualitative } = await generateText({
+    model: 'anthropic/claude-sonnet-4.6',
+    output: Output.object({ schema: QualitativeSchema }),
+    prompt: `Eres un Consultor Estratégico Senior de "La Magdalena". Genera un análisis para: ${context.clientName}.
 
-  const result = await generateObject({
-    model: anthropic('claude-sonnet-4-6'),
-    schema: AnalysisSchema,
-    prompt: `Eres un Consultor Estratégico Senior de "La Magdalena". Tu objetivo es generar un reporte de ALTA GERENCIA para ${context.clientName}.
-Este reporte será usado para decisiones millonarias y estratégicas. Debes ser extremadamente preciso y profesional.
+MÉTRICAS REALES (calculadas desde los datos — úsalas en el resumen ejecutivo):
+- Período: ${context.dateFrom} → ${context.dateTo}
+- Videos publicados: ${computed.volumeMetrics.totalPosts}
+- Reproducciones totales: ${computed.volumeMetrics.totalReach.toLocaleString('es-CO')}
+- Likes totales: ${computed.engagementMetrics.totalLikes.toLocaleString('es-CO')}
+- Comentarios totales: ${computed.engagementMetrics.totalComments.toLocaleString('es-CO')}
+- Compartidos: ${computed.engagementMetrics.totalShares.toLocaleString('es-CO')}
+- Engagement rate: ${computed.engagementMetrics.avgEngagementRate}%
+- Día pico: ${computed.volumeMetrics.peakDay}
+- Redes: ${context.selectedNetworks.join(', ')}
 
-CONTEXTO DE AUDITORÍA (MÁXIMA TRANSPARENCIA):
-- Los datos provienen de una extracción directa de la API de TikTok a través de scrapers avanzados (Apify).
-- Se han auditado ${videos.length} videos publicados en el periodo.
-- Se han analizado ${comments.length} comentarios de usuarios reales para detectar sentimiento.
-- MÉTRICAS REALES AGREGADAS (Úsalas como base absoluta):
-  * Total Views: ${realTotalViews.toLocaleString()}
-  * Total Likes: ${realTotalLikes.toLocaleString()}
-  * Total Comentarios en videos: ${realTotalComments.toLocaleString()}
+MUESTRA DE CONTENIDO (${videoSample.length} videos):
+${JSON.stringify(videoSample, null, 2)}
 
-METODOLOGÍA: Explica de forma detallada y "exagerada" la robustez de la recolección de datos en el campo "methodology".
-
-ANÁLISIS CUALITATIVO (Muestra de datos crudos):
-${JSON.stringify(sample, null, 2)}
+COMENTARIOS DE USUARIOS (${commentTexts.length} — base para sentimiento):
+${JSON.stringify(commentTexts.slice(0, 100), null, 2)}
 
 INSTRUCCIONES:
-1. Executive Summary: Escrito para un CEO. Impacto, oportunidad y riesgo.
-2. Methodology: Detalla el origen técnico de los datos (Apify/TikTok API) y por qué son confiables.
-3. Key Insights: Máximo valor estratégico. Cita números reales de los agregados que te di.
-4. Recommendations: Acciones concretas de negocio.`,
+1. executiveSummary: Para un CEO. Cita los números reales de arriba. Máximo 3 párrafos.
+2. methodology: Explica el origen técnico (Apify/TikTok API) y la robustez del proceso.
+3. sentimentAnalysis: Basado ÚNICAMENTE en los comentarios de arriba. Porcentajes deben sumar 100.
+4. keyInsights: Máximo 6. Hallazgos concretos con números reales.
+5. recommendations: Máximo 5 acciones de negocio concretas con prioridad.`,
   })
 
-  // SOBRESCRIBIR con datos reales calculados por código para evitar fallos de la IA
-  const finalAnalysis = result.object as Analysis;
-  finalAnalysis.volumeMetrics.volumeByNetwork = volumeByNetwork;
-  finalAnalysis.volumeMetrics.totalPosts = totalItems;
-
-  return finalAnalysis;
+  return {
+    ...qualitative!,
+    volumeMetrics: computed.volumeMetrics,
+    engagementMetrics: computed.engagementMetrics,
+  }
 }

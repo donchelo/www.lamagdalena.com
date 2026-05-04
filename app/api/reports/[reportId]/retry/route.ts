@@ -7,13 +7,14 @@ interface Params {
   params: Promise<{ reportId: string }>
 }
 
-export async function POST(_request: NextRequest, { params }: Params) {
+export async function POST(request: NextRequest, { params }: Params) {
   const { reportId } = await params
+  const force = new URL(request.url).searchParams.has('force')
 
   const job = await loadJob(reportId)
   if (!job) return NextResponse.json({ error: 'Report not found' }, { status: 404 })
-  if (job.status !== 'error') {
-    return NextResponse.json({ error: 'Only jobs in error state can be retried' }, { status: 400 })
+  if (job.status !== 'error' && !force) {
+    return NextResponse.json({ error: 'Only jobs in error state can be retried. Use ?force=true to rebuild any report.' }, { status: 400 })
   }
 
   let rawData: unknown[]
