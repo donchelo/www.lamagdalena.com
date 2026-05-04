@@ -28,7 +28,9 @@ export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: st
       body: JSON.stringify({
         postURLs: videoUrls,
         commentsPerPost: 10000,
-        maxRepliesPerComment: 10,
+        maxRepliesPerComment: 0,
+        excludePinnedPosts: false,
+        resultsPerPage: 1000,
         webhooks: [
           {
             eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
@@ -85,8 +87,11 @@ function buildActorInput(network: string, input: ApifyInput) {
   const limit = input.maxResults ?? 10000
 
   if (network === 'tiktok' && input.accounts && input.accounts.length > 0) {
+    const formattedProfiles = input.accounts.map(acc => 
+      acc.startsWith('http') ? acc : `https://www.tiktok.com/@${acc.replace('@', '')}`
+    )
     return {
-      profiles: input.accounts,
+      profiles: formattedProfiles,
       resultsPerPage: limit,
       oldestPostDateUnified: input.dateFrom,
       excludePinnedPosts: false,
@@ -94,6 +99,9 @@ function buildActorInput(network: string, input: ApifyInput) {
       shouldDownloadVideos: false,
       shouldDownloadAvatars: false,
       shouldDownloadCovers: false,
+      shouldDownloadSlideshowImages: false,
+      scrapeRelatedVideos: false,
+      proxyCountryCode: "None"
     }
   }
 

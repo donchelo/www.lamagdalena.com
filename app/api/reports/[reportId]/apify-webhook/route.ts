@@ -39,13 +39,13 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     // LÓGICA DE ETAPAS PARA TIKTOK
     const isTikTokProfileRun = job.selectedNetworks.includes('tiktok') && 
-                               items.some((item: any) => item.videoUrl || item.webVideoUrl) &&
+                               items.some((item: any) => item.url || item.videoUrl || item.webVideoUrl || item.link) &&
                                !items.some((item: any) => item.commentText)
 
     if (isTikTokProfileRun) {
       console.log(`[Webhook] TikTok profile run finished for ${reportId}. Starting comments stage...`)
       const videoUrls = items
-        .map((item: any) => item.videoUrl || item.webVideoUrl)
+        .map((item: any) => item.url || item.videoUrl || item.webVideoUrl || item.link)
         .filter(Boolean)
 
       if (videoUrls.length > 0) {
