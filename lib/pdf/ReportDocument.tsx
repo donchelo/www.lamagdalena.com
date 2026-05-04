@@ -16,9 +16,12 @@ interface ReportDocumentProps {
   analysis: Analysis
 }
 
-export const ReportDocument = ({ job, analysis }: ReportDocumentProps) => (
-  <Document
-    title={`Reporte Social Listening - ${job.clientName}`}
+export const ReportDocument = ({ job, analysis }: ReportDocumentProps) => {
+  if (!job || !analysis) return null;
+  
+  return (
+    <Document
+      title={`Reporte Social Listening - ${job.clientName}`}
     author="La Magdalena"
     subject="Social Listening Analysis"
     keywords="social listening, analytics, report"
@@ -71,4 +74,5 @@ export const ReportDocument = ({ job, analysis }: ReportDocumentProps) => (
       recommendations={analysis.recommendations}
     />
   </Document>
-)
+  )
+}

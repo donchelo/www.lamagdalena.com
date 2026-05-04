@@ -7,7 +7,15 @@ interface Params {
 
 export async function GET(_request: NextRequest, { params }: Params) {
   const { reportId } = await params
-  const job = await loadJob(reportId)
-  if (!job) return NextResponse.json({ error: 'Report not found' }, { status: 404 })
-  return NextResponse.json(job)
+    const job = await loadJob(reportId)
+    if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+
+    // SI ESTAMOS EN LOCAL O EL WEBHOOK NO LLEGÓ, SINCRONIZAMOS PROACTIVAMENTE
+    if (['scraping_posts', 'scraping_comments', 'scraping'].includes(job.status)) {
+      const { syncJobWithApify } = await import('./sync')
+      const updatedJob = await syncJobWithApify(reportId, job)
+      if (updatedJob) return NextResponse.json(updatedJob)
+    }
+
+    return NextResponse.json(job)
 }
