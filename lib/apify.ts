@@ -121,7 +121,7 @@ function buildActorInput(network: string, input: ApifyInput) {
   }
 }
 
-export async function fetchDatasetItems(datasetId: string, limit = 200): Promise<unknown[]> {
+export async function fetchDatasetItems(datasetId: string, limit = 1000): Promise<unknown[]> {
   if (datasetId === 'simulated-dataset-id') {
     return [
       { url: 'https://www.tiktok.com/@test/video/1', title: 'Video Test 1' },

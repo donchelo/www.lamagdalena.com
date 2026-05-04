@@ -45,7 +45,7 @@ export async function POST(_request: NextRequest, { params }: Params) {
       const { renderReportPdf } = await import('@/lib/pdf/render')
       const pdfBuffer = await renderReportPdf({ job: retryJob, analysis })
       const pdfUrl = await savePdf(reportId, pdfBuffer)
-      await updateJobStatus(reportId, { status: 'complete', pdfUrl })
+      await updateJobStatus(reportId, { status: 'complete', pdfUrl, error: undefined })
     } catch (err: any) {
       await updateJobStatus(reportId, { status: 'error', error: err.message })
     }

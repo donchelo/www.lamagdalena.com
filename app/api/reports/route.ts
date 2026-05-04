@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
-import { saveJob, type JobData } from '@/lib/blob'
+import { saveJob, listReports, type JobData } from '@/lib/blob'
 import { startActorRun } from '@/lib/apify'
+
+export async function GET() {
+  try {
+    const reports = await listReports()
+    return NextResponse.json(reports.slice(0, 20))
+  } catch {
+    return NextResponse.json([], { status: 200 })
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {

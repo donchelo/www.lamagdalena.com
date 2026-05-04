@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { put } from '@vercel/blob'
 import { loadJob, updateJobStatus, saveRawData, saveAnalysis, savePdf, getRawData } from '@/lib/blob'
 import { fetchDatasetItems } from '@/lib/apify'
@@ -95,26 +95,31 @@ export async function POST(request: NextRequest, { params }: Params) {
       return NextResponse.json({ ok: true })
     }
 
-    // Todos los datos recolectados — analizar
-    await updateJobStatus(reportId, { status: 'analyzing', apifyCompletedRuns })
+    // Todos los datos recolectados — responder a Apify inmediatamente y analizar en background
+    const analyzingJob = await updateJobStatus(reportId, { status: 'analyzing', apifyCompletedRuns })
+    const capturedData = combined as unknown[]
 
-    const analysis = await analyzeData(combined as unknown[], {
-      clientName: job.clientName,
-      dateFrom: job.dateFrom,
-      dateTo: job.dateTo,
-      selectedNetworks: job.selectedNetworks,
-      keywords: job.keywords,
-      hashtags: job.hashtags,
+    after(async () => {
+      try {
+        const analysis = await analyzeData(capturedData, {
+          clientName: analyzingJob.clientName,
+          dateFrom: analyzingJob.dateFrom,
+          dateTo: analyzingJob.dateTo,
+          selectedNetworks: analyzingJob.selectedNetworks,
+          keywords: analyzingJob.keywords,
+          hashtags: analyzingJob.hashtags,
+        })
+        await saveAnalysis(reportId, analysis)
+        await updateJobStatus(reportId, { status: 'generating_pdf' })
+
+        const { renderReportPdf } = await import('@/lib/pdf/render')
+        const pdfBuffer = await renderReportPdf({ job: analyzingJob, analysis })
+        const pdfUrl = await savePdf(reportId, pdfBuffer)
+        await updateJobStatus(reportId, { status: 'complete', pdfUrl, error: undefined })
+      } catch (err: any) {
+        await updateJobStatus(reportId, { status: 'error', error: err?.message ?? 'Pipeline error' })
+      }
     })
-
-    await saveAnalysis(reportId, analysis)
-    await updateJobStatus(reportId, { status: 'generating_pdf' })
-
-    const { renderReportPdf } = await import('@/lib/pdf/render')
-    const pdfBuffer = await renderReportPdf({ job, analysis })
-    const pdfUrl = await savePdf(reportId, pdfBuffer)
-
-    await updateJobStatus(reportId, { status: 'complete', pdfUrl })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Pipeline error'
     console.error(`[report ${reportId}] pipeline error:`, message)

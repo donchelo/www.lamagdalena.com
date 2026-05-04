@@ -1,7 +1,42 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+
+type JobStatus = 'queued' | 'scraping' | 'scraping_posts' | 'scraping_comments' | 'analyzing' | 'generating_pdf' | 'complete' | 'error'
+
+interface RecentReport {
+  reportId: string
+  clientName: string
+  dateFrom: string
+  dateTo: string
+  selectedNetworks: string[]
+  status: JobStatus
+  createdAt: string
+}
+
+const statusLabel: Record<JobStatus, string> = {
+  queued: 'En cola',
+  scraping: 'Recopilando',
+  scraping_posts: 'Recopilando posts',
+  scraping_comments: 'Recopilando comentarios',
+  analyzing: 'Analizando',
+  generating_pdf: 'Generando PDF',
+  complete: 'Listo',
+  error: 'Error',
+}
+
+const statusColor: Record<JobStatus, string> = {
+  queued: 'rgba(255,255,255,0.4)',
+  scraping: 'rgba(255,255,255,0.4)',
+  scraping_posts: 'rgba(255,255,255,0.4)',
+  scraping_comments: 'rgba(255,255,255,0.4)',
+  analyzing: 'rgba(255,255,255,0.4)',
+  generating_pdf: 'rgba(255,255,255,0.4)',
+  complete: 'var(--private-accent)',
+  error: '#ff5050',
+}
 
 const networks = [
   { id: 'instagram', label: 'Instagram' },
@@ -15,6 +50,14 @@ export default function SocialListeningPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [recentReports, setRecentReports] = useState<RecentReport[]>([])
+
+  useEffect(() => {
+    fetch('/api/reports')
+      .then(r => r.ok ? r.json() : [])
+      .then(setRecentReports)
+      .catch(() => {})
+  }, [])
 
   const [form, setForm] = useState({
     clientName: '',
@@ -213,6 +256,32 @@ export default function SocialListeningPage() {
           {isSubmitting ? 'Generando...' : 'GENERAR REPORTE'}
         </button>
       </form>
+
+      {recentReports.length > 0 && (
+        <div style={{ maxWidth: '760px', marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Reportes recientes</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {recentReports.map(r => (
+              <Link
+                key={r.reportId}
+                href={`/social-listening/${r.reportId}`}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.9rem 1rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '4px', textDecoration: 'none', transition: 'border-color 0.2s' }}
+                onMouseOver={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)')}
+                onMouseOut={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+              >
+                <div>
+                  <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', fontWeight: 600 }}>{r.clientName}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', marginLeft: '0.75rem' }}>{r.dateFrom} → {r.dateTo}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem', marginLeft: '0.75rem' }}>{r.selectedNetworks.join(', ')}</span>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: statusColor[r.status], letterSpacing: '0.05em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                  {statusLabel[r.status]}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

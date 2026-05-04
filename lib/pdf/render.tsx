@@ -16,7 +16,9 @@ export async function renderReportPdf({ job, analysis }: RenderInput): Promise<B
     const buffer = await renderToBuffer(<ReportDocument job={job} analysis={analysis} />)
     return buffer as Buffer
   } catch (error) {
-    console.error('Error generating PDF:', error)
-    throw new Error('Failed to generate PDF report')
+    const msg = error instanceof Error ? error.message : String(error)
+    const stack = error instanceof Error ? error.stack?.split('\n').slice(0, 4).join(' | ') : ''
+    console.error('PDF error:', msg, stack)
+    throw new Error(`PDF: ${msg}`)
   }
 }
