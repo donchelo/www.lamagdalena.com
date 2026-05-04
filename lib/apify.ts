@@ -2,7 +2,8 @@ const APIFY_TOKEN = process.env.APIFY_API_TOKEN
 
 const ACTORS: Record<string, string> = {
   instagram: 'apify/instagram-hashtag-scraper',
-  tiktok: 'clockworks/tiktok-hashtag-scraper',
+  tiktok_hashtags: 'clockworks/tiktok-hashtag-scraper',
+  tiktok_profiles: 'clockworks/tiktok-profile-scraper',
   twitter: 'apidojo/tweet-scraper',
   facebook: 'apify/facebook-posts-scraper',
   youtube: 'streamers/youtube-search-scraper',
@@ -18,7 +19,9 @@ interface ApifyInput {
 }
 
 export async function startActorRun(network: string, input: ApifyInput, webhookUrl: string): Promise<string> {
-  const actorId = ACTORS[network]
+  const isProfileSearch = network === 'tiktok' && input.accounts && input.accounts.length > 0
+  const actorId = isProfileSearch ? ACTORS.tiktok_profiles : ACTORS[network] || ACTORS[`${network}_hashtags`]
+  
   if (!actorId) throw new Error(`Unknown network: ${network}`)
 
   const res = await fetch(
@@ -50,6 +53,19 @@ export async function startActorRun(network: string, input: ApifyInput, webhookU
 function buildActorInput(network: string, input: ApifyInput) {
   const tags = [...(input.hashtags ?? []), ...(input.keywords ?? [])].slice(0, 10)
   const limit = Math.min(input.maxResults ?? 100, 200)
+
+  if (network === 'tiktok' && input.accounts && input.accounts.length > 0) {
+    return {
+      profiles: input.accounts,
+      resultsPerPage: limit,
+      oldestPostDateUnified: input.dateFrom,
+      excludePinnedPosts: false,
+      profileSorting: 'latest',
+      shouldDownloadVideos: false,
+      shouldDownloadAvatars: false,
+      shouldDownloadCovers: false,
+    }
+  }
 
   switch (network) {
     case 'instagram':

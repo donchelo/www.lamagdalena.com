@@ -53,7 +53,10 @@ export default function SocialListeningPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (form.selectedNetworks.length === 0) { setError('Selecciona al menos una red social.'); return }
-    if (form.keywords.length === 0 && form.hashtags.length === 0) { setError('Agrega al menos una keyword o hashtag.'); return }
+    if (form.keywords.length === 0 && form.hashtags.length === 0 && form.accounts.length === 0) {
+      setError('Agrega al menos una keyword, hashtag o cuenta a monitorear.')
+      return
+    }
 
     setIsSubmitting(true)
     setError('')
