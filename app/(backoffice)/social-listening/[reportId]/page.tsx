@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-type JobStatus = 'queued' | 'scraping' | 'analyzing' | 'generating_pdf' | 'complete' | 'error'
+type JobStatus = 'queued' | 'scraping' | 'scraping_posts' | 'scraping_comments' | 'analyzing' | 'generating_pdf' | 'complete' | 'error'
 
 interface JobData {
   reportId: string
@@ -13,23 +13,26 @@ interface JobData {
   dateTo: string
   selectedNetworks: string[]
   status: JobStatus
+  apifyRunIds?: Record<string, string>
   error?: string
   pdfUrl?: string
   createdAt: string
   updatedAt: string
 }
 
-const steps: { status: JobStatus; label: string; estimate: string }[] = [
-  { status: 'queued', label: 'En cola', estimate: '<1 min' },
-  { status: 'scraping', label: 'Recopilando datos', estimate: '5–15 min' },
-  { status: 'analyzing', label: 'Analizando con IA', estimate: '1–2 min' },
-  { status: 'generating_pdf', label: 'Generando PDF', estimate: '<1 min' },
-  { status: 'complete', label: 'Listo', estimate: '' },
+const steps: { status: JobStatus[]; label: string; estimate: string }[] = [
+  { status: ['queued'], label: 'En cola', estimate: '<1 min' },
+  { status: ['scraping', 'scraping_posts', 'scraping_comments'], label: 'Recopilando datos', estimate: '5–15 min' },
+  { status: ['analyzing'], label: 'Analizando con IA', estimate: '1–2 min' },
+  { status: ['generating_pdf'], label: 'Generando PDF', estimate: '<1 min' },
+  { status: ['complete'], label: 'Listo', estimate: '' },
 ]
 
 const statusOrder: Record<JobStatus, number> = {
   queued: 0,
   scraping: 1,
+  scraping_posts: 1,
+  scraping_comments: 1,
   analyzing: 2,
   generating_pdf: 3,
   complete: 4,
@@ -57,7 +60,7 @@ export default function ReportStatusPage() {
     const interval = setInterval(() => {
       if (job?.status === 'complete' || job?.status === 'error') return
       poll()
-    }, 10_000)
+    }, 5000) // Poll faster for better feedback
     return () => clearInterval(interval)
   }, [poll, job?.status])
 
@@ -97,22 +100,25 @@ export default function ReportStatusPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
           {steps.map((step, i) => {
             const isDone = currentStepIndex > i
-            const isCurrent = currentStepIndex === i && job.status !== 'error'
+            const isCurrent = step.status.includes(job.status) && job.status !== 'error'
             const isError = job.status === 'error' && i === currentStepIndex - 1
 
             return (
-              <div key={step.status} style={{ display: 'flex', alignItems: 'center', flex: i < steps.length - 1 ? 1 : 'none' }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', flex: i < steps.length - 1 ? 1 : 'none' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px' }}>
-                  <div style={{
-                    width: '36px', height: '36px', borderRadius: '50%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    backgroundColor: isError ? '#ff5050' : isDone ? 'var(--private-accent)' : isCurrent ? 'rgba(238,241,81,0.3)' : 'rgba(255,255,255,0.1)',
-                    border: isCurrent ? '2px solid var(--private-accent)' : isError ? '2px solid #ff5050' : '2px solid transparent',
-                    color: isDone ? 'var(--private-bg)' : 'white',
-                    fontSize: '0.9rem',
-                    fontWeight: 700,
-                    transition: 'all 0.5s ease',
-                  }}>
+                  <div 
+                    className={isCurrent ? 'animate-pulse' : ''}
+                    style={{
+                      width: '36px', height: '36px', borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      backgroundColor: isError ? '#ff5050' : isDone ? 'var(--private-accent)' : isCurrent ? 'rgba(238,241,81,0.3)' : 'rgba(255,255,255,0.1)',
+                      border: isCurrent ? '2px solid var(--private-accent)' : isError ? '2px solid #ff5050' : '2px solid transparent',
+                      color: isDone ? 'var(--private-bg)' : 'white',
+                      fontSize: '0.9rem',
+                      fontWeight: 700,
+                      transition: 'all 0.5s ease',
+                    }}
+                  >
                     {isError ? '✕' : isDone ? '✓' : i + 1}
                   </div>
                   <span style={{ fontSize: '0.7rem', marginTop: '0.5rem', color: isCurrent ? 'var(--private-accent)' : isDone ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)', textAlign: 'center', lineHeight: 1.3 }}>
@@ -132,34 +138,56 @@ export default function ReportStatusPage() {
       </div>
 
       {/* Status messages */}
-      {job.status === 'scraping' && (
-        <div style={{ padding: '1.5rem', backgroundColor: 'rgba(238,241,81,0.05)', border: '1px solid rgba(238,241,81,0.2)', borderRadius: '4px' }}>
+      <div style={{ padding: '1.5rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px' }}>
+        {job.status === 'queued' && (
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>Esperando turno en el servidor...</p>
+        )}
+        
+        {job.status === 'scraping_posts' && (
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-            Apify está recopilando publicaciones de {job.selectedNetworks.join(', ')}. Este proceso toma entre 5 y 15 minutos. La página se actualizará automáticamente.
+            <span style={{ marginRight: '0.5rem' }}>🔍</span> Buscando publicaciones de TikTok y métricas de perfil...
           </p>
-        </div>
-      )}
+        )}
 
-      {job.status === 'analyzing' && (
-        <div style={{ padding: '1.5rem', backgroundColor: 'rgba(238,241,81,0.05)', border: '1px solid rgba(238,241,81,0.2)', borderRadius: '4px' }}>
+        {job.status === 'scraping_comments' && (
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-            Claude está analizando los datos y generando insights para el reporte. Tardará aproximadamente 1-2 minutos.
+            <span style={{ marginRight: '0.5rem' }}>💬</span> Analizando profundidad de comentarios en videos seleccionados...
           </p>
-        </div>
-      )}
+        )}
 
-      {job.status === 'error' && (
-        <div style={{ padding: '1.5rem', backgroundColor: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '4px' }}>
-          <p style={{ color: '#ff5050', fontWeight: 700, marginBottom: '0.5rem' }}>Error al generar el reporte</p>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>{job.error ?? 'Error desconocido. Contacta soporte.'}</p>
-        </div>
-      )}
+        {(job.status === 'scraping' || (!['scraping_posts', 'scraping_comments', 'queued', 'analyzing', 'generating_pdf', 'complete', 'error'].includes(job.status))) && (
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            Recopilando datos de redes sociales. Esto puede tardar varios minutos.
+          </p>
+        )}
 
+        {job.status === 'analyzing' && (
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            <span style={{ marginRight: '0.5rem' }}>🧠</span> Claude está analizando los datos y generando insights estratégicos...
+          </p>
+        )}
+
+        {job.status === 'generating_pdf' && (
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            <span style={{ marginRight: '0.5rem' }}>📄</span> Construyendo reporte final de 8 páginas...
+          </p>
+        )}
+
+        {job.status === 'error' && (
+          <div>
+            <p style={{ color: '#ff5050', fontWeight: 700, marginBottom: '0.5rem' }}>Error detectado</p>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>{job.error ?? 'Error desconocido.'}</p>
+          </div>
+        )}
+
+        {job.status === 'complete' && (
+          <p style={{ color: 'var(--private-accent)', fontWeight: 700 }}>✓ Todo el proceso se completó correctamente.</p>
+        )}
+      </div>
+
+      {/* Action Area */}
       {job.status === 'complete' && job.pdfUrl && (
-        <div style={{ padding: '2rem', backgroundColor: 'rgba(238,241,81,0.08)', border: '1px solid rgba(238,241,81,0.4)', borderRadius: '4px' }}>
-          <p style={{ color: 'var(--private-accent)', fontWeight: 700, fontSize: '1.1rem', marginBottom: '1.5rem' }}>
-            ✓ Reporte listo
-          </p>
+        <div style={{ marginTop: '1.5rem', padding: '2rem', backgroundColor: 'rgba(238,241,81,0.08)', border: '1px solid rgba(238,241,81,0.4)', borderRadius: '4px', textAlign: 'center' }}>
           <a
             href={`/api/reports/${reportId}/download`}
             target="_blank"
@@ -178,14 +206,42 @@ export default function ReportStatusPage() {
               textDecoration: 'none',
             }}
           >
-            DESCARGAR PDF
+            DESCARGAR REPORTE FINAL
           </a>
         </div>
       )}
 
-      <div style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
-        ID: {reportId} · Actualizado: {new Date(job.updatedAt).toLocaleTimeString('es-CO')}
+      {/* Technical Monitor */}
+      <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Monitor Técnico</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
+            <span style={{ color: 'rgba(255,255,255,0.15)' }}>Report ID:</span> {reportId}
+          </div>
+          {job.apifyRunIds && Object.entries(job.apifyRunIds).map(([network, id]) => (
+            <div key={id} style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
+              <span style={{ color: 'rgba(255,255,255,0.15)' }}>Apify ({network}):</span> {id}
+            </div>
+          ))}
+          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
+            <span style={{ color: 'rgba(255,255,255,0.15)' }}>Último Update:</span> {new Date(job.updatedAt).toLocaleTimeString('es-CO')}
+          </div>
+        </div>
       </div>
+
+      <style jsx>{`
+        @keyframes pulse {
+          0% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.05); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      `}</style>
+    </div>
+  )
+}
     </div>
   )
 }

@@ -59,7 +59,7 @@ export async function POST(request: NextRequest, { params }: Params) {
         
         // Actualizar el job con el nuevo Run ID de comentarios
         const apifyRunIds = { ...job.apifyRunIds, tiktok_comments: commentRunId }
-        await updateJobStatus(reportId, { status: 'scraping', apifyRunIds })
+        await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds })
         
         return NextResponse.json({ ok: true })
       }

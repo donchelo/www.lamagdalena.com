@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
       })
     )
 
-    await saveJob({ ...job, status: 'scraping', apifyRunIds, updatedAt: new Date().toISOString() })
-    console.log(`[API] Job ${reportId} updated to scraping status`)
+    await saveJob({ ...job, status: 'scraping_posts', apifyRunIds, updatedAt: new Date().toISOString() })
+    console.log(`[API] Job ${reportId} updated to scraping_posts status`)
 
     return NextResponse.json({ reportId }, { status: 201 })
   } catch (error) {
