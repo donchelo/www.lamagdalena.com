@@ -43,6 +43,7 @@ export default function ReportStatusPage() {
   const { reportId } = useParams<{ reportId: string }>()
   const [job, setJob] = useState<JobData | null>(null)
   const [fetchError, setFetchError] = useState('')
+  const [retrying, setRetrying] = useState(false)
 
   const poll = useCallback(async () => {
     try {
@@ -54,6 +55,18 @@ export default function ReportStatusPage() {
       setFetchError('Error al consultar el estado del reporte.')
     }
   }, [reportId])
+
+  const handleRetry = useCallback(async () => {
+    setRetrying(true)
+    try {
+      const res = await fetch(`/api/reports/${reportId}/retry`, { method: 'POST' })
+      if (res.ok) {
+        await poll()
+      }
+    } finally {
+      setRetrying(false)
+    }
+  }, [reportId, poll])
 
   useEffect(() => {
     poll()
@@ -176,7 +189,26 @@ export default function ReportStatusPage() {
         {job.status === 'error' && (
           <div>
             <p style={{ color: '#ff5050', fontWeight: 700, marginBottom: '0.5rem' }}>Error detectado</p>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>{job.error ?? 'Error desconocido.'}</p>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '1rem' }}>{job.error ?? 'Error desconocido.'}</p>
+            <button
+              onClick={handleRetry}
+              disabled={retrying}
+              style={{
+                padding: '0.6rem 1.5rem',
+                backgroundColor: retrying ? 'rgba(255,255,255,0.1)' : 'rgba(238,241,81,0.15)',
+                color: retrying ? 'rgba(255,255,255,0.3)' : 'var(--private-accent)',
+                border: '1px solid',
+                borderColor: retrying ? 'rgba(255,255,255,0.1)' : 'rgba(238,241,81,0.3)',
+                borderRadius: '4px',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                letterSpacing: '0.1em',
+                cursor: retrying ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {retrying ? 'REINTENTANDO...' : 'REINTENTAR ANÁLISIS'}
+            </button>
           </div>
         )}
 
@@ -185,28 +217,59 @@ export default function ReportStatusPage() {
         )}
       </div>
 
-      {/* Action Area */}
-      {job.status === 'complete' && job.pdfUrl && (
-        <div style={{ marginTop: '1.5rem', padding: '2rem', backgroundColor: 'rgba(238,241,81,0.08)', border: '1px solid rgba(238,241,81,0.4)', borderRadius: '4px', textAlign: 'center' }}>
+      {/* Action Area Premium */}
+      {job.status === 'complete' && (
+        <div style={{ 
+          marginTop: '3rem', 
+          padding: '3rem', 
+          background: 'linear-gradient(135deg, rgba(238,241,81,0.1) 0%, rgba(238,241,81,0.02) 100%)', 
+          border: '1px solid rgba(238,241,81,0.3)', 
+          borderRadius: '8px', 
+          textAlign: 'center',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
+          <h2 style={{ 
+            fontFamily: 'var(--font-heading)', 
+            fontSize: '1.5rem', 
+            color: 'var(--private-accent)', 
+            marginBottom: '0.5rem',
+            letterSpacing: '0.05em'
+          }}>
+            ANÁLISIS ESTRATÉGICO LISTO
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '2rem', fontSize: '0.95rem' }}>
+            El reporte de 8 páginas para {job.clientName} ha sido generado con éxito.
+          </p>
           <a
             href={`/api/reports/${reportId}/download`}
             target="_blank"
             rel="noopener noreferrer"
             style={{
               display: 'inline-block',
-              padding: '1rem 2.5rem',
+              padding: '1.2rem 3.5rem',
               backgroundColor: 'var(--private-accent)',
               color: 'var(--private-bg)',
               border: 'none',
-              borderRadius: '2px',
+              borderRadius: '4px',
               fontFamily: 'var(--font-heading)',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              letterSpacing: '0.1em',
+              fontWeight: 800,
+              fontSize: '1rem',
+              letterSpacing: '0.15em',
               textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 10px 20px rgba(238,241,81,0.2)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 15px 30px rgba(238,241,81,0.3)'
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 10px 20px rgba(238,241,81,0.2)'
             }}
           >
-            DESCARGAR REPORTE FINAL
+            DESCARGAR REPORTE (PDF)
           </a>
         </div>
       )}

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Document } from '@react-pdf/renderer'
 import { CoverPage } from './pages/CoverPage'
+import { MethodologyPage } from './pages/MethodologyPage'
 import { ExecutiveSummaryPage } from './pages/ExecutiveSummaryPage'
 import { VolumeReachPage } from './pages/VolumeReachPage'
 import { EngagementPage } from './pages/EngagementPage'
@@ -31,6 +32,8 @@ export const ReportDocument = ({ job, analysis }: ReportDocumentProps) => {
       dateFrom={job.dateFrom}
       dateTo={job.dateTo}
     />
+    
+    <MethodologyPage methodology={analysis.methodology} />
     
     <ExecutiveSummaryPage
       summary={analysis.executiveSummary}

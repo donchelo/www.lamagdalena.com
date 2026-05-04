@@ -17,12 +17,13 @@ Font.register({
 })
 
 export const colors = {
-  bg: '#ffffff',
-  text: '#5c4a33',
-  accent: '#d4ff00',
-  secondary: '#eef151',
-  muted: '#a8a29e',
+  bg: '#121212',
+  text: '#ffffff',
+  accent: '#eef151',
+  secondary: '#d4ff00',
+  muted: 'rgba(255, 255, 255, 0.4)',
   white: '#ffffff',
+  cardBg: 'rgba(255, 255, 255, 0.05)',
 }
 
 export const pdfStyles = StyleSheet.create({
@@ -55,27 +56,32 @@ export const pdfStyles = StyleSheet.create({
     marginVertical: 15,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 700,
-    backgroundColor: colors.accent,
-    padding: 5,
-    marginBottom: 10,
+    color: colors.accent,
+    borderBottom: 1,
+    borderBottomColor: colors.accent,
+    paddingBottom: 4,
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
   },
   text: {
     fontSize: 10,
-    lineHeight: 1.5,
+    lineHeight: 1.6,
     fontWeight: 400,
+    color: 'rgba(255, 255, 255, 0.85)',
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
   },
   card: {
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 4,
-    borderLeft: 4,
+    padding: 15,
+    backgroundColor: colors.cardBg,
+    borderRadius: 2,
+    borderLeft: 2,
     borderLeftColor: colors.accent,
   },
   footer: {

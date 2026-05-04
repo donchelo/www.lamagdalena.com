@@ -10,6 +10,7 @@ export interface JobData {
   accounts: string[]
   selectedNetworks: string[]
   apifyRunIds?: Record<string, string>
+  apifyCompletedRuns?: string[]
   status: 'queued' | 'scraping' | 'scraping_posts' | 'scraping_comments' | 'analyzing' | 'generating_pdf' | 'complete' | 'error'
   error?: string
   pdfUrl?: string
@@ -57,10 +58,17 @@ export async function saveRawData(reportId: string, data: unknown): Promise<void
   })
 }
 
-export async function loadRawData(reportId: string): Promise<unknown> {
+// Returns empty array if not found — safe for first webhook call
+export async function getRawData(reportId: string): Promise<unknown[]> {
+  const data = await fetchJson(`reports/${reportId}/raw-data.json`)
+  return (data as unknown[] | null) ?? []
+}
+
+// Throws if not found — use for retry where data must exist
+export async function loadRawData(reportId: string): Promise<unknown[]> {
   const data = await fetchJson(`reports/${reportId}/raw-data.json`)
   if (!data) throw new Error('Raw data not found')
-  return data
+  return data as unknown[]
 }
 
 export async function saveAnalysis(reportId: string, analysis: unknown): Promise<void> {
@@ -69,6 +77,18 @@ export async function saveAnalysis(reportId: string, analysis: unknown): Promise
     contentType: 'application/json',
     allowOverwrite: true,
   })
+}
+export async function loadAnalysis(reportId: string): Promise<any | null> {
+  try {
+    const { blobs } = await list({ prefix: `reports/${reportId}/analysis.json`, limit: 1 })
+    if (blobs.length === 0) return null
+    const response = await fetch(blobs[0].url, {
+      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
+    })
+    return await response.json()
+  } catch {
+    return null
+  }
 }
 
 export async function savePdf(reportId: string, buffer: Buffer): Promise<string> {

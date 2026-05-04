@@ -51,23 +51,36 @@ interface CoverPageProps {
 }
 
 export const CoverPage = ({ clientName, dateFrom, dateTo }: CoverPageProps) => {
-  const logoPath = path.join(process.cwd(), 'public/assets/logo-main.png')
+  const logoPath = path.join(process.cwd(), 'public/assets/logos/Logo-Neon.png')
   
   return (
     <Page size="A4" style={styles.page}>
-      <Image src={logoPath} style={styles.logo} />
-      <Text style={styles.title}>Social Listening Report</Text>
-      <Text style={styles.subtitle}>{clientName}</Text>
-      
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Período: {dateFrom} - {dateTo}</Text>
-        <Text style={styles.infoText}>Fecha de generación: {new Date().toLocaleDateString('es-CO')}</Text>
+      <View style={{ position: 'absolute', top: 40, left: 40 }}>
+        <Image src={logoPath} style={{ width: 120 }} />
       </View>
       
-      <View style={styles.accentBar} />
+      <View style={{ alignItems: 'flex-start', width: '80%', marginTop: 100 }}>
+        <Text style={{ ...styles.title, textAlign: 'left', fontSize: 48, letterSpacing: -2 }}>
+          SOCIAL{'\n'}LISTENING{'\n'}REPORT
+        </Text>
+        <View style={{ ...styles.accentBar, width: 60, height: 4, marginBottom: 40 }} />
+        
+        <Text style={{ ...styles.subtitle, color: colors.accent, fontWeight: 700, fontSize: 24, marginBottom: 10 }}>
+          {clientName.toUpperCase()}
+        </Text>
+        
+        <View style={{ ...styles.infoContainer, alignItems: 'flex-start', marginTop: 0 }}>
+          <Text style={{ ...styles.infoText, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 }}>
+            PERÍODO: {dateFrom} — {dateTo}
+          </Text>
+          <Text style={{ ...styles.infoText, color: 'rgba(255,255,255,0.3)', fontSize: 10, marginTop: 4 }}>
+            GENERADO EL: {new Date().toLocaleDateString('es-CO')}
+          </Text>
+        </View>
+      </View>
       
       <View style={pdfStyles.footer}>
-        <Text>La Magdalena — Estrategia y Contenido</Text>
+        <Text style={{ color: colors.accent, fontWeight: 700 }}>LA MAGDALENA — NEON ERA</Text>
       </View>
     </Page>
   )

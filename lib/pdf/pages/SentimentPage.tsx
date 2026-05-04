@@ -60,25 +60,26 @@ export const SentimentPage = ({ sentiment, dominantTopics, drivers }: SentimentP
     { label: 'Neutral', value: sentiment.neutral },
     { label: 'Negativo', value: sentiment.negative },
   ]
-  const sentimentColors = ['#d4ff00', '#eef151', '#5c4a33']
+  const sentimentColors = [colors.accent, 'rgba(255,255,255,0.2)', '#ff5050']
 
   return (
     <Page size="A4" style={pdfStyles.page}>
       <View style={pdfStyles.header}>
-        <Text style={pdfStyles.title}>Análisis de Sentimiento</Text>
-        <Text style={pdfStyles.subtitle}>Percepción de la audiencia y temas clave</Text>
+        <Text style={pdfStyles.title}>ANÁLISIS DE SENTIMIENTO</Text>
+        <Text style={{ ...pdfStyles.subtitle, color: 'rgba(255,255,255,0.4)' }}>Percepción de la audiencia y temas clave</Text>
       </View>
 
       <View style={styles.row}>
         <View style={styles.half}>
-          <Text style={pdfStyles.sectionTitle}>Distribución de Sentimiento</Text>
-          <View style={styles.chartContainer}>
-            <DonutChart data={sentimentData} size={150} />
-            <View style={{ marginTop: 10 }}>
+          <Text style={pdfStyles.sectionTitle}>Distribución</Text>
+          <View style={{ ...styles.chartContainer, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <DonutChart data={sentimentData} size={150} colors={sentimentColors} />
+            <View style={{ marginTop: 15, width: '100%' }}>
               {sentimentData.map((d, i) => (
-                <Text key={i} style={{ fontSize: 9, marginBottom: 2 }}>
-                  {d.label}: {d.value}%
-                </Text>
+                <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4, paddingBottom: 4, borderBottom: 0.5, borderBottomColor: 'rgba(255,255,255,0.05)' }}>
+                  <Text style={{ fontSize: 9, color: sentimentColors[i], fontWeight: 700 }}>{d.label}</Text>
+                  <Text style={{ fontSize: 9, color: '#fff' }}>{d.value}%</Text>
+                </View>
               ))}
             </View>
           </View>
@@ -87,25 +88,25 @@ export const SentimentPage = ({ sentiment, dominantTopics, drivers }: SentimentP
           <Text style={pdfStyles.sectionTitle}>Temas Dominantes</Text>
           <View style={styles.topicList}>
             {dominantTopics.map((topic, i) => (
-              <Text key={i} style={styles.topicItem}>{topic}</Text>
+              <Text key={i} style={{ ...styles.topicItem, color: '#fff', borderLeftColor: colors.accent }}>{topic}</Text>
             ))}
           </View>
         </View>
       </View>
 
       <View style={pdfStyles.section}>
-        <Text style={pdfStyles.sectionTitle}>Factores de Sentimiento (Drivers)</Text>
+        <Text style={pdfStyles.sectionTitle}>Drivers Estratégicos</Text>
         <View style={styles.row}>
-          <View style={[styles.half, styles.driverBox, { backgroundColor: '#f0fdf4' }]}>
-            <Text style={[styles.driverTitle, { color: '#166534' }]}>Positivos</Text>
+          <View style={[styles.half, styles.driverBox, { backgroundColor: 'rgba(238, 241, 81, 0.05)', border: '1px solid rgba(238, 241, 81, 0.2)' }]}>
+            <Text style={[styles.driverTitle, { color: colors.accent }]}>Positivos</Text>
             {drivers.positive.map((d, i) => (
-              <Text key={i} style={[pdfStyles.text, { marginBottom: 3 }]}>• {d}</Text>
+              <Text key={i} style={[pdfStyles.text, { marginBottom: 3, color: 'rgba(255,255,255,0.8)' }]}>— {d}</Text>
             ))}
           </View>
-          <View style={[styles.half, styles.driverBox, { backgroundColor: '#fef2f2' }]}>
-            <Text style={[styles.driverTitle, { color: '#991b1b' }]}>Negativos</Text>
+          <View style={[styles.half, styles.driverBox, { backgroundColor: 'rgba(255, 80, 80, 0.05)', border: '1px solid rgba(255, 80, 80, 0.2)' }]}>
+            <Text style={[styles.driverTitle, { color: '#ff5050' }]}>Críticos</Text>
             {drivers.negative.map((d, i) => (
-              <Text key={i} style={[pdfStyles.text, { marginBottom: 3 }]}>• {d}</Text>
+              <Text key={i} style={[pdfStyles.text, { marginBottom: 3, color: 'rgba(255,255,255,0.8)' }]}>— {d}</Text>
             ))}
           </View>
         </View>

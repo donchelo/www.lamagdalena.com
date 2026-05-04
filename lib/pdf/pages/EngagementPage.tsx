@@ -4,41 +4,48 @@ import { colors, pdfStyles } from '../styles'
 
 const styles = StyleSheet.create({
   engagementBanner: {
-    backgroundColor: colors.accent,
-    padding: 20,
-    marginBottom: 30,
+    backgroundColor: 'rgba(238, 241, 81, 0.05)',
+    border: '1px solid rgba(238, 241, 81, 0.2)',
+    padding: 30,
+    marginBottom: 40,
     alignItems: 'center',
+    borderRadius: 2,
   },
   engagementValue: {
-    fontSize: 32,
+    fontSize: 48,
     fontWeight: 900,
+    color: colors.accent,
+    letterSpacing: -2,
   },
   engagementLabel: {
-    fontSize: 12,
-    fontWeight: 500,
+    fontSize: 10,
+    fontWeight: 700,
+    color: 'rgba(255, 255, 255, 0.5)',
     textTransform: 'uppercase',
+    letterSpacing: 2,
+    marginTop: 5,
   },
   table: {
-    marginTop: 10,
+    marginTop: 15,
   },
   tableHeader: {
     flexDirection: 'row',
-    borderBottomColor: colors.text,
+    borderBottomColor: colors.accent,
     borderBottomWidth: 1,
-    paddingBottom: 5,
-    marginBottom: 5,
+    paddingBottom: 8,
+    marginBottom: 8,
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottomColor: '#eeeeee',
-    borderBottomWidth: 1,
-    paddingVertical: 5,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomWidth: 0.5,
+    paddingVertical: 10,
   },
-  colPlatform: { width: '15%', fontSize: 9 },
-  colCaption: { width: '55%', fontSize: 9 },
-  colLikes: { width: '15%', fontSize: 9, textAlign: 'right' },
-  colComments: { width: '15%', fontSize: 9, textAlign: 'right' },
-  headerText: { fontWeight: 700, fontSize: 9 },
+  colPlatform: { width: '15%', fontSize: 9, color: colors.accent, fontWeight: 700 },
+  colCaption: { width: '55%', fontSize: 9, color: 'rgba(255, 255, 255, 0.8)' },
+  colLikes: { width: '15%', fontSize: 9, textAlign: 'right', color: '#fff' },
+  colComments: { width: '15%', fontSize: 9, textAlign: 'right', color: '#fff' },
+  headerText: { fontWeight: 700, fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 },
 })
 
 interface EngagementPageProps {
@@ -55,8 +62,8 @@ interface EngagementPageProps {
 export const EngagementPage = ({ avgEngagementRate, topPosts }: EngagementPageProps) => (
   <Page size="A4" style={pdfStyles.page}>
     <View style={pdfStyles.header}>
-      <Text style={pdfStyles.title}>Engagement</Text>
-      <Text style={pdfStyles.subtitle}>Interacción y contenido destacado</Text>
+      <Text style={pdfStyles.title}>ENGAGEMENT</Text>
+      <Text style={{ ...pdfStyles.subtitle, color: 'rgba(255,255,255,0.4)' }}>Interacción y contenido destacado</Text>
     </View>
 
     <View style={styles.engagementBanner}>

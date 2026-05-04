@@ -9,24 +9,26 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   numberBox: {
-    width: 30,
-    height: 30,
+    width: 24,
+    height: 24,
     backgroundColor: colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
+    borderRadius: 2,
   },
   number: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 900,
+    color: colors.bg,
   },
   content: {
     flex: 1,
-    paddingTop: 4,
   },
   insightText: {
-    fontSize: 11,
-    lineHeight: 1.5,
+    fontSize: 10,
+    lineHeight: 1.6,
+    color: 'rgba(255,255,255,0.9)',
   },
 })
 
@@ -37,8 +39,8 @@ interface KeyInsightsPageProps {
 export const KeyInsightsPage = ({ insights }: KeyInsightsPageProps) => (
   <Page size="A4" style={pdfStyles.page}>
     <View style={pdfStyles.header}>
-      <Text style={pdfStyles.title}>Insights Clave</Text>
-      <Text style={pdfStyles.subtitle}>Hallazgos estratégicos derivados del análisis</Text>
+      <Text style={pdfStyles.title}>INSIGHTS CLAVE</Text>
+      <Text style={{ ...pdfStyles.subtitle, color: 'rgba(255,255,255,0.4)' }}>Hallazgos estratégicos derivados del análisis</Text>
     </View>
 
     <View style={pdfStyles.section}>

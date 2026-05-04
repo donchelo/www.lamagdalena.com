@@ -10,9 +10,23 @@ export async function GET(_request: NextRequest, { params }: Params) {
   const job = await loadJob(reportId)
 
   if (!job) return NextResponse.json({ error: 'Report not found' }, { status: 404 })
-  if (job.status !== 'complete' || !job.pdfUrl) {
-    return NextResponse.json({ error: 'PDF not ready' }, { status: 409 })
-  }
 
-  return NextResponse.redirect(job.pdfUrl)
+  // Buscar el archivo real en el almacenamiento
+  const { list } = await import('@vercel/blob')
+  const { blobs } = await list({ prefix: `reports/${reportId}/report.pdf`, limit: 1 })
+  
+  if (blobs.length === 0) return NextResponse.json({ error: 'PDF file not found' }, { status: 404 })
+
+  const response = await fetch(blobs[0].url, {
+    headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
+  })
+
+  const pdfBuffer = await response.arrayBuffer()
+
+  return new NextResponse(pdfBuffer, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="Reporte-LaMagdalena-${job.clientName.replace(/\s+/g, '-')}.pdf"`
+    }
+  })
 }

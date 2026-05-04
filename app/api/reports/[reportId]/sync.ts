@@ -1,4 +1,4 @@
-import { loadJob, updateJobStatus, saveRawData, saveAnalysis, savePdf, JobData } from '@/lib/blob'
+import { updateJobStatus, saveRawData, saveAnalysis, savePdf, getRawData, JobData } from '@/lib/blob'
 import { getRunInfo, fetchDatasetItems, startTikTokCommentsRun } from '@/lib/apify'
 import { analyzeData } from '@/lib/claude'
 
@@ -19,30 +19,18 @@ export async function syncJobWithApify(reportId: string, job: JobData): Promise<
 
   try {
     const info = await getRunInfo(activeRunId)
-    
-    // Si el proceso ya terminó en Apify pero nosotros seguimos esperando
+
     if (info.status === 'SUCCEEDED') {
-      console.log(`[Sync] Detectado proceso terminado (${activeRunId}). Sincronizando datos...`)
-      
+      console.log(`[Sync] Run terminado (${activeRunId}). Sincronizando datos...`)
+
       const items = await fetchDatasetItems(info.defaultDatasetId)
-      
-      // Guardar datos
-      const { list } = await import('@vercel/blob')
-      let existing: any[] = []
-      try {
-        const res = await fetch(job.reportId.includes('http') ? job.reportId : `https://${process.env.VERCEL_URL}/api/reports/${reportId}/data`)
-        if (res.ok) existing = await res.json()
-      } catch {
-        // Ignorar si no hay datos previos
-      }
-      
+      const existing = await getRawData(reportId)
       const combined = [...existing, ...items]
       await saveRawData(reportId, combined)
 
-      // Lógica de transición
       if (currentStage === 'posts' && job.selectedNetworks.includes('tiktok')) {
         console.log(`[Sync] Transicionando de Posts a Comentarios...`)
-        
+
         const videoUrls = items
           .map((item: any) => item.url || item.videoUrl || item.webVideoUrl || item.link || item.postUrl || item.shareUrl)
           .filter(Boolean)
@@ -53,25 +41,19 @@ export async function syncJobWithApify(reportId: string, job: JobData): Promise<
           const baseUrl = process.env.VERCEL_URL
             ? `https://${process.env.VERCEL_URL}`
             : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-          
+
           const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook`
           const commentRunId = await startTikTokCommentsRun(videoUrls, webhookUrl)
-          
           const apifyRunIds = { ...job.apifyRunIds, tiktok_comments: commentRunId }
-          const updated = { ...job, status: 'scraping_comments' as const, apifyRunIds, updatedAt: new Date().toISOString() }
-          await updateJobStatus(reportId, updated)
+          const updated = await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds })
           return updated
         }
       }
 
-      // Si llegamos aquí es que ya terminamos todo el scraping
-      console.log(`[Sync] Scraping completo. Iniciando análisis con Claude...`)
+      console.log(`[Sync] Scraping completo. Iniciando análisis...`)
       await updateJobStatus(reportId, { status: 'analyzing' })
-      
-      // Lanzar análisis (en background para no bloquear el GET)
-      processAnalysis(reportId, combined)
-      
-      return { ...job, status: 'analyzing', updatedAt: new Date().toISOString() }
+      processAnalysis(reportId, combined, job)
+      return { ...job, status: 'analyzing' as const, updatedAt: new Date().toISOString() }
     }
   } catch (error) {
     console.error(`[Sync] Error sincronizando con Apify:`, error)
@@ -80,21 +62,23 @@ export async function syncJobWithApify(reportId: string, job: JobData): Promise<
   return null
 }
 
-async function processAnalysis(reportId: string, data: any[]) {
+async function processAnalysis(reportId: string, data: unknown[], job: JobData) {
   try {
-    const analysis = await analyzeData(data)
+    const analysis = await analyzeData(data, {
+      clientName: job.clientName,
+      dateFrom: job.dateFrom,
+      dateTo: job.dateTo,
+      selectedNetworks: job.selectedNetworks,
+      keywords: job.keywords,
+      hashtags: job.hashtags,
+    })
     await saveAnalysis(reportId, analysis)
-    
     await updateJobStatus(reportId, { status: 'generating_pdf' })
-    
-    const job = await loadJob(reportId)
-    if (job) {
-      console.log(`[Sync] Generando PDF para el cliente: ${job.clientName}`)
-      const { renderReportPdf } = await import('@/lib/pdf/render')
-      const pdfBuffer = await renderReportPdf({ job, analysis })
-      await savePdf(reportId, pdfBuffer)
-      await updateJobStatus(reportId, { status: 'complete' })
-    }
+
+    const { renderReportPdf } = await import('@/lib/pdf/render')
+    const pdfBuffer = await renderReportPdf({ job, analysis })
+    const pdfUrl = await savePdf(reportId, pdfBuffer)
+    await updateJobStatus(reportId, { status: 'complete', pdfUrl })
   } catch (err: any) {
     await updateJobStatus(reportId, { status: 'error', error: err.message })
   }

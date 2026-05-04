@@ -1,0 +1,36 @@
+--- REINTENTANDO GENERACIÓN DE PDF PARA: 34e1b190-7593-4fdd-a498-965284f8d65e ---
+1. Cargando datos reales del scraping...
+2. Pidiendo a Claude que analice 55 elementos...
+3. Generando buffer de PDF profesional...
+ReferenceError: React is not defined
+    at BarChart (/home/ai_tamaprint/Software/laMagdalena/lib/pdf/charts.tsx:16:3)
+    at Object.react_stack_bottom_frame (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:262994)
+    at Xn (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:141967)
+    at Wr (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:166603)
+    at rl (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:188791)
+    at le (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:112292)
+    at Ta (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:233899)
+    at Pa (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:233790)
+    at Ca (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:233636)
+    at ma (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/reconciler/lib/reconciler-33.js:10:227294) {
+  componentStack: '\n' +
+    '    at BarChart (/home/ai_tamaprint/Software/laMagdalena/lib/pdf/charts.tsx:8:28)\n' +
+    '    at VIEW (<anonymous>)\n' +
+    '    at VIEW (<anonymous>)\n' +
+    '    at PAGE (<anonymous>)\n' +
+    '    at VolumeReachPage (/home/ai_tamaprint/Software/laMagdalena/lib/pdf/pages/VolumeReachPage.tsx:61:35)\n' +
+    '    at DOCUMENT (<anonymous>)\n' +
+    '    at ReportDocument (/home/ai_tamaprint/Software/laMagdalena/lib/pdf/ReportDocument.tsx:19:34)'
+}
+Error generating PDF: TypeError: Cannot read properties of null (reading 'props')
+    at render (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/renderer/lib/react-pdf.js:139:38)
+    at Object.toBuffer (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/renderer/lib/react-pdf.js:228:15)
+    at renderToStream (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/renderer/lib/react-pdf.js:294:33)
+    at renderToBuffer (/home/ai_tamaprint/Software/laMagdalena/node_modules/@react-pdf/renderer/lib/react-pdf.js:320:35)
+    at renderReportPdf (/home/ai_tamaprint/Software/laMagdalena/lib/pdf/render.tsx:16:26)
+    at retryPdf (/home/ai_tamaprint/Software/laMagdalena/scratch/retry-pdf.ts:43:29)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+Error en el reintento: Error: Failed to generate PDF report
+    at renderReportPdf (/home/ai_tamaprint/Software/laMagdalena/lib/pdf/render.tsx:20:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retryPdf (/home/ai_tamaprint/Software/laMagdalena/scratch/retry-pdf.ts:43:23)

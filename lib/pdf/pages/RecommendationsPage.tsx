@@ -4,34 +4,38 @@ import { colors, pdfStyles } from '../styles'
 
 const styles = StyleSheet.create({
   recCard: {
-    padding: 15,
-    borderLeftWidth: 5,
-    backgroundColor: '#fafafa',
-    marginBottom: 15,
+    padding: 20,
+    borderLeftWidth: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    marginBottom: 20,
+    borderRadius: 2,
   },
   recHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'flex-start',
+    marginBottom: 10,
   },
   recTitle: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 700,
-    width: '80%',
+    color: colors.accent,
+    width: '75%',
+    letterSpacing: 0.5,
   },
   priorityBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 2,
-    fontSize: 8,
-    fontWeight: 700,
+    fontSize: 7,
+    fontWeight: 900,
     textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   recDescription: {
     fontSize: 10,
-    lineHeight: 1.5,
-    color: colors.text,
+    lineHeight: 1.6,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
 })
 
@@ -45,18 +49,18 @@ interface RecommendationsPageProps {
 
 const getPriorityColor = (priority: string) => {
   switch (priority) {
-    case 'high': return { bg: '#fee2e2', text: '#b91c1c', border: '#ef4444' }
-    case 'medium': return { bg: '#fef3c7', text: '#b45309', border: '#f59e0b' }
-    case 'low': return { bg: '#dcfce7', text: '#15803d', border: '#22c55e' }
-    default: return { bg: '#f3f4f6', text: '#374151', border: '#9ca3af' }
+    case 'high': return { bg: 'rgba(255, 80, 80, 0.15)', text: '#ff5050', border: '#ff5050' }
+    case 'medium': return { bg: 'rgba(238, 241, 81, 0.15)', text: colors.accent, border: colors.accent }
+    case 'low': return { bg: 'rgba(255, 255, 255, 0.1)', text: 'rgba(255, 255, 255, 0.5)', border: 'rgba(255, 255, 255, 0.2)' }
+    default: return { bg: 'rgba(255, 255, 255, 0.05)', text: '#fff', border: '#fff' }
   }
 }
 
 export const RecommendationsPage = ({ recommendations }: RecommendationsPageProps) => (
   <Page size="A4" style={pdfStyles.page}>
     <View style={pdfStyles.header}>
-      <Text style={pdfStyles.title}>Recomendaciones</Text>
-      <Text style={pdfStyles.subtitle}>Acciones sugeridas para optimizar la presencia digital</Text>
+      <Text style={pdfStyles.title}>RECOMENDACIONES</Text>
+      <Text style={{ ...pdfStyles.subtitle, color: 'rgba(255,255,255,0.4)' }}>Acciones sugeridas para optimizar la presencia digital</Text>
     </View>
 
     <View style={pdfStyles.section}>
