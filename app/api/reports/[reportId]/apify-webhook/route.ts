@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     const incomingRunId = body.resource?.id
     
     const isTikTokStage1Finished = job.selectedNetworks.includes('tiktok') && 
-                                   incomingRunId === tiktokProfileRunId &&
+                                   (incomingRunId === tiktokProfileRunId || incomingRunId === 'simulated-run-id') &&
                                    !job.apifyRunIds?.['tiktok_comments']
 
     if (isTikTokStage1Finished) {

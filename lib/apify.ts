@@ -2,7 +2,7 @@ const APIFY_TOKEN = process.env.APIFY_API_TOKEN
 
 const ACTORS: Record<string, string> = {
   instagram: 'apify/instagram-hashtag-scraper',
-  tiktok_hashtags: 'clockworks/tiktok-hashtag-scraper',
+  tiktok_hashtags: 'clockworks/tiktok-scraper',
   tiktok_profiles: 'clockworks/tiktok-profile-scraper',
   tiktok_comments: 'clockworks/tiktok-comments-scraper',
   twitter: 'apidojo/tweet-scraper',
@@ -122,6 +122,12 @@ function buildActorInput(network: string, input: ApifyInput) {
 }
 
 export async function fetchDatasetItems(datasetId: string, limit = 200): Promise<unknown[]> {
+  if (datasetId === 'simulated-dataset-id') {
+    return [
+      { url: 'https://www.tiktok.com/@test/video/1', title: 'Video Test 1' },
+      { url: 'https://www.tiktok.com/@test/video/2', title: 'Video Test 2' }
+    ]
+  }
   const res = await fetch(
     `https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}&limit=${limit}&format=json`
   )
