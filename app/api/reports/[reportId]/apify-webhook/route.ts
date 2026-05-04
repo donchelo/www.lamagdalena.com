@@ -47,7 +47,6 @@ export async function POST(request: NextRequest, { params }: Params) {
       const videoUrls = items
         .map((item: any) => item.videoUrl || item.webVideoUrl)
         .filter(Boolean)
-        .slice(0, 10) // Tomamos los 10 videos más recientes para no saturar
 
       if (videoUrls.length > 0) {
         const baseUrl = process.env.VERCEL_URL

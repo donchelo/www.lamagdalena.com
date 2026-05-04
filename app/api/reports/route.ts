@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
 
     const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook`
-    const apifyInput = { keywords, hashtags, accounts, dateFrom, dateTo, maxResults: 100 }
+    const apifyInput = { keywords, hashtags, accounts, dateFrom, dateTo, maxResults: 1000 }
     const apifyRunIds: Record<string, string> = {}
 
     await Promise.all(

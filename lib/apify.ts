@@ -27,8 +27,8 @@ export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: st
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         postURLs: videoUrls,
-        commentsPerPost: 100,
-        maxRepliesPerComment: 0,
+        commentsPerPost: 10000,
+        maxRepliesPerComment: 10,
         webhooks: [
           {
             eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
@@ -81,8 +81,8 @@ export async function startActorRun(network: string, input: ApifyInput, webhookU
 }
 
 function buildActorInput(network: string, input: ApifyInput) {
-  const tags = [...(input.hashtags ?? []), ...(input.keywords ?? [])].slice(0, 10)
-  const limit = Math.min(input.maxResults ?? 100, 200)
+  const tags = [...(input.hashtags ?? []), ...(input.keywords ?? [])].slice(0, 50)
+  const limit = input.maxResults ?? 10000
 
   if (network === 'tiktok' && input.accounts && input.accounts.length > 0) {
     return {
