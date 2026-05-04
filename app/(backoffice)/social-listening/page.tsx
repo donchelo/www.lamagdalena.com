@@ -52,8 +52,23 @@ export default function SocialListeningPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (form.selectedNetworks.length === 0) { setError('Selecciona al menos una red social.'); return }
-    if (form.keywords.length === 0 && form.hashtags.length === 0 && form.accounts.length === 0) {
+    
+    // Auto-agregar lo que esté en los inputs pero no se haya confirmado con "+"
+    const finalKeywords = [...form.keywords]
+    if (keywordInput.trim()) finalKeywords.push(keywordInput.trim())
+    
+    const finalHashtags = [...form.hashtags]
+    if (hashtagInput.trim()) finalHashtags.push(hashtagInput.trim())
+    
+    const finalAccounts = [...form.accounts]
+    if (accountInput.trim()) finalAccounts.push(accountInput.trim())
+
+    if (form.selectedNetworks.length === 0) {
+      setError('Selecciona al menos una red social.')
+      return
+    }
+    
+    if (finalKeywords.length === 0 && finalHashtags.length === 0 && finalAccounts.length === 0) {
       setError('Agrega al menos una keyword, hashtag o cuenta a monitorear.')
       return
     }
@@ -65,7 +80,12 @@ export default function SocialListeningPage() {
       const res = await fetch('/api/reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          keywords: finalKeywords,
+          hashtags: finalHashtags,
+          accounts: finalAccounts
+        }),
       })
       if (!res.ok) throw new Error(await res.text())
       const { reportId } = await res.json()
