@@ -37,16 +37,22 @@ export async function POST(request: NextRequest, { params }: Params) {
     const combined = [...existing, ...items]
     await saveRawData(reportId, combined)
 
-    // LÓGICA DE ETAPAS PARA TIKTOK
-    const isTikTokProfileRun = job.selectedNetworks.includes('tiktok') && 
-                               items.some((item: any) => item.url || item.videoUrl || item.webVideoUrl || item.link) &&
-                               !items.some((item: any) => item.commentText)
+    // LÓGICA DE ETAPAS PARA TIKTOK (Identificación por ID de Proceso)
+    const tiktokProfileRunId = job.apifyRunIds?.['tiktok'] || job.apifyRunIds?.['tiktok_profiles']
+    const incomingRunId = body.resource?.id
+    
+    const isTikTokStage1Finished = job.selectedNetworks.includes('tiktok') && 
+                                   incomingRunId === tiktokProfileRunId &&
+                                   !job.apifyRunIds?.['tiktok_comments']
 
-    if (isTikTokProfileRun) {
-      console.log(`[Webhook] TikTok profile run finished for ${reportId}. Starting comments stage...`)
+    if (isTikTokStage1Finished) {
+      console.log(`[Webhook] TikTok Stage 1 (Profile) finished. Extracting videos for Stage 2...`)
+      
+      // Intentar extraer URLs de cualquier campo posible
       const videoUrls = items
-        .map((item: any) => item.url || item.videoUrl || item.webVideoUrl || item.link)
+        .map((item: any) => item.url || item.videoUrl || item.webVideoUrl || item.link || item.postUrl)
         .filter(Boolean)
+        .filter((url: string) => url.includes('tiktok.com'))
 
       if (videoUrls.length > 0) {
         const baseUrl = process.env.VERCEL_URL
@@ -55,13 +61,16 @@ export async function POST(request: NextRequest, { params }: Params) {
         
         const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook`
         const { startTikTokCommentsRun } = await import('@/lib/apify')
-        const commentRunId = await startTikTokCommentsRun(videoUrls, webhookUrl)
         
-        // Actualizar el job con el nuevo Run ID de comentarios
-        const apifyRunIds = { ...job.apifyRunIds, tiktok_comments: commentRunId }
-        await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds })
-        
-        return NextResponse.json({ ok: true })
+        try {
+          const commentRunId = await startTikTokCommentsRun(videoUrls, webhookUrl)
+          const apifyRunIds = { ...job.apifyRunIds, tiktok_comments: commentRunId }
+          await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds })
+          return NextResponse.json({ ok: true })
+        } catch (err) {
+          console.error(`[Webhook] Error starting Stage 2:`, err)
+          // Si falla iniciar comentarios, al menos intentamos seguir con lo que tenemos
+        }
       }
     }
 
