@@ -37,12 +37,44 @@ export async function POST(request: NextRequest, { params }: Params) {
     const combined = [...existing, ...items]
     await saveRawData(reportId, combined)
 
-    // If still waiting for other network actors, just accumulate
+    // LÓGICA DE ETAPAS PARA TIKTOK
+    const isTikTokProfileRun = job.selectedNetworks.includes('tiktok') && 
+                               items.some((item: any) => item.videoUrl || item.webVideoUrl) &&
+                               !items.some((item: any) => item.commentText)
+
+    if (isTikTokProfileRun) {
+      console.log(`[Webhook] TikTok profile run finished for ${reportId}. Starting comments stage...`)
+      const videoUrls = items
+        .map((item: any) => item.videoUrl || item.webVideoUrl)
+        .filter(Boolean)
+        .slice(0, 10) // Tomamos los 10 videos más recientes para no saturar
+
+      if (videoUrls.length > 0) {
+        const baseUrl = process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+        
+        const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook`
+        const { startTikTokCommentsRun } = await import('@/lib/apify')
+        const commentRunId = await startTikTokCommentsRun(videoUrls, webhookUrl)
+        
+        // Actualizar el job con el nuevo Run ID de comentarios
+        const apifyRunIds = { ...job.apifyRunIds, tiktok_comments: commentRunId }
+        await updateJobStatus(reportId, { status: 'scraping', apifyRunIds })
+        
+        return NextResponse.json({ ok: true })
+      }
+    }
+
+    // Si llegamos aquí, o no es TikTok o ya terminaron todas las etapas
     const completedNetworks = Object.keys(job.apifyRunIds ?? {}).length
     const networksNeeded = job.selectedNetworks.length
-    const isLastWebhook = combined.length >= networksNeeded * 5 || completedNetworks <= 1
+    
+    // Si es TikTok, necesitamos que hayan terminado ambas etapas (posts y comentarios)
+    const isTikTokComplete = job.selectedNetworks.includes('tiktok') && combined.some((item: any) => item.commentText)
+    const isOtherComplete = !job.selectedNetworks.includes('tiktok') && completedNetworks >= networksNeeded
 
-    if (!isLastWebhook) {
+    if (!isTikTokComplete && !isOtherComplete) {
       await updateJobStatus(reportId, { status: 'scraping' })
       return NextResponse.json({ ok: true })
     }

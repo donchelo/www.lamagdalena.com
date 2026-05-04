@@ -21,13 +21,17 @@ async function fetchJson(prefix: string): Promise<unknown | null> {
   const { blobs } = await list({ prefix })
   const blob = blobs.find(b => b.pathname === prefix)
   if (!blob) return null
-  const res = await fetch(blob.url)
+  const res = await fetch(blob.url, {
+    headers: {
+      Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+    },
+  })
   return res.json()
 }
 
 export async function saveJob(job: JobData): Promise<void> {
   await put(`reports/${job.reportId}/job.json`, JSON.stringify(job), {
-    access: 'public',
+    access: 'private',
     contentType: 'application/json',
     allowOverwrite: true,
   })
@@ -47,7 +51,7 @@ export async function updateJobStatus(reportId: string, patch: Partial<JobData>)
 
 export async function saveRawData(reportId: string, data: unknown): Promise<void> {
   await put(`reports/${reportId}/raw-data.json`, JSON.stringify(data), {
-    access: 'public',
+    access: 'private',
     contentType: 'application/json',
     allowOverwrite: true,
   })
@@ -61,7 +65,7 @@ export async function loadRawData(reportId: string): Promise<unknown> {
 
 export async function saveAnalysis(reportId: string, analysis: unknown): Promise<void> {
   await put(`reports/${reportId}/analysis.json`, JSON.stringify(analysis), {
-    access: 'public',
+    access: 'private',
     contentType: 'application/json',
     allowOverwrite: true,
   })
@@ -69,7 +73,7 @@ export async function saveAnalysis(reportId: string, analysis: unknown): Promise
 
 export async function savePdf(reportId: string, buffer: Buffer): Promise<string> {
   const blob = await put(`reports/${reportId}/report.pdf`, buffer, {
-    access: 'public',
+    access: 'private',
     contentType: 'application/pdf',
     allowOverwrite: true,
   })
@@ -84,7 +88,11 @@ export async function listReports(): Promise<JobData[]> {
   await Promise.all(
     jobBlobs.map(async blob => {
       try {
-        const res = await fetch(blob.url)
+        const res = await fetch(blob.url, {
+          headers: {
+            Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+          },
+        })
         const job: JobData = await res.json()
         jobs.push(job)
       } catch {

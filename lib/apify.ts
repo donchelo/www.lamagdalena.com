@@ -4,6 +4,7 @@ const ACTORS: Record<string, string> = {
   instagram: 'apify/instagram-hashtag-scraper',
   tiktok_hashtags: 'clockworks/tiktok-hashtag-scraper',
   tiktok_profiles: 'clockworks/tiktok-profile-scraper',
+  tiktok_comments: 'clockworks/tiktok-comments-scraper',
   twitter: 'apidojo/tweet-scraper',
   facebook: 'apify/facebook-posts-scraper',
   youtube: 'streamers/youtube-search-scraper',
@@ -16,6 +17,35 @@ interface ApifyInput {
   dateFrom?: string
   dateTo?: string
   maxResults?: number
+}
+
+export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: string): Promise<string> {
+  const res = await fetch(
+    `https://api.apify.com/v2/acts/${encodeURIComponent(ACTORS.tiktok_comments)}/runs?token=${APIFY_TOKEN}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        postURLs: videoUrls,
+        commentsPerPost: 100,
+        maxRepliesPerComment: 0,
+        webhooks: [
+          {
+            eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
+            requestUrl: webhookUrl,
+          },
+        ],
+      }),
+    }
+  )
+
+  if (!res.ok) {
+    const body = await res.text()
+    throw new Error(`Apify error starting tiktok comments: ${body}`)
+  }
+
+  const data = await res.json()
+  return data.data.id as string
 }
 
 export async function startActorRun(network: string, input: ApifyInput, webhookUrl: string): Promise<string> {
