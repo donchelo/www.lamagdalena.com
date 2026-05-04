@@ -10,7 +10,7 @@ export interface JobData {
   accounts: string[]
   selectedNetworks: string[]
   apifyRunIds?: Record<string, string>
-  status: 'queued' | 'scraping' | 'analyzing' | 'generating_pdf' | 'complete' | 'error'
+  status: 'queued' | 'scraping' | 'scraping_posts' | 'scraping_comments' | 'analyzing' | 'generating_pdf' | 'complete' | 'error'
   error?: string
   pdfUrl?: string
   createdAt: string
