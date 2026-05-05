@@ -68,9 +68,10 @@ export const pdfStyles = StyleSheet.create({
   },
   text: {
     fontSize: 10,
-    lineHeight: 1.6,
+    lineHeight: 1.5,
     fontWeight: 400,
     color: 'rgba(255, 255, 255, 0.85)',
+    hyphens: 'none',
   },
   grid: {
     flexDirection: 'row',

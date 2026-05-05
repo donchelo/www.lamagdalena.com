@@ -3,6 +3,7 @@ import React from 'react'
 import type { JobData } from '@/lib/blob'
 import type { Analysis } from '@/lib/claude'
 import { ReportDocument } from './ReportDocument'
+import { OnePagerDocument } from './OnePagerDocument'
 
 interface RenderInput {
   job: JobData
@@ -20,5 +21,17 @@ export async function renderReportPdf({ job, analysis }: RenderInput): Promise<B
     const stack = error instanceof Error ? error.stack?.split('\n').slice(0, 4).join(' | ') : ''
     console.error('PDF error:', msg, stack)
     throw new Error(`PDF: ${msg}`)
+  }
+}
+
+export async function renderOnePagerPdf({ job, analysis }: RenderInput): Promise<Buffer> {
+  try {
+    // @ts-ignore
+    const buffer = await renderToBuffer(<OnePagerDocument job={job} analysis={analysis} />)
+    return buffer as Buffer
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('OnePager PDF error:', msg)
+    throw new Error(`OnePager PDF: ${msg}`)
   }
 }

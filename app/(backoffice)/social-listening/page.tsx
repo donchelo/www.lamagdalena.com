@@ -41,9 +41,6 @@ const statusColor: Record<JobStatus, string> = {
 const networks = [
   { id: 'instagram', label: 'Instagram' },
   { id: 'tiktok', label: 'TikTok' },
-  { id: 'twitter', label: 'Twitter / X' },
-  { id: 'facebook', label: 'Facebook' },
-  { id: 'youtube', label: 'YouTube' },
 ]
 
 export default function SocialListeningPage() {
@@ -63,25 +60,25 @@ export default function SocialListeningPage() {
     clientName: '',
     dateFrom: '',
     dateTo: '',
-    keywords: [] as string[],
-    hashtags: [] as string[],
-    accounts: [] as string[],
+    monitoredTerms: [] as string[],
     selectedNetworks: [] as string[],
   })
 
-  const [keywordInput, setKeywordInput] = useState('')
-  const [hashtagInput, setHashtagInput] = useState('')
-  const [accountInput, setAccountInput] = useState('')
+  const [termInput, setTermInput] = useState('')
 
-  const addTag = (field: 'keywords' | 'hashtags' | 'accounts', value: string, setValue: (v: string) => void) => {
-    const trimmed = value.trim()
+  const addTerm = () => {
+    const trimmed = termInput.trim()
     if (!trimmed) return
-    setForm(prev => ({ ...prev, [field]: [...prev[field], trimmed] }))
-    setValue('')
+    if (form.monitoredTerms.includes(trimmed)) {
+      setTermInput('')
+      return
+    }
+    setForm(prev => ({ ...prev, monitoredTerms: [...prev.monitoredTerms, trimmed] }))
+    setTermInput('')
   }
 
-  const removeTag = (field: 'keywords' | 'hashtags' | 'accounts', index: number) => {
-    setForm(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }))
+  const removeTerm = (index: number) => {
+    setForm(prev => ({ ...prev, monitoredTerms: prev.monitoredTerms.filter((_, i) => i !== index) }))
   }
 
   const toggleNetwork = (id: string) => {
@@ -96,23 +93,18 @@ export default function SocialListeningPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Auto-agregar lo que esté en los inputs pero no se haya confirmado con "+"
-    const finalKeywords = [...form.keywords]
-    if (keywordInput.trim()) finalKeywords.push(keywordInput.trim())
-    
-    const finalHashtags = [...form.hashtags]
-    if (hashtagInput.trim()) finalHashtags.push(hashtagInput.trim())
-    
-    const finalAccounts = [...form.accounts]
-    if (accountInput.trim()) finalAccounts.push(accountInput.trim())
+    const finalTerms = [...form.monitoredTerms]
+    if (termInput.trim() && !finalTerms.includes(termInput.trim())) {
+      finalTerms.push(termInput.trim())
+    }
 
     if (form.selectedNetworks.length === 0) {
       setError('Selecciona al menos una red social.')
       return
     }
     
-    if (finalKeywords.length === 0 && finalHashtags.length === 0 && finalAccounts.length === 0) {
-      setError('Agrega al menos una keyword, hashtag o cuenta a monitorear.')
+    if (finalTerms.length === 0) {
+      setError('Agrega al menos un término (keyword, hashtag o cuenta) a monitorear.')
       return
     }
 
@@ -125,9 +117,13 @@ export default function SocialListeningPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          keywords: finalKeywords,
-          hashtags: finalHashtags,
-          accounts: finalAccounts
+          // Mantenemos compatibilidad con el backend enviando los términos en los 3 campos por ahora
+          // o ajustamos el backend. Por seguridad enviamos todo a 'keywords' y dejamos los otros vacíos
+          // si el backend espera los 3.
+          keywords: finalTerms.filter(t => !t.startsWith('#') && !t.startsWith('@')),
+          hashtags: finalTerms.filter(t => t.startsWith('#')),
+          accounts: finalTerms.filter(t => t.startsWith('@')),
+          monitoredTerms: finalTerms
         }),
       })
       if (!res.ok) throw new Error(await res.text())
@@ -139,89 +135,110 @@ export default function SocialListeningPage() {
     }
   }
 
-  const TagInput = ({ label, tags, input, setInput, field }: {
-    label: string
-    tags: string[]
-    input: string
-    setInput: (v: string) => void
-    field: 'keywords' | 'hashtags' | 'accounts'
-  }) => (
-    <div className="form-group">
-      <label>{label}</label>
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-        <input
-          type="text"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(field, input, setInput) } }}
-          placeholder="Escribe y presiona Enter"
-          style={{ flex: 1 }}
-        />
-        <button type="button" onClick={() => addTag(field, input, setInput)} style={{ padding: '0.5rem 1rem', backgroundColor: 'var(--private-accent)', color: 'var(--private-bg)', border: 'none', borderRadius: '2px', cursor: 'pointer', fontWeight: 700 }}>+</button>
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-        {tags.map((tag, i) => (
-          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.3rem 0.7rem', backgroundColor: 'rgba(238,241,81,0.15)', border: '1px solid var(--private-accent)', borderRadius: '2px', fontSize: '0.85rem', color: 'var(--private-accent)' }}>
-            {tag}
-            <button type="button" onClick={() => removeTag(field, i)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}>×</button>
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-
   return (
     <div className="private-main">
       <div className="private-header">
         <h1 className="private-title">Nuevo Reporte de Social Listening</h1>
-        <p className="private-subtitle">Genera un análisis de 8 páginas con datos de redes sociales</p>
+        <p className="private-subtitle">Genera un análisis estratégico a partir de datos de redes sociales</p>
       </div>
 
       <form onSubmit={handleSubmit} style={{ maxWidth: '760px', marginTop: '2.5rem' }}>
         <div className="form-group">
-          <label>Cliente / Marca *</label>
+          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Nombre del Cliente o Marca *</label>
           <input
             type="text"
             required
             value={form.clientName}
             onChange={e => setForm(p => ({ ...p, clientName: e.target.value }))}
-            placeholder="Ej: La Magdalena, ISA, Presentes..."
+            placeholder="Ej: Bancolombia, Avianca, etc."
+            style={{ fontSize: '1.1rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
           <div className="form-group">
-            <label>Fecha inicio *</label>
-            <input type="date" required value={form.dateFrom} onChange={e => setForm(p => ({ ...p, dateFrom: e.target.value }))} />
+            <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Rango de Análisis (Inicio) *</label>
+            <input 
+              type="date" 
+              required 
+              value={form.dateFrom} 
+              onChange={e => setForm(p => ({ ...p, dateFrom: e.target.value }))} 
+              style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.8rem' }}
+            />
           </div>
           <div className="form-group">
-            <label>Fecha fin *</label>
-            <input type="date" required value={form.dateTo} onChange={e => setForm(p => ({ ...p, dateTo: e.target.value }))} />
+            <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Rango de Análisis (Fin) *</label>
+            <input 
+              type="date" 
+              required 
+              value={form.dateTo} 
+              onChange={e => setForm(p => ({ ...p, dateTo: e.target.value }))} 
+              style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.8rem' }}
+            />
           </div>
         </div>
 
-        <TagInput label="Keywords" tags={form.keywords} input={keywordInput} setInput={setKeywordInput} field="keywords" />
-        <TagInput label="Hashtags" tags={form.hashtags} input={hashtagInput} setInput={setHashtagInput} field="hashtags" />
-        <TagInput label="Cuentas a monitorear (opcional)" tags={form.accounts} input={accountInput} setInput={setAccountInput} field="accounts" />
-
         <div className="form-group">
-          <label>Redes sociales *</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem' }}>
+          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Términos a monitorear *</label>
+          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>Incluye @cuentas, #hashtags o palabras clave que desees analizar.</p>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <input
+              type="text"
+              value={termInput}
+              onChange={e => setTermInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTerm() } }}
+              placeholder="Escribe y presiona Enter..."
+              style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}
+            />
+            <button 
+              type="button" 
+              onClick={addTerm} 
+              style={{ 
+                padding: '0.8rem 1.5rem', 
+                backgroundColor: 'var(--private-accent)', 
+                color: 'var(--private-bg)', 
+                border: 'none', 
+                borderRadius: '2px', 
+                cursor: 'pointer', 
+                fontWeight: 700,
+                fontSize: '1.2rem'
+              }}
+            >
+              +
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {form.monitoredTerms.map((tag, i) => (
+              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.8rem', backgroundColor: 'rgba(238,241,81,0.08)', border: '1px solid rgba(238,241,81,0.3)', borderRadius: '2px', fontSize: '0.85rem', color: 'var(--private-accent)' }}>
+                {tag}
+                <button type="button" onClick={() => removeTerm(i)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, fontSize: '1.1rem', lineHeight: 1, marginLeft: '0.2rem' }}>×</button>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="form-group" style={{ marginTop: '2.5rem' }}>
+          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', display: 'block' }}>Seleccionar Plataformas *</label>
+          <div style={{ display: 'flex', gap: '1rem' }}>
             {networks.map(n => (
               <button
                 key={n.id}
                 type="button"
                 onClick={() => toggleNetwork(n.id)}
                 style={{
-                  padding: '0.6rem 1.2rem',
-                  border: `1px solid ${form.selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'rgba(255,255,255,0.2)'}`,
-                  borderRadius: '2px',
-                  backgroundColor: form.selectedNetworks.includes(n.id) ? 'rgba(238,241,81,0.15)' : 'transparent',
-                  color: form.selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'rgba(255,255,255,0.6)',
+                  flex: 1,
+                  padding: '1.2rem',
+                  border: `1px solid ${form.selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'rgba(255,255,255,0.1)'}`,
+                  borderRadius: '4px',
+                  backgroundColor: form.selectedNetworks.includes(n.id) ? 'rgba(238,241,81,0.05)' : 'rgba(255,255,255,0.02)',
+                  color: form.selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'rgba(255,255,255,0.4)',
                   cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
+                  fontFamily: 'var(--font-heading)',
                   fontSize: '0.9rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.05em',
                   transition: 'all 0.2s ease',
+                  textAlign: 'center'
                 }}
               >
                 {n.label}
@@ -231,30 +248,34 @@ export default function SocialListeningPage() {
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', backgroundColor: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '4px', color: '#ff5050', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '1rem', backgroundColor: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '4px', color: '#ff5050', margin: '2rem 0' }}>
             {error}
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          style={{
-            padding: '1rem 3rem',
-            backgroundColor: isSubmitting ? 'rgba(238,241,81,0.4)' : 'var(--private-accent)',
-            color: 'var(--private-bg)',
-            border: 'none',
-            borderRadius: '2px',
-            fontFamily: 'var(--font-heading)',
-            fontWeight: 700,
-            fontSize: '0.95rem',
-            letterSpacing: '0.1em',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            transition: 'all 0.3s ease',
-          }}
-        >
-          {isSubmitting ? 'Generando...' : 'GENERAR REPORTE'}
-        </button>
+        <div style={{ marginTop: '3rem' }}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            style={{
+              width: '100%',
+              padding: '1.2rem',
+              backgroundColor: isSubmitting ? 'rgba(238,241,81,0.4)' : 'var(--private-accent)',
+              color: 'var(--private-bg)',
+              border: 'none',
+              borderRadius: '2px',
+              fontFamily: 'var(--font-heading)',
+              fontWeight: 800,
+              fontSize: '1rem',
+              letterSpacing: '0.2em',
+              cursor: isSubmitting ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 10px 20px rgba(238,241,81,0.15)'
+            }}
+          >
+            {isSubmitting ? 'PROCESANDO DATOS...' : 'GENERAR ESTRATEGIA NEON'}
+          </button>
+        </div>
       </form>
 
       {recentReports.length > 0 && (

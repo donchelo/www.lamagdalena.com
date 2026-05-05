@@ -251,36 +251,69 @@ export default function ReportStatusPage() {
           <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '2rem', fontSize: '0.95rem' }}>
             El reporte de 8 páginas para {job.clientName} ha sido generado con éxito.
           </p>
-          <a
-            href={`/api/reports/${reportId}/download`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-block',
-              padding: '1.2rem 3.5rem',
-              backgroundColor: 'var(--private-accent)',
-              color: 'var(--private-bg)',
-              border: 'none',
-              borderRadius: '4px',
-              fontFamily: 'var(--font-heading)',
-              fontWeight: 800,
-              fontSize: '1rem',
-              letterSpacing: '0.15em',
-              textDecoration: 'none',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 10px 20px rgba(238,241,81,0.2)'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 15px 30px rgba(238,241,81,0.3)'
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 10px 20px rgba(238,241,81,0.2)'
-            }}
-          >
-            DESCARGAR REPORTE (PDF)
-          </a>
+          <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a
+              href={`/api/reports/${reportId}/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-block',
+                padding: '1.2rem 2.5rem',
+                backgroundColor: 'var(--private-accent)',
+                color: 'var(--private-bg)',
+                border: 'none',
+                borderRadius: '4px',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                letterSpacing: '0.15em',
+                textDecoration: 'none',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 10px 20px rgba(238,241,81,0.2)',
+                minWidth: '280px'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 15px 30px rgba(238,241,81,0.3)'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 10px 20px rgba(238,241,81,0.2)'
+              }}
+            >
+              REPORTE FULL (8 PÁGS)
+            </a>
+            <a
+              href={`/api/reports/${reportId}/one-pager`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-block',
+                padding: '1.2rem 2.5rem',
+                backgroundColor: 'transparent',
+                color: 'var(--private-accent)',
+                border: '2px solid var(--private-accent)',
+                borderRadius: '4px',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                letterSpacing: '0.15em',
+                textDecoration: 'none',
+                transition: 'all 0.3s ease',
+                minWidth: '280px'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.backgroundColor = 'rgba(238,241,81,0.05)'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }}
+            >
+              ONE-PAGER CLIENTE
+            </a>
+          </div>
         </div>
       )}
 
