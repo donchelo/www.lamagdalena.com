@@ -81,12 +81,10 @@ export default function SocialListeningPage() {
     setForm(prev => ({ ...prev, monitoredTerms: prev.monitoredTerms.filter((_, i) => i !== index) }))
   }
 
-  const toggleNetwork = (id: string) => {
+  const selectNetwork = (id: string) => {
     setForm(prev => ({
       ...prev,
-      selectedNetworks: prev.selectedNetworks.includes(id)
-        ? prev.selectedNetworks.filter(n => n !== id)
-        : [...prev.selectedNetworks, id],
+      selectedNetworks: [id],
     }))
   }
 
@@ -218,13 +216,13 @@ export default function SocialListeningPage() {
         </div>
 
         <div className="form-group" style={{ marginTop: '2.5rem' }}>
-          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', display: 'block' }}>Seleccionar Plataformas *</label>
+          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', display: 'block' }}>Seleccionar Plataforma (Solo una) *</label>
           <div style={{ display: 'flex', gap: '1rem' }}>
             {networks.map(n => (
               <button
                 key={n.id}
                 type="button"
-                onClick={() => toggleNetwork(n.id)}
+                onClick={() => selectNetwork(n.id)}
                 style={{
                   flex: 1,
                   padding: '1.2rem',
