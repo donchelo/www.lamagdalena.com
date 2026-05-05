@@ -21,7 +21,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
 
     const pdfBuffer = await renderOnePagerPdf({ job, analysis })
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="One-pager-LaMagdalena-${job.clientName.replace(/\s+/g, '-')}.pdf"`
