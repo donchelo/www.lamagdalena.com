@@ -11,6 +11,7 @@ export interface JobData {
   selectedNetworks: string[]
   apifyRunIds?: Record<string, string>
   apifyCompletedRuns?: string[]
+  processedRunIds?: string[]
   status: 'queued' | 'scraping' | 'scraping_posts' | 'scraping_comments' | 'analyzing' | 'generating_pdf' | 'complete' | 'error'
   error?: string
   pdfUrl?: string

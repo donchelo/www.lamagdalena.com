@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       ? `https://${process.env.VERCEL_URL}`
       : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
 
-    const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook`
+    const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook?secret=${process.env.APIFY_WEBHOOK_SECRET}`
     const apifyInput = { keywords, hashtags, accounts, dateFrom, dateTo, maxResults: 1000 }
     const apifyRunIds: Record<string, string> = {}
 

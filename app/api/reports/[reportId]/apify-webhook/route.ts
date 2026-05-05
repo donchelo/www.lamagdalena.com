@@ -8,8 +8,20 @@ interface Params {
   params: Promise<{ reportId: string }>
 }
 
+function getBaseUrl() {
+  return process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+}
+
 export async function POST(request: NextRequest, { params }: Params) {
   const { reportId } = await params
+
+  // Fix 1: Verificar secret para evitar webhooks externos no autorizados
+  const secret = request.nextUrl.searchParams.get('secret')
+  if (!secret || secret !== process.env.APIFY_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   let body: { eventType?: string; resource?: { id?: string; defaultDatasetId?: string }; eventData?: { status?: string } }
   try {
@@ -32,6 +44,12 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   console.log(`[Webhook] Incoming: ${eventType} for report ${reportId} (Run: ${incomingRunId})`)
 
+  // Fix 2: Idempotencia — ignorar si ya procesamos este run
+  if (incomingRunId && job.processedRunIds?.includes(incomingRunId)) {
+    console.log(`[Webhook] Run ${incomingRunId} already processed, skipping`)
+    return NextResponse.json({ ok: true })
+  }
+
   if (eventType.includes('FAILED') || body.eventData?.status === 'FAILED') {
     await updateJobStatus(reportId, { status: 'error', error: 'Apify actor run failed' })
     return NextResponse.json({ ok: true })
@@ -46,20 +64,23 @@ export async function POST(request: NextRequest, { params }: Params) {
     await saveRawData(reportId, combined)
     console.log(`[Webhook] Fetched ${items.length} items. Total for ${reportId}: ${combined.length}`)
 
-    // Registrar este run como completado
     const apifyCompletedRuns = [
       ...(job.apifyCompletedRuns ?? []),
       ...(incomingRunId ? [incomingRunId] : []),
     ]
+    const processedRunIds = [
+      ...(job.processedRunIds ?? []),
+      ...(incomingRunId ? [incomingRunId] : []),
+    ]
 
-    const isTikTok = job.selectedNetworks.includes('tiktok')
-    const isInstagram = job.selectedNetworks.includes('instagram')
-    const hasTikTokComments = !!job.apifyRunIds?.['tiktok_comments']
-    const hasInstagramComments = !!job.apifyRunIds?.['instagram_comments']
-    const isStage1 = job.status === 'scraping_posts' || job.status === 'scraping'
+    // Fix 3: Detectar Stage 2 por run ID exacto, no por status
+    // Evita que cualquier webhook concurrente dispare Stage 2 incorrectamente
+    const isTikTokPostsRun = !!incomingRunId && incomingRunId === job.apifyRunIds?.['tiktok']
+    const isInstagramPostsRun = !!incomingRunId && incomingRunId === job.apifyRunIds?.['instagram']
 
-    // TikTok Stage 1: posts terminaron, lanzar comentarios
-    if (isTikTok && isStage1 && !hasTikTokComments) {
+    const webhookUrl = `${getBaseUrl()}/api/reports/${reportId}/apify-webhook?secret=${process.env.APIFY_WEBHOOK_SECRET}`
+
+    if (isTikTokPostsRun && !job.apifyRunIds?.['tiktok_comments']) {
       console.log(`[Webhook] TikTok Stage 1 finished for ${reportId}. Starting Stage 2...`)
 
       const videoUrls = items
@@ -69,17 +90,11 @@ export async function POST(request: NextRequest, { params }: Params) {
         .slice(0, 500)
 
       if (videoUrls.length > 0) {
-        const baseUrl = process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-
-        const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook`
         const { startTikTokCommentsRun } = await import('@/lib/apify')
-
         try {
           const commentRunId = await startTikTokCommentsRun(videoUrls, webhookUrl)
           const apifyRunIds = { ...job.apifyRunIds, tiktok_comments: commentRunId }
-          await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds, apifyCompletedRuns })
+          await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds, apifyCompletedRuns, processedRunIds })
           return NextResponse.json({ ok: true, message: 'TikTok Stage 2 started' })
         } catch (err) {
           console.error(`[Webhook] Error starting TikTok Stage 2:`, err)
@@ -87,9 +102,9 @@ export async function POST(request: NextRequest, { params }: Params) {
       }
     }
 
-    // Instagram Stage 1: posts terminaron, lanzar comentarios
-    if (isInstagram && isStage1 && !hasInstagramComments && job.accounts && job.accounts.length > 0) {
+    if (isInstagramPostsRun && !job.apifyRunIds?.['instagram_comments'] && job.accounts && job.accounts.length > 0) {
       console.log(`[Webhook] Instagram Stage 1 finished for ${reportId}. Starting Stage 2...`)
+
       const postUrls = items
         .map((item: any) => item.url || item.directUrl || item.link || item.postUrl)
         .filter(Boolean)
@@ -97,15 +112,11 @@ export async function POST(request: NextRequest, { params }: Params) {
         .slice(0, 200)
 
       if (postUrls.length > 0) {
-        const baseUrl = process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-        const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook`
         const { startInstagramCommentsRun } = await import('@/lib/apify')
         try {
           const commentRunId = await startInstagramCommentsRun(postUrls, webhookUrl)
           const apifyRunIds = { ...job.apifyRunIds, instagram_comments: commentRunId }
-          await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds, apifyCompletedRuns })
+          await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds, apifyCompletedRuns, processedRunIds })
           return NextResponse.json({ ok: true, message: 'Instagram Stage 2 started' })
         } catch (err) {
           console.error(`[Webhook] Error starting Instagram Stage 2:`, err)
@@ -113,22 +124,22 @@ export async function POST(request: NextRequest, { params }: Params) {
       }
     }
 
-    // Verificar si todos los runs registrados han completado
-    const allExpectedRuns = Object.values(job.apifyRunIds ?? {})
+    // Fix 4: Recargar el job antes de verificar allDone para obtener apifyRunIds actualizados
+    // (Stage 2 puede haber sido registrado por un webhook concurrente anterior)
+    const freshJob = await updateJobStatus(reportId, { apifyCompletedRuns, processedRunIds })
+    const allExpectedRuns = Object.values(freshJob.apifyRunIds ?? {})
     const allDone = allExpectedRuns.length > 0 &&
-      allExpectedRuns.every(id => apifyCompletedRuns.includes(id))
+      allExpectedRuns.every(id => freshJob.apifyCompletedRuns?.includes(id))
 
     if (!allDone) {
-      const remaining = allExpectedRuns.filter(id => !apifyCompletedRuns.includes(id))
+      const remaining = allExpectedRuns.filter(id => !freshJob.apifyCompletedRuns?.includes(id))
       console.log(`[Webhook] Waiting for ${remaining.length} more runs: ${remaining.join(', ')}`)
-      await updateJobStatus(reportId, { apifyCompletedRuns })
       return NextResponse.json({ ok: true })
     }
 
     console.log(`[Webhook] All runs completed for ${reportId}. Starting analysis...`)
 
-    // Todos los datos recolectados — responder a Apify inmediatamente y analizar en background
-    const analyzingJob = await updateJobStatus(reportId, { status: 'analyzing', apifyCompletedRuns })
+    const analyzingJob = await updateJobStatus(reportId, { status: 'analyzing' })
     const capturedData = combined as unknown[]
 
     after(async () => {
