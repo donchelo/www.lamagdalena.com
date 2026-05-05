@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -44,6 +44,15 @@ export default function ReportStatusPage() {
   const [job, setJob] = useState<JobData | null>(null)
   const [fetchError, setFetchError] = useState('')
   const [retrying, setRetrying] = useState(false)
+  const [lastPolled, setLastPolled] = useState<Date | null>(null)
+  const [now, setNow] = useState(() => new Date())
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Tick every second to keep elapsed timers live
+  useEffect(() => {
+    tickRef.current = setInterval(() => setNow(new Date()), 1000)
+    return () => { if (tickRef.current) clearInterval(tickRef.current) }
+  }, [])
 
   const poll = useCallback(async () => {
     try {
@@ -51,6 +60,7 @@ export default function ReportStatusPage() {
       if (!res.ok) { setFetchError('Reporte no encontrado.'); return }
       const data: JobData = await res.json()
       setJob(data)
+      setLastPolled(new Date())
     } catch {
       setFetchError('Error al consultar el estado del reporte.')
     }
@@ -274,23 +284,78 @@ export default function ReportStatusPage() {
         </div>
       )}
 
-      {/* Technical Monitor */}
-      <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Monitor Técnico</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>Report ID:</span> {reportId}
-          </div>
-          {job.apifyRunIds && Object.entries(job.apifyRunIds).map(([network, id]) => (
-            <div key={id} style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
-              <span style={{ color: 'rgba(255,255,255,0.15)' }}>Apify ({network}):</span> {id}
+      {/* Activity Monitor */}
+      {(() => {
+        const sinceUpdated = Math.floor((now.getTime() - new Date(job.updatedAt).getTime()) / 1000)
+        const sincePolled = lastPolled ? Math.floor((now.getTime() - lastPolled.getTime()) / 1000) : null
+        const isActive = ['scraping', 'scraping_posts', 'scraping_comments', 'analyzing', 'generating_pdf'].includes(job.status)
+        const looksStuck = isActive && sinceUpdated > 300 // 5 min sin cambio del servidor
+
+        return (
+          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Monitor Técnico</p>
+
+            {/* Indicadores de actividad */}
+            {isActive && (
+              <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                {/* Pulso de la UI */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{
+                    display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%',
+                    backgroundColor: sincePolled !== null && sincePolled < 8 ? '#4ade80' : 'rgba(255,255,255,0.2)',
+                    boxShadow: sincePolled !== null && sincePolled < 8 ? '0 0 6px #4ade80' : 'none',
+                    transition: 'all 0.5s ease',
+                  }} />
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
+                    UI verificando
+                    {sincePolled !== null && (
+                      <span style={{ color: 'rgba(255,255,255,0.25)', marginLeft: '0.3rem' }}>
+                        · hace {sincePolled < 60 ? `${sincePolled}s` : `${Math.floor(sincePolled / 60)}m`}
+                      </span>
+                    )}
+                  </span>
+                </div>
+
+                {/* Último cambio en servidor */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{
+                    display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%',
+                    backgroundColor: looksStuck ? 'rgba(251,191,36,0.7)' : sinceUpdated < 30 ? '#4ade80' : 'rgba(255,255,255,0.2)',
+                  }} />
+                  <span style={{ fontSize: '0.75rem', color: looksStuck ? 'rgba(251,191,36,0.8)' : 'rgba(255,255,255,0.4)' }}>
+                    Servidor sin cambio
+                    <span style={{ marginLeft: '0.3rem' }}>
+                      · hace {sinceUpdated < 60 ? `${sinceUpdated}s` : `${Math.floor(sinceUpdated / 60)}m`}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Nota explicativa si lleva mucho tiempo sin cambio */}
+            {looksStuck && (
+              <p style={{ fontSize: '0.75rem', color: 'rgba(251,191,36,0.6)', marginBottom: '0.75rem', lineHeight: 1.5 }}>
+                Apify está scrapeando en background — puede pasar hasta 15 min sin actualizar. Esto es normal.
+              </p>
+            )}
+
+            {/* IDs técnicos */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.2)' }}>
+                <span style={{ color: 'rgba(255,255,255,0.1)' }}>ID:</span> {reportId}
+              </div>
+              {job.apifyRunIds && Object.entries(job.apifyRunIds).map(([network, id]) => (
+                <div key={id} style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.2)' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.1)' }}>Apify {network}:</span> {id}
+                </div>
+              ))}
+              <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.2)' }}>
+                <span style={{ color: 'rgba(255,255,255,0.1)' }}>Último webhook:</span> {new Date(job.updatedAt).toLocaleTimeString('es-CO')}
+              </div>
             </div>
-          ))}
-          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>Último Update:</span> {new Date(job.updatedAt).toLocaleTimeString('es-CO')}
           </div>
-        </div>
-      </div>
+        )
+      })()}
 
       <style jsx>{`
         @keyframes pulse {
