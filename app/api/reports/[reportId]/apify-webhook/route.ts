@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse, after } from 'next/server'
-import { put } from '@vercel/blob'
 import { loadJob, updateJobStatus, saveRawData, saveAnalysis, savePdf, getRawData } from '@/lib/blob'
 import { fetchDatasetItems } from '@/lib/apify'
 import { analyzeData } from '@/lib/claude'
@@ -32,11 +31,6 @@ export async function POST(request: NextRequest, { params }: Params) {
   let body: { eventType?: string; resource?: { id?: string; defaultDatasetId?: string }; eventData?: { status?: string } }
   try {
     body = await request.json()
-    await put(`reports/${reportId}/webhook-last-log.json`, JSON.stringify({
-      timestamp: new Date().toISOString(),
-      body,
-      headers: Object.fromEntries(request.headers.entries())
-    }), { access: 'public', addRandomSuffix: false, contentType: 'application/json' })
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
@@ -64,11 +58,11 @@ export async function POST(request: NextRequest, { params }: Params) {
   if (!datasetId) return NextResponse.json({ ok: true })
 
   try {
-    const items = await fetchDatasetItems(datasetId)
+    const items = (await fetchDatasetItems(datasetId)).filter((item: any) => !item.error)
     const existing = await getRawData(reportId)
     const combined = dedup([...existing, ...items])
     await saveRawData(reportId, combined)
-    console.log(`[Webhook] Fetched ${items.length} items. Total for ${reportId}: ${combined.length}`)
+    console.log(`[Webhook] Fetched ${items.length} valid items. Total for ${reportId}: ${combined.length}`)
 
     const apifyCompletedRuns = [
       ...(job.apifyCompletedRuns ?? []),
@@ -140,6 +134,12 @@ export async function POST(request: NextRequest, { params }: Params) {
     if (!allDone) {
       const remaining = allExpectedRuns.filter(id => !freshJob.apifyCompletedRuns?.includes(id))
       console.log(`[Webhook] Waiting for ${remaining.length} more runs: ${remaining.join(', ')}`)
+      return NextResponse.json({ ok: true })
+    }
+
+    if (combined.length === 0) {
+      console.log(`[Webhook] All runs completed for ${reportId} but NO DATA was found.`)
+      await updateJobStatus(reportId, { status: 'error', error: 'No se encontraron publicaciones con los términos proporcionados. Verifica que las cuentas sean públicas o que los hashtags tengan contenido.' })
       return NextResponse.json({ ok: true })
     }
 

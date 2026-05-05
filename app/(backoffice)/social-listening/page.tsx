@@ -96,6 +96,11 @@ export default function SocialListeningPage() {
       finalTerms.push(termInput.trim())
     }
 
+    // Mejora: Si no hay términos, usamos el nombre del cliente como término por defecto
+    if (finalTerms.length === 0 && form.clientName.trim()) {
+      finalTerms.push(form.clientName.trim())
+    }
+
     if (form.selectedNetworks.length === 0) {
       setError('Selecciona al menos una red social.')
       return
@@ -109,18 +114,19 @@ export default function SocialListeningPage() {
     setIsSubmitting(true)
     setError('')
 
+    // Función para detectar si algo es probablemente una cuenta (sin espacios, puede tener guiones bajos)
+    const isProbablyAccount = (t: string) => t.startsWith('@') || (/^[a-zA-Z0-9._]+$/.test(t) && t.includes('_'))
+
     try {
       const res = await fetch('/api/reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          // Mantenemos compatibilidad con el backend enviando los términos en los 3 campos por ahora
-          // o ajustamos el backend. Por seguridad enviamos todo a 'keywords' y dejamos los otros vacíos
-          // si el backend espera los 3.
-          keywords: finalTerms.filter(t => !t.startsWith('#') && !t.startsWith('@')),
+          // Clasificación inteligente de términos
+          keywords: finalTerms.filter(t => !t.startsWith('#') && !t.startsWith('@') && !isProbablyAccount(t)),
           hashtags: finalTerms.filter(t => t.startsWith('#')),
-          accounts: finalTerms.filter(t => t.startsWith('@')),
+          accounts: finalTerms.filter(t => t.startsWith('@') || isProbablyAccount(t)).map(t => t.replace('@', '')),
           monitoredTerms: finalTerms
         }),
       })

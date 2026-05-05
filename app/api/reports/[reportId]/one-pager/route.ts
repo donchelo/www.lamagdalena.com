@@ -13,14 +13,11 @@ export async function GET(_request: NextRequest, { params }: Params) {
     const job = await loadJob(reportId)
     if (!job) return NextResponse.json({ error: 'Report not found' }, { status: 404 })
 
-    // Cargar el análisis desde Vercel Blob
-    const { list } = await import('@vercel/blob')
-    const { blobs } = await list({ prefix: `reports/${reportId}/analysis.json`, limit: 1 })
+    // Cargar el análisis desde Supabase
+    const { loadAnalysis } = await import('@/lib/blob')
+    const analysis = await loadAnalysis(reportId)
     
-    if (blobs.length === 0) return NextResponse.json({ error: 'Analysis data not found' }, { status: 404 })
-
-    const analysisRes = await fetch(blobs[0].url)
-    const analysis = await analysisRes.json()
+    if (!analysis) return NextResponse.json({ error: 'Analysis data not found' }, { status: 404 })
 
     const pdfBuffer = await renderOnePagerPdf({ job, analysis })
 
