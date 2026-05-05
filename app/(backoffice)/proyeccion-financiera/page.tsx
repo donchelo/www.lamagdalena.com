@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface MonthFolder {
   name: string
@@ -224,8 +225,9 @@ export default function ProyeccionFinancieraPage() {
               >
                 <div
                   style={{
-                    maxWidth: '85%',
-                    padding: '0.85rem 1.1rem',
+                    maxWidth: msg.role === 'user' ? '85%' : '100%',
+                    width: msg.role === 'assistant' ? '100%' : 'auto',
+                    padding: '1rem 1.25rem',
                     borderRadius: '4px',
                     fontSize: '0.875rem',
                     lineHeight: 1.7,
@@ -233,6 +235,7 @@ export default function ProyeccionFinancieraPage() {
                     border: `1px solid ${msg.role === 'user' ? 'rgba(238,241,81,0.25)' : 'rgba(255,255,255,0.08)'}`,
                     color: msg.role === 'user' ? 'var(--private-accent)' : 'rgba(255,255,255,0.88)',
                     wordBreak: 'break-word',
+                    boxShadow: msg.role === 'assistant' ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
                   }}
                 >
                   {msg.parts.map((part, i) =>
@@ -240,21 +243,27 @@ export default function ProyeccionFinancieraPage() {
                       msg.role === 'user' ? (
                         <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{part.text}</span>
                       ) : (
-                        <ReactMarkdown key={i} components={{
-                          table: p => <table style={{ borderCollapse: 'collapse', width: '100%', margin: '0.5rem 0 0.75rem', fontSize: '0.82rem' }} {...p} />,
-                          th: p => <th style={{ padding: '0.35rem 0.65rem', borderBottom: '1px solid rgba(238,241,81,0.3)', textAlign: 'left', color: 'var(--private-accent)', fontWeight: 600 }} {...p} />,
-                          td: p => <td style={{ padding: '0.35rem 0.65rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }} {...p} />,
-                          code: ({ children, className }) => className
-                            ? <pre style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '3px', overflowX: 'auto', fontSize: '0.8rem', margin: '0.5rem 0' }}><code>{children}</code></pre>
-                            : <code style={{ background: 'rgba(0,0,0,0.3)', padding: '0.1em 0.35em', borderRadius: '2px', fontSize: '0.85em' }}>{children}</code>,
-                          p: p => <p style={{ margin: '0 0 0.6rem' }} {...p} />,
-                          ul: p => <ul style={{ paddingLeft: '1.25rem', margin: '0.25rem 0 0.6rem' }} {...p} />,
-                          ol: p => <ol style={{ paddingLeft: '1.25rem', margin: '0.25rem 0 0.6rem' }} {...p} />,
-                          li: p => <li style={{ marginBottom: '0.2rem' }} {...p} />,
-                          strong: p => <strong style={{ color: 'rgba(255,255,255,0.95)', fontWeight: 600 }} {...p} />,
-                          h2: p => <h2 style={{ color: 'var(--private-accent)', fontSize: '1rem', margin: '1rem 0 0.4rem', fontFamily: 'var(--font-heading)' }} {...p} />,
-                          h3: p => <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', margin: '0.75rem 0 0.3rem' }} {...p} />,
-                        }}>
+                        <ReactMarkdown
+                          key={i}
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            table: p => <div style={{ overflowX: 'auto', margin: '1rem 0' }}><table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.82rem', border: '1px solid rgba(255,255,255,0.08)' }} {...p} /></div>,
+                            thead: p => <thead style={{ backgroundColor: 'rgba(255,255,255,0.03)' }} {...p} />,
+                            th: p => <th style={{ padding: '0.6rem 0.8rem', borderBottom: '2px solid rgba(238,241,81,0.3)', borderRight: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', color: 'var(--private-accent)', fontWeight: 600, whiteSpace: 'nowrap' }} {...p} />,
+                            td: p => <td style={{ padding: '0.6rem 0.8rem', borderBottom: '1px solid rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.05)' }} {...p} />,
+                            tr: p => <tr style={{ transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'} {...p} />,
+                            code: ({ children, className }) => className
+                              ? <pre style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '3px', overflowX: 'auto', fontSize: '0.8rem', margin: '0.5rem 0', border: '1px solid rgba(255,255,255,0.05)' }}><code>{children}</code></pre>
+                              : <code style={{ background: 'rgba(238,241,81,0.1)', color: 'var(--private-accent)', padding: '0.1em 0.35em', borderRadius: '2px', fontSize: '0.85em' }}>{children}</code>,
+                            p: p => <p style={{ margin: '0 0 0.8rem' }} {...p} />,
+                            ul: p => <ul style={{ paddingLeft: '1.25rem', margin: '0.25rem 0 0.8rem' }} {...p} />,
+                            ol: p => <ol style={{ paddingLeft: '1.25rem', margin: '0.25rem 0 0.8rem' }} {...p} />,
+                            li: p => <li style={{ marginBottom: '0.35rem' }} {...p} />,
+                            strong: p => <strong style={{ color: 'rgba(255,255,255,0.98)', fontWeight: 700 }} {...p} />,
+                            h2: p => <h2 style={{ color: 'var(--private-accent)', fontSize: '1.15rem', margin: '1.5rem 0 0.75rem', fontFamily: 'var(--font-heading)', borderBottom: '1px solid rgba(238,241,81,0.1)', paddingBottom: '0.3rem' }} {...p} />,
+                            h3: p => <h3 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem', margin: '1.25rem 0 0.5rem', fontWeight: 600 }} {...p} />,
+                          }}
+                        >
                           {part.text}
                         </ReactMarkdown>
                       )

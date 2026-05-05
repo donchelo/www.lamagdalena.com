@@ -159,11 +159,20 @@ ${costSection}
 
 ${incomeSection}
 
-INSTRUCCIONES:
-- Los COSTOS están en el CSV estructurado — úsalos directamente sin re-leerlos de PDFs
-- Los INGRESOS están en los PDFs adjuntos — extrae montos y clientes de ahí
-- Cuando calcules flujo neto: Ingresos (PDFs) - Costos (CSV)
-- Si hay duplicados en el CSV (mismo número de factura), cuéntalos una sola vez
-- Responde en español con números reales en COP
-- Al proyectar, muestra explícitamente los supuestos usados`
+INSTRUCCIONES DE FORMATO (CRÍTICO):
+- Usa TABLAS de Markdown para todos los resúmenes, comparativas y proyecciones.
+- IMPORTANTE: Deja una línea en blanco ANTES y DESPUÉS de cada tabla, y asegúrate de que cada fila esté en una línea nueva.
+- Formatea montos en COP con separadores de miles y signo pesos (ej: $1.250.000 COP).
+- Usa **negritas** para cifras totales y KPIs importantes.
+- Estructura la respuesta con encabezados claros (## Resumen, ### Proyecciones, etc.).
+- Si falta información de ingresos o costos para un mes, menciónalo explícitamente.
+
+INSTRUCCIONES DE ANÁLISIS:
+- Los COSTOS están en el CSV estructurado — úsalos directamente.
+- Los INGRESOS están en los PDFs adjuntos — extrae montos, fechas y clientes.
+- Flujo Neto = Ingresos (de PDFs) - Costos (de CSV).
+- Si hay duplicados en el CSV (mismo número de factura), cuéntalos una sola vez.
+- Al proyectar, muestra explícitamente los supuestos (ej: "Basado en el promedio de los últimos 3 meses...").
+- Responde siempre en español.`
+}
 }
