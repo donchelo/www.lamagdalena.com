@@ -3,19 +3,21 @@ import { getRunInfo, fetchDatasetItems, startTikTokCommentsRun } from '@/lib/api
 import { analyzeData } from '@/lib/claude'
 
 export async function syncJobWithApify(reportId: string, job: JobData): Promise<JobData | null> {
-  // Determinar cuál es el Run ID activo
   let activeRunId: string | undefined
   let currentStage: 'posts' | 'comments' = 'posts'
 
   if (job.status === 'scraping_comments') {
-    activeRunId = job.apifyRunIds?.tiktok_comments
+    activeRunId = job.apifyRunIds?.tiktok_comments ?? job.apifyRunIds?.instagram_comments
     currentStage = 'comments'
   } else {
-    activeRunId = job.apifyRunIds?.tiktok || job.apifyRunIds?.tiktok_profiles
+    activeRunId = job.apifyRunIds?.tiktok ?? job.apifyRunIds?.tiktok_profiles ?? job.apifyRunIds?.instagram
     currentStage = 'posts'
   }
 
   if (!activeRunId) return null
+
+  // Skip if already processed (webhook already handled this run)
+  if (job.processedRunIds?.includes(activeRunId)) return null
 
   try {
     const info = await getRunInfo(activeRunId)
@@ -28,8 +30,13 @@ export async function syncJobWithApify(reportId: string, job: JobData): Promise<
       const combined = [...existing, ...items]
       await saveRawData(reportId, combined)
 
-      if (currentStage === 'posts' && job.selectedNetworks.includes('tiktok')) {
-        console.log(`[Sync] Transicionando de Posts a Comentarios...`)
+      const baseUrl = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+      const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook?secret=${process.env.APIFY_WEBHOOK_SECRET}`
+
+      if (currentStage === 'posts' && job.selectedNetworks.includes('tiktok') && !job.apifyRunIds?.tiktok_comments) {
+        console.log(`[Sync] TikTok Stage 1 done. Transicionando a Comentarios...`)
 
         const videoUrls = items
           .map((item: any) => item.url || item.videoUrl || item.webVideoUrl || item.link || item.postUrl || item.shareUrl)
@@ -38,20 +45,34 @@ export async function syncJobWithApify(reportId: string, job: JobData): Promise<
           .slice(0, 500)
 
         if (videoUrls.length > 0) {
-          const baseUrl = process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-
-          const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook`
           const commentRunId = await startTikTokCommentsRun(videoUrls, webhookUrl)
           const apifyRunIds = { ...job.apifyRunIds, tiktok_comments: commentRunId }
-          const updated = await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds })
-          return updated
+          const processedRunIds = [...(job.processedRunIds ?? []), activeRunId]
+          return await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds, processedRunIds })
+        }
+      }
+
+      if (currentStage === 'posts' && job.selectedNetworks.includes('instagram') && !job.apifyRunIds?.instagram_comments && job.accounts && job.accounts.length > 0) {
+        console.log(`[Sync] Instagram Stage 1 done. Transicionando a Comentarios...`)
+
+        const postUrls = items
+          .map((item: any) => item.url || item.directUrl || item.link || item.postUrl)
+          .filter(Boolean)
+          .filter((url: string) => url.includes('instagram.com/p/'))
+          .slice(0, 200)
+
+        if (postUrls.length > 0) {
+          const { startInstagramCommentsRun } = await import('@/lib/apify')
+          const commentRunId = await startInstagramCommentsRun(postUrls, webhookUrl)
+          const apifyRunIds = { ...job.apifyRunIds, instagram_comments: commentRunId }
+          const processedRunIds = [...(job.processedRunIds ?? []), activeRunId]
+          return await updateJobStatus(reportId, { status: 'scraping_comments', apifyRunIds, processedRunIds })
         }
       }
 
       console.log(`[Sync] Scraping completo. Iniciando análisis...`)
-      await updateJobStatus(reportId, { status: 'analyzing' })
+      const processedRunIds = [...(job.processedRunIds ?? []), activeRunId]
+      await updateJobStatus(reportId, { status: 'analyzing', processedRunIds })
       processAnalysis(reportId, combined, job)
       return { ...job, status: 'analyzing' as const, updatedAt: new Date().toISOString() }
     }

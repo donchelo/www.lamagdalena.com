@@ -168,7 +168,7 @@ export default function ReportStatusPage() {
         
         {job.status === 'scraping_posts' && (
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-            <span style={{ marginRight: '0.5rem' }}>🔍</span> Buscando publicaciones de TikTok y métricas de perfil...
+            <span style={{ marginRight: '0.5rem' }}>🔍</span> Buscando publicaciones de {job.selectedNetworks.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' y ')} y métricas de perfil...
           </p>
         )}
 
