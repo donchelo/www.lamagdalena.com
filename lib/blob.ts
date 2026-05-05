@@ -1,9 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+let supabaseInstance: ReturnType<typeof createClient> | null = null
+
+function getSupabase() {
+  if (supabaseInstance) return supabaseInstance
+  
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!url || !key) {
+    // Si estamos en build y faltan las variables, lanzamos un error solo si se intenta usar
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('Supabase credentials missing. This is expected during build if not provided, but will fail at runtime.')
+    }
+  }
+
+  supabaseInstance = createClient(url!, key!)
+  return supabaseInstance
+}
+
 
 export interface JobData {
   reportId: string
@@ -25,7 +40,7 @@ export interface JobData {
 }
 
 export async function saveJob(job: JobData): Promise<void> {
-  const { error } = await supabase.from('reports').upsert({
+  const { error } = await getSupabase().from('reports').upsert({
     id: job.reportId,
     status: job.status,
     client_name: job.clientName,
@@ -48,7 +63,7 @@ export async function saveJob(job: JobData): Promise<void> {
 }
 
 export async function loadJob(reportId: string): Promise<JobData | null> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('reports')
     .select('*')
     .eq('id', reportId)
@@ -86,7 +101,7 @@ export async function updateJobStatus(reportId: string, patch: Partial<JobData>)
 }
 
 export async function saveRawData(reportId: string, data: unknown): Promise<void> {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('reports')
     .update({ raw_data: data, updated_at: new Date().toISOString() })
     .eq('id', reportId)
@@ -95,7 +110,7 @@ export async function saveRawData(reportId: string, data: unknown): Promise<void
 }
 
 export async function getRawData(reportId: string): Promise<unknown[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('reports')
     .select('raw_data')
     .eq('id', reportId)
@@ -112,7 +127,7 @@ export async function loadRawData(reportId: string): Promise<unknown[]> {
 }
 
 export async function saveAnalysis(reportId: string, analysis: unknown): Promise<void> {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('reports')
     .update({ analysis: analysis, updated_at: new Date().toISOString() })
     .eq('id', reportId)
@@ -121,7 +136,7 @@ export async function saveAnalysis(reportId: string, analysis: unknown): Promise
 }
 
 export async function loadAnalysis(reportId: string): Promise<any | null> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('reports')
     .select('analysis')
     .eq('id', reportId)
@@ -133,7 +148,7 @@ export async function loadAnalysis(reportId: string): Promise<any | null> {
 
 export async function savePdf(reportId: string, buffer: Buffer): Promise<string> {
   // Upload to Supabase Storage
-  const { data, error } = await supabase.storage
+  const { data, error } = await getSupabase().storage
     .from('reports')
     .upload(`${reportId}/report.pdf`, buffer, {
       contentType: 'application/pdf',
@@ -143,12 +158,12 @@ export async function savePdf(reportId: string, buffer: Buffer): Promise<string>
   if (error) throw error
 
   // Get Public URL
-  const { data: { publicUrl } } = supabase.storage
+  const { data: { publicUrl } } = getSupabase().storage
     .from('reports')
     .getPublicUrl(`${reportId}/report.pdf`)
 
   // Update record with PDF URL
-  await supabase
+  await getSupabase()
     .from('reports')
     .update({ pdf_url: publicUrl, updated_at: new Date().toISOString() })
     .eq('id', reportId)
@@ -157,7 +172,7 @@ export async function savePdf(reportId: string, buffer: Buffer): Promise<string>
 }
 
 export async function listReports(): Promise<JobData[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('reports')
     .select('*')
     .order('created_at', { ascending: false })

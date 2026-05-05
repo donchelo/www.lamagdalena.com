@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
+export const dynamic = 'force-dynamic'
+
 import { loadJob, updateJobStatus, saveRawData, saveAnalysis, savePdf, getRawData } from '@/lib/blob'
 import { fetchDatasetItems } from '@/lib/apify'
 import { analyzeData } from '@/lib/claude'

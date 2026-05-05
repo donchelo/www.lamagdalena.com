@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { after } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
+export const dynamic = 'force-dynamic'
+
 import { loadJob, loadRawData, updateJobStatus, saveAnalysis, savePdf } from '@/lib/blob'
 import { analyzeData } from '@/lib/claude'
 

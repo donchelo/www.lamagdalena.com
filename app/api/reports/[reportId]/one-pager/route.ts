@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
+
 import { loadJob } from '@/lib/blob'
 import { renderOnePagerPdf } from '@/lib/pdf/render'
 
