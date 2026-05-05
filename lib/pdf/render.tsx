@@ -1,6 +1,6 @@
 import { renderToBuffer } from '@react-pdf/renderer'
 import React from 'react'
-import type { JobData } from '@/lib/blob'
+import type { JobData } from '@/lib/supabase'
 import type { Analysis } from '@/lib/claude'
 import { ReportDocument } from './ReportDocument'
 import { OnePagerDocument } from './OnePagerDocument'

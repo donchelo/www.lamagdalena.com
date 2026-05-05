@@ -9,7 +9,7 @@ import { SentimentPage } from './pages/SentimentPage'
 import { TopContentPage } from './pages/TopContentPage'
 import { KeyInsightsPage } from './pages/KeyInsightsPage'
 import { RecommendationsPage } from './pages/RecommendationsPage'
-import type { JobData } from '@/lib/blob'
+import type { JobData } from '@/lib/supabase'
 import type { Analysis } from '@/lib/claude'
 
 interface ReportDocumentProps {

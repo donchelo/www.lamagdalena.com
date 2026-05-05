@@ -1,4 +1,4 @@
-import { updateJobStatus, saveRawData, saveAnalysis, savePdf, getRawData, JobData } from '@/lib/blob'
+import { updateJobStatus, saveRawData, saveAnalysis, savePdf, getRawData, JobData } from '@/lib/supabase'
 import { getRunInfo, fetchDatasetItems, startTikTokCommentsRun } from '@/lib/apify'
 import { analyzeData } from '@/lib/claude'
 import { getBaseUrl } from '@/lib/url'

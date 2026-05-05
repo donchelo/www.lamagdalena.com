@@ -1,7 +1,7 @@
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import { colors } from './styles'
-import type { JobData } from '@/lib/blob'
+import type { JobData } from '@/lib/supabase'
 import type { Analysis } from '@/lib/claude'
 
 const styles = StyleSheet.create({

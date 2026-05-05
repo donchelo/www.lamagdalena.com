@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 
-import { loadJob } from '@/lib/blob'
+import { loadJob } from '@/lib/supabase'
 import { renderOnePagerPdf } from '@/lib/pdf/render'
 
 interface Params {
@@ -16,7 +16,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
     if (!job) return NextResponse.json({ error: 'Report not found' }, { status: 404 })
 
     // Cargar el análisis desde Supabase
-    const { loadAnalysis } = await import('@/lib/blob')
+    const { loadAnalysis } = await import('@/lib/supabase')
     const analysis = await loadAnalysis(reportId)
     
     if (!analysis) return NextResponse.json({ error: 'Analysis data not found' }, { status: 404 })

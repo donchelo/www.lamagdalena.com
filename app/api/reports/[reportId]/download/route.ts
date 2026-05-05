@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 
-import { loadJob } from '@/lib/blob'
+import { loadJob } from '@/lib/supabase'
 
 interface Params {
   params: Promise<{ reportId: string }>

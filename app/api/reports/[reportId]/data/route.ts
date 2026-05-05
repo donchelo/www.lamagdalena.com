@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getRawData } from '@/lib/blob'
+import { getRawData } from '@/lib/supabase'
 
 interface Params {
   params: Promise<{ reportId: string }>

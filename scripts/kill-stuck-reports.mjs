@@ -1,18 +1,14 @@
-// Script to kill stuck reports: abort Apify runs and mark as error
+// Script to kill stuck reports: abort Apify runs and mark as error in Supabase
 // Run with: node --env-file=.env.local scripts/kill-stuck-reports.mjs
-import { list, put } from '@vercel/blob'
+import { createClient } from '@supabase/supabase-js'
 
 const APIFY_TOKEN = process.env.APIFY_API_TOKEN
-const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN
-const STUCK_STATUSES = ['queued', 'scraping', 'scraping_posts', 'scraping_comments', 'analyzing']
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-async function fetchJson(blobUrl) {
-  const res = await fetch(blobUrl, {
-    headers: { Authorization: `Bearer ${BLOB_TOKEN}` },
-  })
-  if (!res.ok) return null
-  return res.json()
-}
+const STUCK_STATUSES = ['queued', 'scraping', 'scraping_posts', 'scraping_comments', 'analyzing', 'generating_pdf']
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 async function abortApifyRun(runId) {
   const res = await fetch(
@@ -24,24 +20,27 @@ async function abortApifyRun(runId) {
 }
 
 async function main() {
-  console.log('Listando todos los reportes en blob...\n')
-
-  const { blobs } = await list({ prefix: 'reports/', token: BLOB_TOKEN })
-  const jobBlobs = blobs.filter(b => b.pathname.endsWith('/job.json'))
-  console.log(`Total job blobs encontrados: ${jobBlobs.length}`)
-
-  const stuckJobs = []
-  for (const blob of jobBlobs) {
-    const job = await fetchJson(blob.url)
-    if (!job) continue
-    if (STUCK_STATUSES.includes(job.status)) {
-      stuckJobs.push(job)
-    }
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('Error: NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY son necesarios.')
+    process.exit(1)
   }
 
-  console.log(`\nReportes atascados (${stuckJobs.length}):`)
+  console.log('Buscando reportes atascados en Supabase...\n')
+
+  const { data: stuckJobs, error } = await supabase
+    .from('reports')
+    .select('*')
+    .in('status', STUCK_STATUSES)
+
+  if (error) {
+    console.error('Error fetching jobs:', error)
+    return
+  }
+
+  console.log(`Total reportes atascados encontrados: ${stuckJobs.length}`)
+
   for (const job of stuckJobs) {
-    console.log(`  - [${job.status}] ${job.clientName} | ${job.dateFrom}→${job.dateTo} | runs: ${JSON.stringify(job.apifyRunIds ?? {})}`)
+    console.log(`  - [${job.status}] ${job.client_name} | ${job.date_from}→${job.date_to} | runs: ${JSON.stringify(job.apify_run_ids ?? {})}`)
   }
 
   if (stuckJobs.length === 0) {
@@ -51,10 +50,11 @@ async function main() {
 
   console.log('\nMatando reportes...')
   for (const job of stuckJobs) {
-    console.log(`\n[${job.reportId}] ${job.clientName} (${job.status})`)
+    const reportId = job.id
+    console.log(`\n[${reportId}] ${job.client_name} (${job.status})`)
 
     // Abort all Apify runs
-    const runIds = Object.values(job.apifyRunIds ?? {})
+    const runIds = Object.values(job.apify_run_ids ?? {})
     for (const runId of runIds) {
       if (!runId || runId === 'simulated-run-id') {
         console.log(`  Skipping run ${runId}`)
@@ -64,20 +64,21 @@ async function main() {
       console.log(`  Apify abort ${runId}: ${result.ok ? 'OK' : 'FAIL'} → ${result.status}`)
     }
 
-    // Mark as error in blob
-    const updated = {
-      ...job,
-      status: 'error',
-      error: 'Terminado manualmente',
-      updatedAt: new Date().toISOString(),
+    // Mark as error in Supabase
+    const { error: updateError } = await supabase
+      .from('reports')
+      .update({
+        status: 'error',
+        error: 'Terminado manualmente',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', reportId)
+
+    if (updateError) {
+      console.error(`  Error marcando como error en Supabase:`, updateError)
+    } else {
+      console.log(`  ✓ Marcado como error en Supabase`)
     }
-    await put(`reports/${job.reportId}/job.json`, JSON.stringify(updated), {
-      access: 'private',
-      contentType: 'application/json',
-      allowOverwrite: true,
-      token: BLOB_TOKEN,
-    })
-    console.log(`  ✓ Marcado como error en blob`)
   }
 
   console.log('\nListo. Todos los reportes atascados han sido matados.')
@@ -87,3 +88,4 @@ main().catch(err => {
   console.error('Error:', err)
   process.exit(1)
 })
+

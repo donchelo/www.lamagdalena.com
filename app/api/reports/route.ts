@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
-import { saveJob, listReports, type JobData } from '@/lib/blob'
+import { saveJob, listReports, type JobData } from '@/lib/supabase'
 import { startActorRun } from '@/lib/apify'
 import { getBaseUrl } from '@/lib/url'
 
@@ -42,9 +42,9 @@ export async function POST(request: NextRequest) {
     console.log(`[API] Creating job ${reportId} for ${clientName}`)
     try {
       await saveJob(job)
-      console.log(`[API] Job saved to blob storage`)
+      console.log(`[API] Job saved to Supabase`)
     } catch (err) {
-      console.error(`[API] Error saving job to blob:`, err)
+      console.error(`[API] Error saving job to Supabase:`, err)
       throw err
     }
 

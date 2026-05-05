@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 export const dynamic = 'force-dynamic'
 
-import { loadJob, loadRawData, updateJobStatus, saveAnalysis, savePdf } from '@/lib/blob'
+import { loadJob, loadRawData, updateJobStatus, saveAnalysis, savePdf } from '@/lib/supabase'
 import { analyzeData } from '@/lib/claude'
 
 interface Params {
