@@ -175,4 +175,3 @@ INSTRUCCIONES DE ANÁLISIS:
 - Al proyectar, muestra explícitamente los supuestos (ej: "Basado en el promedio de los últimos 3 meses...").
 - Responde siempre en español.`
 }
-}
