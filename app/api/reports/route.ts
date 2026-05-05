@@ -39,7 +39,13 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[API] Creating job ${reportId} for ${clientName}`)
-    await saveJob(job)
+    try {
+      await saveJob(job)
+      console.log(`[API] Job saved to blob storage`)
+    } catch (err) {
+      console.error(`[API] Error saving job to blob:`, err)
+      throw err
+    }
 
     const baseUrl = process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
@@ -49,12 +55,14 @@ export async function POST(request: NextRequest) {
     const apifyInput = { keywords, hashtags, accounts, dateFrom, dateTo, maxResults: 1000 }
     const apifyRunIds: Record<string, string> = {}
 
+    console.log(`[API] Starting actor runs for: ${selectedNetworks.join(', ')}`)
     await Promise.all(
       selectedNetworks.map(async (network: string) => {
         try {
-          console.log(`[API] Starting Apify actor for ${network}...`)
+          console.log(`[API] Triggering Apify actor for ${network}...`)
           const runId = await startActorRun(network, apifyInput, webhookUrl)
           apifyRunIds[network] = runId
+          console.log(`[API] Started ${network} run: ${runId}`)
         } catch (err) {
           console.error(`[API] Failed to start Apify actor for ${network}:`, err)
           throw err

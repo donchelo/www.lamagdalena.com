@@ -2,6 +2,8 @@ const APIFY_TOKEN = process.env.APIFY_API_TOKEN
 
 const ACTORS: Record<string, string> = {
   instagram: 'apify/instagram-hashtag-scraper',
+  instagram_posts: 'apify/instagram-post-scraper',
+  instagram_comments: 'apify/instagram-comment-scraper',
   tiktok_hashtags: 'clockworks/tiktok-scraper',
   tiktok_profiles: 'clockworks/tiktok-profile-scraper',
   tiktok_comments: 'clockworks/tiktok-comments-scraper',
@@ -17,6 +19,36 @@ interface ApifyInput {
   dateFrom?: string
   dateTo?: string
   maxResults?: number
+}
+
+export async function startInstagramCommentsRun(postUrls: string[], webhookUrl: string): Promise<string> {
+  const res = await fetch(
+    `https://api.apify.com/v2/acts/${encodeURIComponent(ACTORS.instagram_comments)}/runs?token=${APIFY_TOKEN}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        directUrls: postUrls,
+        resultsLimit: 200,
+        includeNestedComments: false,
+        isNewestComments: false,
+        webhooks: [
+          {
+            eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
+            requestUrl: webhookUrl,
+          },
+        ],
+      }),
+    }
+  )
+
+  if (!res.ok) {
+    const body = await res.text()
+    throw new Error(`Apify error starting instagram comments: ${body}`)
+  }
+
+  const data = await res.json()
+  return data.data.id as string
 }
 
 export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: string): Promise<string> {
@@ -51,8 +83,10 @@ export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: st
 }
 
 export async function startActorRun(network: string, input: ApifyInput, webhookUrl: string): Promise<string> {
-  const isProfileSearch = network === 'tiktok' && input.accounts && input.accounts.length > 0
-  const actorId = isProfileSearch ? ACTORS.tiktok_profiles : ACTORS[network] || ACTORS[`${network}_hashtags`]
+  const isProfileSearch = (network === 'tiktok' || network === 'instagram') && input.accounts && input.accounts.length > 0
+  const actorId = isProfileSearch 
+    ? (network === 'tiktok' ? ACTORS.tiktok_profiles : ACTORS.instagram_posts)
+    : ACTORS[network] || ACTORS[`${network}_hashtags`]
   
   if (!actorId) throw new Error(`Unknown network: ${network}`)
 
@@ -107,6 +141,14 @@ function buildActorInput(network: string, input: ApifyInput) {
 
   switch (network) {
     case 'instagram':
+      if (input.accounts && input.accounts.length > 0) {
+        return {
+          username: input.accounts,
+          resultsLimit: limit,
+          onlyPostsNewerThan: input.dateFrom,
+          skipPinnedPosts: false,
+        }
+      }
       return { hashtags: tags, resultsLimit: limit }
     case 'tiktok':
       return { hashtags: tags, maxItems: limit }
