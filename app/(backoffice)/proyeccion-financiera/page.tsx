@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { downloadReportExcel } from '@/lib/report-excel'
+import { downloadReportExcel, printReportPDF } from '@/lib/report-excel'
 
 interface MonthFolder {
   name: string
@@ -38,7 +38,7 @@ export default function ProyeccionFinancieraPage() {
   const [reports, setReports] = useState<ReportEntry[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState('')
-  const topRef = useRef<HTMLDivElement>(null)
+  const reportsTopRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetch('/api/proyeccion/documents')
@@ -50,10 +50,10 @@ export default function ProyeccionFinancieraPage() {
       .catch(() => {})
   }, [])
 
-  // Scroll to top of reports list when a new one is added
+  // Scroll to first report when a new one is added
   useEffect(() => {
     if (reports.length > 0) {
-      topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      reportsTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [reports.length])
 
@@ -109,10 +109,10 @@ export default function ProyeccionFinancieraPage() {
         <p style={{ color: 'var(--private-text-muted)' }}>Genera informes financieros con IA · Descarga en Excel</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem', marginTop: '2rem', height: 'calc(100vh - 220px)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem', marginTop: '2rem', alignItems: 'start' }}>
 
-        {/* Panel izquierdo */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', minHeight: 0 }}>
+        {/* Panel izquierdo — sticky so it stays visible while right panel scrolls with the page */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'sticky', top: '2rem', maxHeight: 'calc(100vh - 6rem)', overflowY: 'auto' }}>
 
           {/* Selector de meses */}
           <div style={{ padding: '1.25rem', border: '1px solid var(--private-border)', borderRadius: '4px', backgroundColor: 'var(--private-glass)' }}>
@@ -266,9 +266,9 @@ export default function ProyeccionFinancieraPage() {
           </div>
         </div>
 
-        {/* Panel derecho: historial de informes */}
-        <div style={{ overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div ref={topRef} />
+        {/* Panel derecho: historial de informes — crece con el contenido, la página hace scroll */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div ref={reportsTopRef} />
 
           {reports.length === 0 ? (
             <div style={{ margin: 'auto', textAlign: 'center', padding: '3rem' }}>
@@ -289,7 +289,6 @@ export default function ProyeccionFinancieraPage() {
                   border: '1px solid var(--private-border)',
                   borderRadius: '4px',
                   backgroundColor: 'var(--private-glass)',
-                  overflow: 'hidden',
                 }}
               >
                 {/* Header del informe */}
@@ -322,30 +321,58 @@ export default function ProyeccionFinancieraPage() {
                       {entry.timestamp.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     {entry.status === 'done' && (
-                      <button
-                        onClick={() => downloadReportExcel(entry.content, entry.months)}
-                        style={{
-                          padding: '0.35rem 0.85rem',
-                          backgroundColor: 'transparent',
-                          border: '1px solid rgba(238,241,81,0.4)',
-                          borderRadius: '3px',
-                          color: 'var(--private-accent)',
-                          fontSize: '0.75rem',
-                          cursor: 'pointer',
-                          fontFamily: 'var(--font-heading)',
-                          letterSpacing: '0.03em',
-                          whiteSpace: 'nowrap',
-                          transition: 'all 0.2s',
-                        }}
-                        onMouseOver={e => {
-                          e.currentTarget.style.backgroundColor = 'rgba(238,241,81,0.1)'
-                        }}
-                        onMouseOut={e => {
-                          e.currentTarget.style.backgroundColor = 'transparent'
-                        }}
-                      >
-                        ↓ Excel
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <button
+                          onClick={() => printReportPDF(entry.content, entry.months)}
+                          style={{
+                            padding: '0.35rem 0.85rem',
+                            backgroundColor: 'transparent',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            borderRadius: '3px',
+                            color: 'rgba(255,255,255,0.55)',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            fontFamily: 'var(--font-heading)',
+                            letterSpacing: '0.03em',
+                            whiteSpace: 'nowrap',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseOver={e => {
+                            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'
+                            e.currentTarget.style.color = 'rgba(255,255,255,0.88)'
+                          }}
+                          onMouseOut={e => {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                            e.currentTarget.style.color = 'rgba(255,255,255,0.55)'
+                          }}
+                        >
+                          ↓ PDF
+                        </button>
+                        <button
+                          onClick={() => downloadReportExcel(entry.content, entry.months)}
+                          style={{
+                            padding: '0.35rem 0.85rem',
+                            backgroundColor: 'transparent',
+                            border: '1px solid rgba(238,241,81,0.4)',
+                            borderRadius: '3px',
+                            color: 'var(--private-accent)',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            fontFamily: 'var(--font-heading)',
+                            letterSpacing: '0.03em',
+                            whiteSpace: 'nowrap',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseOver={e => {
+                            e.currentTarget.style.backgroundColor = 'rgba(238,241,81,0.1)'
+                          }}
+                          onMouseOut={e => {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }}
+                        >
+                          ↓ Excel
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
