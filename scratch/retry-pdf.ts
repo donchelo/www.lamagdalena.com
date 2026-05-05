@@ -23,13 +23,8 @@ async function retryPdf(reportId: string) {
     if (!job) throw new Error("Job no encontrado")
 
     console.log("1. Cargando datos reales del scraping...")
-    const { list } = await import('@vercel/blob')
-    const { blobs } = await list({ prefix: `reports/${reportId}/raw-data.json` })
-    if (blobs.length === 0) throw new Error("No hay datos crudos")
-    const dataRes = await fetch(blobs[0].url, {
-      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
-    })
-    const rawData = await dataRes.json()
+    const { loadRawData } = await import('../lib/supabase')
+    const rawData = await loadRawData(reportId)
 
     console.log(`2. Pidiendo a Claude que analice ${rawData.length} elementos...`)
     const { analyzeData } = await import('../lib/claude')
@@ -42,7 +37,7 @@ async function retryPdf(reportId: string) {
     console.log("3. Generando buffer de PDF profesional...")
     const pdfBuffer = await renderReportPdf({ job, analysis })
 
-    console.log("2. Guardando en Vercel Blob...")
+    console.log("2. Guardando en Supabase...")
     const pdfUrl = await savePdf(reportId, pdfBuffer)
 
     console.log("3. Marcando como COMPLETO...")
