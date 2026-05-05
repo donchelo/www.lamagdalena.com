@@ -165,12 +165,15 @@ ${costSection}
 ${incomeSection}
 
 INSTRUCCIONES DE FORMATO (CRÍTICO):
+- OBLIGATORIO: Tu PRIMERA línea debe ser exactamente: # PERÍODO ANALIZADO: ${monthsDesc}
+  No pongas nada antes. No lo omitas. No lo muevas.
+- Incluye una columna "Mes" o "Período" en TODAS las tablas de datos.
 - Usa TABLAS de Markdown para todos los resúmenes, comparativas y proyecciones.
-- IMPORTANTE: Deja una línea en blanco ANTES y DESPUÉS de cada tabla, y asegúrate de que cada fila esté en una línea nueva.
-- Formatea montos en COP con separadores de miles y signo pesos (ej: $1.250.000 COP).
+- Deja una línea en blanco ANTES y DESPUÉS de cada tabla.
+- Formatea montos en COP con separadores de miles (ej: $1.250.000 COP).
 - Usa **negritas** para cifras totales y KPIs importantes.
 - Estructura la respuesta con encabezados claros (## Resumen, ### Proyecciones, etc.).
-- Si falta información de ingresos o costos para un mes, menciónalo explícitamente.
+- Si falta información para un mes, menciónalo explícitamente.
 
 INSTRUCCIONES DE ANÁLISIS:
 - Los COSTOS están en el CSV estructurado — úsalos directamente.
