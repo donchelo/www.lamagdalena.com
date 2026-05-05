@@ -212,7 +212,7 @@ export async function analyzeData(rawData: unknown[], context: ReportContext): P
   const commentTexts = comments.slice(0, 150).map((c: any) => c.text).filter(Boolean)
 
   const { output: qualitative } = await generateText({
-    model: anthropic('claude-sonnet-4.6'),
+    model: anthropic('claude-sonnet-4-6'),
     output: Output.object({ schema: QualitativeSchema }),
     prompt: `Eres un Consultor Estratégico Senior de "La Magdalena". Genera un análisis para: ${context.clientName}.
 
