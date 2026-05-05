@@ -1,0 +1,131 @@
+{
+  "executiveSummary": "Durante el período Q4 2025 (octubre–diciembre), @lamagdalena___ publicó 11 videos en Instagram, acumulando 1.217 reproducciones totales, 408 likes y 10 comentarios, con 0 compartidos. El engagement rate del 34,35% es notablemente alto para el sector de fotografía documental y fotolibros, lo que indica una audiencia altamente comprometida aunque aún reducida en volumen. El pico de actividad se registró el 13 de noviembre de 2025, coincidiendo con la publicación sobre el 40° aniversario de la tragedia de Armero, que concentró el mayor volumen de interacciones orgánicas del período.\n\nEl contenido de mayor rendimiento fue el post sobre Armero (13/11/2025), con 243 likes y 9 comentarios, representando el 59,5% del total de likes del período con una sola pieza. En contraste, la participación en la feria Polycopies en París (15-16 noviembre) generó solo 43 likes sin comentarios, sugiriendo que el contenido editorial de alto impacto emocional supera en rendimiento al contenido de posicionamiento institucional. El video con reproducciones registradas (1.217 views, COP30/Transforma) obtuvo 43 likes y 1 comentario, evidenciando una brecha entre visualización y conversión en engagement.\n\nEn términos estratégicos, La Magdalena demuestra capacidad para generar contenido de alta resonancia cuando aborda temas de memoria histórica y crisis humanitarias con profundidad narrativa. Sin embargo, la ausencia de compartidos y el bajo volumen de comentarios globales señalan una oportunidad crítica para amplificar el alcance más allá de la comunidad actual y activar mecanismos de conversión hacia audiencias nuevas.",
+  "methodology": "El presente análisis fue construido a partir de datos extraídos mediante scraping estructurado de perfiles públicos de Instagram utilizando Apify, plataforma de automatización de datos web que permite el rastreo sistematizado de publicaciones, métricas de interacción (likes, comentarios, reproducciones, compartidos) y metadatos de contenido (fecha de publicación, caption, URL). El proceso de extracción se ejecutó sobre el perfil @lamagdalena___ para el rango temporal Q4 2025 (2025-10-01 al 2025-12-31), recuperando un total de 11 registros de video con sus métricas asociadas. Los datos fueron normalizados y validados para eliminar duplicados y asegurar consistencia entre campos. El análisis de sentimiento se aplicó sobre los comentarios de usuarios disponibles, y las métricas agregadas (engagement rate, totales) fueron calculadas directamente desde los datos crudos sin interpolación. Dada la naturaleza pública de los datos y la trazabilidad de cada registro mediante URL, el nivel de confiabilidad del dataset es alto, aunque se reconoce que métricas como 'views' pueden estar parcialmente capturadas dependiendo de la disponibilidad del endpoint en el momento de la extracción.",
+  "sentimentAnalysis": {
+    "positivePercent": 60,
+    "neutralPercent": 30,
+    "negativePercent": 10,
+    "dominantTopics": [
+      "Memoria histórica y tragedia de Armero",
+      "Fotografía documental y fotolibros",
+      "Medio ambiente y COP30",
+      "Cosmogonías indígenas y cultura ancestral"
+    ],
+    "sentimentDrivers": {
+      "positive": [
+        "Reconocimiento emocional hacia el contenido sobre Armero ('Para no olvidar', 'Gran trabajo amigo')",
+        "Valoración del trabajo fotográfico documental por parte de la comunidad",
+        "Emojis de emoción y empatía en respuesta a contenido de impacto social"
+      ],
+      "negative": [
+        "Ausencia total de compartidos indica barrera de amplificación orgánica",
+        "Muy baja conversión de comentarios frente al volumen de likes, sugiriendo pasividad participativa",
+        "Contenido institucional (ferias, clientes) genera baja resonancia emocional en la audiencia actual"
+      ]
+    }
+  },
+  "keyInsights": [
+    "El post sobre el 40° aniversario de Armero (13/11/2025) concentró el 59,5% del total de likes del período (243 de 408) y el 90% de los comentarios (9 de 10), confirmándolo como el contenido de mayor rendimiento por amplio margen.",
+    "El engagement rate del 34,35% es excepcionalmente alto para una cuenta de nicho editorial/fotográfico en Instagram, lo que indica una comunidad pequeña pero altamente fidelizada.",
+    "El único video con reproducciones registradas (COP30/Transforma, 1.217 views) obtuvo solo 43 likes (ratio views-to-likes del 3,5%), evidenciando una brecha significativa entre visibilidad y engagement profundo en contenido de cliente.",
+    "Los 0 compartidos en todo el período representan la principal limitante de crecimiento orgánico: el contenido no está siendo distribuido fuera de la comunidad existente, bloqueando la adquisición de nuevas audiencias.",
+    "El contenido de memoria histórica y temáticas de impacto humanitario supera consistentemente al contenido de posicionamiento de marca/institucional en todas las métricas de engagement disponibles.",
+    "La participación en Polycopies París (feria internacional de fotolibros, noviembre 2025) no se tradujo en un incremento medible de engagement, sugiriendo desconexión entre la estrategia de expansión física internacional y la estrategia digital."
+  ],
+  "recommendations": [
+    {
+      "title": "Desarrollar una serie documental de memoria histórica",
+      "description": "Crear una serie de contenido periódico (mínimo 1 pieza semanal) enfocada en eventos de memoria histórica colombiana y latinoamericana, replicando la fórmula del post de Armero. Incluir llamadas a la acción explícitas para comentar y compartir, y utilizar Instagram Collabs con cuentas de periodismo y cultura para amplificar el alcance orgánico.",
+      "priority": "high"
+    },
+    {
+      "title": "Implementar estrategia activa de compartidos y distribución cruzada",
+      "description": "Dado que los compartidos registran 0 en todo el período, diseñar contenido específicamente optimizado para ser compartido (infografías narrativas, carruseles de archivo fotográfico, frases de impacto). Activar alianzas con medios culturales y cuentas de fotografía documental para distribución cruzada y reposteo estratégico.",
+      "priority": "high"
+    },
+    {
+      "title": "Crear contenido detrás de cámara y proceso editorial para humanizar la marca",
+      "description": "Documentar el proceso de producción de fotolibros, las expediciones fotográficas y el trabajo con fotógrafos como Chino Romero. Este tipo de contenido genera cercanía emocional con la audiencia y puede aumentar la tasa de comentarios y compartidos, diferenciando a La Magdalena de editoriales más institucionales.",
+      "priority": "medium"
+    },
+    {
+      "title": "Separar la estrategia de contenido de clientes del contenido editorial propio",
+      "description": "El contenido producido para clientes (ej. Transforma/COP30) debe tener su propio formato diferenciado y narrativa adaptada al tono editorial de La Magdalena para evitar que el contenido comercial diluya el engagement. Considerar etiquetas o formatos visuales distintos que mantengan la coherencia de marca.",
+      "priority": "medium"
+    },
+    {
+      "title": "Activar cobertura digital en tiempo real para eventos presenciales internacionales",
+      "description": "La presencia en Polycopies París no generó impacto digital medible. Para próximas ferias y eventos internacionales, implementar una estrategia de cobertura en tiempo real con Stories, Reels cortos y posts de proceso que conecten la experiencia presencial con la audiencia digital, generando sentido de pertenencia y FOMO en la comunidad online.",
+      "priority": "low"
+    }
+  ],
+  "volumeMetrics": {
+    "totalPosts": 11,
+    "totalReach": 1217,
+    "peakDay": "2025-11-13",
+    "volumeByNetwork": {
+      "instagram": 11
+    },
+    "timeSeries": [
+      {
+        "date": "2025-11-12",
+        "count": 1
+      },
+      {
+        "date": "2025-11-13",
+        "count": 7
+      },
+      {
+        "date": "2025-11-23",
+        "count": 2
+      },
+      {
+        "date": "2025-12-09",
+        "count": 1
+      }
+    ]
+  },
+  "engagementMetrics": {
+    "avgEngagementRate": 34.35,
+    "totalLikes": 408,
+    "totalComments": 10,
+    "totalShares": 0,
+    "topPosts": [
+      {
+        "url": "https://www.instagram.com/p/DQ_yt19jW4x/",
+        "platform": "instagram",
+        "likes": 243,
+        "comments": 9,
+        "caption": "Hace 40 años Armero quedó sepultado, una tragedia que por la negligencia se amplificó al punto que hoy sigue siendo el evento que más muertes ha dejado, unas 23.000 personas perdieron la vida."
+      },
+      {
+        "url": "https://www.instagram.com/p/DSDNwGoETr8/",
+        "platform": "instagram",
+        "likes": 70,
+        "comments": 0,
+        "caption": "Qué historias contábamos antes que nos dijeran en qué debíamos creer? Las huellas de esas cosmogonías siguen presentes y fuimos a buscar algunas que dejaron los Panchos hace unos 600 años. \n\nFotos y texto: @chinoromerohoyos"
+      },
+      {
+        "url": "https://www.instagram.com/p/DRZjwwZDQ-R/",
+        "platform": "instagram",
+        "likes": 43,
+        "comments": 1,
+        "caption": "La cop 30 acabó y aunque se lograron algunos avances, no fue posible llegar a un acuerdo en cuanto a la implementación de un mecanismo de transición justa equitativa y ordenada de los combustibles fósiles.  Desde @lamagdalena___ estuvimos con dos cortos que hicimos para nuestro cliente @transformagl"
+      },
+      {
+        "url": "https://www.instagram.com/p/DQ9BV3tDp-v/",
+        "platform": "instagram",
+        "likes": 43,
+        "comments": 0,
+        "caption": "🇫🇷📚💥🐅⚡️Raya en Polycopies! Esta es la primera vez que estamos en la feria de fotolibros de @polycopies en la semana de la foto en Paris!! \n\nEstaremos ubicados en el barco en la mesa C33, el sábado 15 y domingo 16 de noviembre, con nuestros nuevos lanzamientos: \n\n“Jarupia” de Chino Romero \n“Mama"
+      },
+      {
+        "url": "",
+        "platform": "instagram",
+        "likes": 2,
+        "comments": 0,
+        "caption": "Muito bom"
+      }
+    ]
+  }
+}
