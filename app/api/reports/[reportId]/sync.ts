@@ -1,6 +1,7 @@
 import { updateJobStatus, saveRawData, saveAnalysis, savePdf, getRawData, JobData } from '@/lib/blob'
 import { getRunInfo, fetchDatasetItems, startTikTokCommentsRun } from '@/lib/apify'
 import { analyzeData } from '@/lib/claude'
+import { getBaseUrl } from '@/lib/url'
 
 export async function syncJobWithApify(reportId: string, job: JobData): Promise<JobData | null> {
   let activeRunId: string | undefined
@@ -30,10 +31,7 @@ export async function syncJobWithApify(reportId: string, job: JobData): Promise<
       const combined = [...existing, ...items]
       await saveRawData(reportId, combined)
 
-      const baseUrl = process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-      const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook?secret=${process.env.APIFY_WEBHOOK_SECRET}`
+      const webhookUrl = `${getBaseUrl()}/api/reports/${reportId}/apify-webhook?secret=${process.env.APIFY_WEBHOOK_SECRET}`
 
       if (currentStage === 'posts' && job.selectedNetworks.includes('tiktok') && !job.apifyRunIds?.tiktok_comments) {
         console.log(`[Sync] TikTok Stage 1 done. Transicionando a Comentarios...`)

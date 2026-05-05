@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { saveJob, listReports, type JobData } from '@/lib/blob'
 import { startActorRun } from '@/lib/apify'
+import { getBaseUrl } from '@/lib/url'
 
 export async function GET() {
   try {
@@ -47,11 +48,7 @@ export async function POST(request: NextRequest) {
       throw err
     }
 
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-
-    const webhookUrl = `${baseUrl}/api/reports/${reportId}/apify-webhook?secret=${process.env.APIFY_WEBHOOK_SECRET}`
+    const webhookUrl = `${getBaseUrl()}/api/reports/${reportId}/apify-webhook?secret=${process.env.APIFY_WEBHOOK_SECRET}`
     const apifyInput = { keywords, hashtags, accounts, dateFrom, dateTo, maxResults: 1000 }
     const apifyRunIds: Record<string, string> = {}
 
