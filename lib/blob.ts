@@ -19,15 +19,26 @@ export interface JobData {
   updatedAt: string
 }
 
-async function fetchJson(prefix: string): Promise<unknown | null> {
-  const { blobs } = await list({ prefix })
-  const blob = blobs.find(b => b.pathname === prefix)
-  if (!blob) return null
-  const res = await fetch(blob.url, {
-    headers: {
-      Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
-    },
+// Derives the blob store hostname from the token — avoids list() calls for reads.
+// Token format: vercel_blob_rw_<storeId>_<secretKey>
+// Private blob URL: https://<storeId>.vercel-storage.com/<pathname>
+function getBlobUrl(pathname: string): string {
+  const token = process.env.BLOB_READ_WRITE_TOKEN ?? ''
+  const parts = token.split('_')
+  // parts: ['vercel','blob','rw','<storeId>','<secretKey>']
+  const storeId = parts.slice(3, -1).join('_')
+  return `https://${storeId}.vercel-storage.com/${pathname}`
+}
+
+async function fetchBlobJson(pathname: string): Promise<unknown | null> {
+  const url = getBlobUrl(pathname)
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
+    // No-store ensures we always get fresh data (blobs don't cache)
+    cache: 'no-store',
   })
+  if (res.status === 404 || res.status === 403) return null
+  if (!res.ok) return null
   return res.json()
 }
 
@@ -40,7 +51,7 @@ export async function saveJob(job: JobData): Promise<void> {
 }
 
 export async function loadJob(reportId: string): Promise<JobData | null> {
-  return fetchJson(`reports/${reportId}/job.json`) as Promise<JobData | null>
+  return fetchBlobJson(`reports/${reportId}/job.json`) as Promise<JobData | null>
 }
 
 export async function updateJobStatus(reportId: string, patch: Partial<JobData>): Promise<JobData> {
@@ -61,13 +72,13 @@ export async function saveRawData(reportId: string, data: unknown): Promise<void
 
 // Returns empty array if not found — safe for first webhook call
 export async function getRawData(reportId: string): Promise<unknown[]> {
-  const data = await fetchJson(`reports/${reportId}/raw-data.json`)
+  const data = await fetchBlobJson(`reports/${reportId}/raw-data.json`)
   return (data as unknown[] | null) ?? []
 }
 
 // Throws if not found — use for retry where data must exist
 export async function loadRawData(reportId: string): Promise<unknown[]> {
-  const data = await fetchJson(`reports/${reportId}/raw-data.json`)
+  const data = await fetchBlobJson(`reports/${reportId}/raw-data.json`)
   if (!data) throw new Error('Raw data not found')
   return data as unknown[]
 }
@@ -79,17 +90,9 @@ export async function saveAnalysis(reportId: string, analysis: unknown): Promise
     allowOverwrite: true,
   })
 }
+
 export async function loadAnalysis(reportId: string): Promise<any | null> {
-  try {
-    const { blobs } = await list({ prefix: `reports/${reportId}/analysis.json`, limit: 1 })
-    if (blobs.length === 0) return null
-    const response = await fetch(blobs[0].url, {
-      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
-    })
-    return await response.json()
-  } catch {
-    return null
-  }
+  return fetchBlobJson(`reports/${reportId}/analysis.json`)
 }
 
 export async function savePdf(reportId: string, buffer: Buffer): Promise<string> {
@@ -102,17 +105,17 @@ export async function savePdf(reportId: string, buffer: Buffer): Promise<string>
 }
 
 export async function listReports(): Promise<JobData[]> {
+  // list() is unavoidable here — we need to enumerate all reports
   const { blobs } = await list({ prefix: 'reports/' })
   const jobBlobs = blobs.filter(b => b.pathname.endsWith('/job.json'))
-  const jobs: JobData[] = []
 
+  const jobs: JobData[] = []
   await Promise.all(
     jobBlobs.map(async blob => {
       try {
+        // Use direct fetch (no extra list() per report)
         const res = await fetch(blob.url, {
-          headers: {
-            Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
-          },
+          headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
         })
         const job: JobData = await res.json()
         jobs.push(job)
