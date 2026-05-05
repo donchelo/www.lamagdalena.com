@@ -80,14 +80,44 @@ interface ComputedMetrics {
   engagementMetrics: Analysis['engagementMetrics']
 }
 
-function isVideo(item: any): boolean {
-  return item.playCount !== undefined || item.videoMeta !== undefined || item.webVideoUrl !== undefined
+function isPost(item: any): boolean {
+  // TikTok: tiene playCount, videoMeta o webVideoUrl
+  if (item.playCount !== undefined || item.videoMeta !== undefined || item.webVideoUrl !== undefined) return true
+  // Instagram: tiene likesCount o displayUrl o shortCode (es un post, no un comentario)
+  if (item.likesCount !== undefined || item.displayUrl !== undefined || item.shortCode !== undefined) return true
+  return false
 }
 
-function toDateStr(createTime: any): string | null {
-  if (!createTime) return null
+function getLikes(item: any): number {
+  return item.likesCount ?? item.diggCount ?? item.likeCount ?? 0
+}
+
+function getComments(item: any): number {
+  return item.commentsCount ?? item.commentCount ?? 0
+}
+
+function getShares(item: any): number {
+  return item.shareCount ?? item.sharesCount ?? 0
+}
+
+function getViews(item: any): number {
+  return item.playCount ?? item.videoPlayCount ?? item.viewCount ?? 0
+}
+
+function getCaption(item: any): string {
+  return String(item.caption || item.text || item.desc || item.description || '').slice(0, 300)
+}
+
+function getUrl(item: any): string {
+  return item.url || item.webVideoUrl || item.videoUrl || item.directUrl || ''
+}
+
+function toDateStr(item: any): string | null {
+  // Intentar todos los campos de fecha conocidos
+  const raw = item.timestamp || item.createTimeISO || item.createTime || item.postedAt || item.takenAtTimestamp
+  if (!raw) return null
   try {
-    const d = typeof createTime === 'number' ? new Date(createTime * 1000) : new Date(createTime)
+    const d = typeof raw === 'number' ? new Date(raw * 1000) : new Date(raw)
     if (isNaN(d.getTime())) return null
     return d.toISOString().split('T')[0]
   } catch {
@@ -96,28 +126,30 @@ function toDateStr(createTime: any): string | null {
 }
 
 function computeMetrics(rawData: any[], networks: string[], dateFrom?: string, dateTo?: string): ComputedMetrics {
-  const allVideos = rawData.filter(isVideo)
-  const videos = allVideos.filter(v => {
+  const allPosts = rawData.filter(isPost)
+  const posts = allPosts.filter(v => {
     if (!dateFrom && !dateTo) return true
-    const d = toDateStr(v.createTimeISO || v.createTime)
+    const d = toDateStr(v)
     if (!d) return true
     if (dateFrom && d < dateFrom) return false
     if (dateTo && d > dateTo) return false
     return true
   })
-  const platform = networks[0] ?? 'tiktok'
+  const platform = networks[0] ?? 'instagram'
 
-  const totalLikes = videos.reduce((s, v) => s + (v.diggCount || 0), 0)
-  const totalViews = videos.reduce((s, v) => s + (v.playCount || 0), 0)
-  const totalComments = videos.reduce((s, v) => s + (v.commentCount || 0), 0)
-  const totalShares = videos.reduce((s, v) => s + (v.shareCount || 0), 0)
-  const avgEngagementRate = totalViews > 0
-    ? +((totalLikes + totalComments) / totalViews * 100).toFixed(2)
+  const totalLikes = posts.reduce((s, v) => s + getLikes(v), 0)
+  const totalViews = posts.reduce((s, v) => s + getViews(v), 0)
+  const totalComments = posts.reduce((s, v) => s + getComments(v), 0)
+  const totalShares = posts.reduce((s, v) => s + getShares(v), 0)
+  // Para Instagram sin views, usar likes como base del engagement
+  const engBase = totalViews > 0 ? totalViews : (totalLikes + totalComments) * 10
+  const avgEngagementRate = engBase > 0
+    ? +((totalLikes + totalComments) / engBase * 100).toFixed(2)
     : 0
 
   const dateCounts: Record<string, number> = {}
-  videos.forEach(v => {
-    const d = toDateStr(v.createTimeISO || v.createTime)
+  posts.forEach(v => {
+    const d = toDateStr(v)
     if (d) dateCounts[d] = (dateCounts[d] || 0) + 1
   })
   const timeSeries = Object.entries(dateCounts)
@@ -127,23 +159,23 @@ function computeMetrics(rawData: any[], networks: string[], dateFrom?: string, d
     ? timeSeries.reduce((best, cur) => cur.count > best.count ? cur : best).date
     : 'N/A'
 
-  const topPosts = [...videos]
-    .sort((a, b) => ((b.diggCount || 0) + (b.commentCount || 0)) - ((a.diggCount || 0) + (a.commentCount || 0)))
+  const topPosts = [...posts]
+    .sort((a, b) => (getLikes(b) + getComments(b)) - (getLikes(a) + getComments(a)))
     .slice(0, 5)
     .map(v => ({
-      url: v.webVideoUrl || v.url || v.videoUrl || '',
+      url: getUrl(v),
       platform,
-      likes: v.diggCount || 0,
-      comments: v.commentCount || 0,
-      caption: String(v.text || v.desc || v.description || '').slice(0, 250),
+      likes: getLikes(v),
+      comments: getComments(v),
+      caption: getCaption(v),
     }))
 
   return {
     volumeMetrics: {
-      totalPosts: videos.length,
+      totalPosts: posts.length,
       totalReach: totalViews,
       peakDay,
-      volumeByNetwork: { [platform]: videos.length },
+      volumeByNetwork: { [platform]: posts.length },
       timeSeries,
     },
     engagementMetrics: {
@@ -158,28 +190,29 @@ function computeMetrics(rawData: any[], networks: string[], dateFrom?: string, d
 
 export async function analyzeData(rawData: unknown[], context: ReportContext): Promise<Analysis> {
   const items = rawData as any[]
-  const videos = items.filter(isVideo).filter(v => {
-    const d = toDateStr(v.createTimeISO || v.createTime)
+  const posts = items.filter(isPost).filter(v => {
+    const d = toDateStr(v)
     if (!d) return true
     if (context.dateFrom && d < context.dateFrom) return false
     if (context.dateTo && d > context.dateTo) return false
     return true
   })
-  const comments = items.filter(i => !isVideo(i) && i.text)
+  const comments = items.filter(i => !isPost(i) && i.text)
   const computed = computeMetrics(items, context.selectedNetworks, context.dateFrom, context.dateTo)
 
-  const videoSample = videos.slice(0, 50).map(v => ({
-    caption: String(v.text || v.desc || '').slice(0, 300),
-    likes: v.diggCount || 0,
-    views: v.playCount || 0,
-    comments: v.commentCount || 0,
-    date: toDateStr(v.createTimeISO || v.createTime),
+  const videoSample = posts.slice(0, 50).map(v => ({
+    caption: getCaption(v),
+    likes: getLikes(v),
+    views: getViews(v),
+    comments: getComments(v),
+    date: toDateStr(v),
+    url: getUrl(v),
   }))
 
   const commentTexts = comments.slice(0, 150).map((c: any) => c.text).filter(Boolean)
 
   const { output: qualitative } = await generateText({
-    model: anthropic('claude-sonnet-4-6'),
+    model: anthropic('claude-sonnet-4.6'),
     output: Output.object({ schema: QualitativeSchema }),
     prompt: `Eres un Consultor Estratégico Senior de "La Magdalena". Genera un análisis para: ${context.clientName}.
 
