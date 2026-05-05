@@ -101,7 +101,7 @@ function getShares(item: any): number {
 }
 
 function getViews(item: any): number {
-  return item.playCount ?? item.videoPlayCount ?? item.viewCount ?? 0
+  return item.playCount ?? item.videoPlayCount ?? item.videoViewCount ?? item.viewCount ?? 0
 }
 
 function getCaption(item: any): string {
@@ -197,6 +197,11 @@ export async function analyzeData(rawData: unknown[], context: ReportContext): P
     if (context.dateTo && d > context.dateTo) return false
     return true
   })
+
+  if (posts.length === 0) {
+    throw new Error('No se encontraron publicaciones en el rango de fechas seleccionado.')
+  }
+
   const comments = items.filter(i => !isPost(i) && i.text)
   const computed = computeMetrics(items, context.selectedNetworks, context.dateFrom, context.dateTo)
 

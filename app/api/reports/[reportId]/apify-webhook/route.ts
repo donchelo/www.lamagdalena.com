@@ -110,7 +110,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       const postUrls = items
         .map((item: any) => item.url || item.directUrl || item.link || item.postUrl)
         .filter(Boolean)
-        .filter((url: string) => url.includes('instagram.com/p/'))
+        .filter((url: string) => url.includes('instagram.com/p/') || url.includes('instagram.com/reel/'))
         .slice(0, 200)
 
       if (postUrls.length > 0) {
