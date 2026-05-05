@@ -81,10 +81,10 @@ interface ComputedMetrics {
 }
 
 function isPost(item: any): boolean {
-  // TikTok: tiene playCount, videoMeta o webVideoUrl
+  // TikTok posts have video-specific fields
   if (item.playCount !== undefined || item.videoMeta !== undefined || item.webVideoUrl !== undefined) return true
-  // Instagram: tiene likesCount o displayUrl o shortCode (es un post, no un comentario)
-  if (item.likesCount !== undefined || item.displayUrl !== undefined || item.shortCode !== undefined) return true
+  // Instagram posts have shortCode or displayUrl — comments have neither (they have postUrl/commentUrl)
+  if (item.shortCode !== undefined || item.displayUrl !== undefined) return true
   return false
 }
 

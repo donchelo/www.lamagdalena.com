@@ -5,6 +5,17 @@ import { fetchDatasetItems } from '@/lib/apify'
 import { analyzeData } from '@/lib/claude'
 import { getBaseUrl } from '@/lib/url'
 
+function dedup(items: unknown[]): unknown[] {
+  const seen = new Set<string>()
+  return items.filter((item: any) => {
+    const key = item.url || item.directUrl || item.postUrl || item.commentUrl || item.id
+    if (!key) return true
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 interface Params {
   params: Promise<{ reportId: string }>
 }
@@ -55,7 +66,7 @@ export async function POST(request: NextRequest, { params }: Params) {
   try {
     const items = await fetchDatasetItems(datasetId)
     const existing = await getRawData(reportId)
-    const combined = [...existing, ...items]
+    const combined = dedup([...existing, ...items])
     await saveRawData(reportId, combined)
     console.log(`[Webhook] Fetched ${items.length} items. Total for ${reportId}: ${combined.length}`)
 
