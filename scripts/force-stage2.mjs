@@ -1,4 +1,4 @@
-import { loadJob, updateJobStatus, saveRawData, getRawData } from './lib/blob.js';
+import { loadJob, updateJobStatus, saveRawData, getRawData } from './lib/supabase.js';
 import { fetchDatasetItems, startInstagramCommentsRun } from './lib/apify.js';
 
 // Este script simula la llegada de un webhook de Apify para pasar a la Fase 2 manualmente

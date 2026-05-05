@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { loadJob, loadAnalysis, savePdf, updateJobStatus } from '../lib/blob'
+import { loadJob, loadAnalysis, savePdf, updateJobStatus } from '../lib/supabase'
 
 // Cargar .env.local manualmente para evitar problemas de shell o librerías faltantes
 const envPath = path.resolve(process.cwd(), '.env.local')
@@ -36,7 +36,7 @@ async function retryPdf(reportId: string) {
     // @ts-ignore
     const analysis = await analyzeData(rawData, job)
     
-    const { saveAnalysis } = await import('../lib/blob')
+    const { saveAnalysis } = await import('../lib/supabase')
     await saveAnalysis(reportId, analysis)
 
     console.log("3. Generando buffer de PDF profesional...")

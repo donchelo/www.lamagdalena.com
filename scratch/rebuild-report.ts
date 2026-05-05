@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { loadJob, saveRawData, updateJobStatus } from '../lib/blob'
+import { loadJob, saveRawData, updateJobStatus } from '../lib/supabase'
 import { fetchDatasetItems, getRunInfo } from '../lib/apify'
 
 // Carga manual de env

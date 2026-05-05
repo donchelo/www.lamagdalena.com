@@ -1,4 +1,4 @@
-import { saveJob, saveRawData, saveAnalysis, savePdf } from '../lib/blob'
+import { saveJob, saveRawData, saveAnalysis, savePdf } from '../lib/supabase'
 import { renderReportPdf } from '../lib/pdf/render'
 
 async function generateProfessionalMock() {
@@ -79,7 +79,7 @@ async function generateProfessionalMock() {
     ]
   }
 
-  console.log("1. Guardando datos en el 'Cerebro' (Blob)...")
+  console.log("1. Guardando datos en el 'Cerebro' (Supabase)...")
   await saveJob(job)
   await saveRawData(reportId, [])
 
