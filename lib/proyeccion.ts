@@ -17,8 +17,13 @@ const INCOME_PATTERNS = [
   /^CUENTA[_ ]DE[_ ]COBRO/i,
 ]
 
-function isIncomePDF(filename: string): boolean {
-  return INCOME_PATTERNS.some(p => p.test(filename))
+// rel = ruta relativa desde el directorio del mes (puede incluir subcarpetas)
+function isIncomePDF(rel: string): boolean {
+  const parts = rel.split(path.sep)
+  // Cualquier PDF dentro de una carpeta "ventas" es ingreso
+  if (parts.some(p => p.toLowerCase() === 'ventas')) return true
+  // Nombres de archivo con patrones conocidos de cuentas de cobro
+  return INCOME_PATTERNS.some(p => p.test(parts[parts.length - 1]))
 }
 
 function findPDFsInDir(dir: string, base = ''): string[] {
@@ -48,7 +53,7 @@ export function listMonths(): MonthFolder[] {
     .map(name => {
       const monthDir = path.join(DOCS_DIR, name)
       const allPDFs  = findPDFsInDir(monthDir)
-      const incomePDFs = allPDFs.filter(p => isIncomePDF(path.basename(p)))
+      const incomePDFs = allPDFs.filter(p => isIncomePDF(p))
       const csvName  = `_resumen_${name.replace(/\s+/g, '_')}.csv`
       const csvReady = fs.existsSync(path.join(monthDir, csvName))
       return {
@@ -82,7 +87,7 @@ export function loadIncomePDFs(months: string[]): { name: string; month: string;
     if (!fs.existsSync(monthDir)) continue
 
     const allPDFs = findPDFsInDir(monthDir)
-    const incomePDFs = allPDFs.filter(p => isIncomePDF(path.basename(p)))
+    const incomePDFs = allPDFs.filter(p => isIncomePDF(p))
 
     for (const rel of incomePDFs) {
       const full = path.join(monthDir, rel)

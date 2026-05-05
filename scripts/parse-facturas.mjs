@@ -9,6 +9,7 @@ import path from 'path'
 import { execSync } from 'child_process'
 import { XMLParser } from 'fast-xml-parser'
 import { fileURLToPath } from 'url'
+import XLSX from 'xlsx'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..', 'data', 'proyeccion')
@@ -164,6 +165,141 @@ function parseXmlFile(filePath) {
   }
 }
 
+// ─── Parser de Excel wijmo (Siigo/Alegra export) ────────────────────────────
+// El software contable (wijmo) exporta con dimension incorrecta y filas collapsed.
+// Se necesita nodim:true para leer los datos reales.
+
+function readWijmoSheet(filePath) {
+  try {
+    const wb = XLSX.readFile(filePath, { nodim: true, cellStyles: false })
+    const ws = wb.Sheets[wb.SheetNames[0]]
+    const cells = Object.keys(ws).filter(k => !k.startsWith('!'))
+    if (!cells.length) return []
+    let minR=Infinity, maxR=-Infinity, minC=Infinity, maxC=-Infinity
+    for (const addr of cells) {
+      const ref = XLSX.utils.decode_cell(addr)
+      minR=Math.min(minR,ref.r); maxR=Math.max(maxR,ref.r)
+      minC=Math.min(minC,ref.c); maxC=Math.max(maxC,ref.c)
+    }
+    const rows = []
+    for (let R=minR; R<=maxR; R++) {
+      const row = []
+      for (let C=minC; C<=maxC; C++) {
+        const cell = ws[XLSX.utils.encode_cell({r:R,c:C})]
+        row.push(cell ? cell.v : '')
+      }
+      rows.push(row)
+    }
+    return rows
+  } catch { return [] }
+}
+
+// Busca el índice de la fila de cabeceras (la que tiene 'Identificación' o 'Tipo de transacción')
+function findHeaderRow(rows, marker) {
+  return rows.findIndex(r => r.some(v => String(v).trim() === marker))
+}
+
+function colIdx(headers, name) {
+  return headers.findIndex(h => String(h).trim() === name)
+}
+
+// Parsea Ventas por cliente.xlsx → filas INGRESO
+function parseVentasXlsx(filePath, month) {
+  const rows = readWijmoSheet(filePath)
+  const hi = findHeaderRow(rows, 'Identificación')
+  if (hi < 0) return []
+
+  const h = rows[hi]
+  const iId      = colIdx(h, 'Identificación')
+  const iCliente = colIdx(h, 'Cliente')
+  const iSubtot  = colIdx(h, 'Subtotal')
+  const iIVA     = colIdx(h, 'Impuesto cargo')
+  const iTotal   = colIdx(h, 'Total')
+
+  // Extraer período del encabezado (ej. "De Abril 01 2026 a Abril 30 2026")
+  const periodoRow = rows.find(r => String(r[0]).startsWith('De '))
+  const periodo = periodoRow ? String(periodoRow[0]).trim() : month
+
+  const result = []
+  for (let i = hi + 1; i < rows.length; i++) {
+    const r = rows[i]
+    if (!r[0] || String(r[0]).startsWith('Total') || String(r[0]).startsWith('Procesado')) continue
+    const nit   = String(r[iId] ?? '').trim()
+    const name  = String(r[iCliente] ?? '').trim()
+    const sub   = Number(r[iSubtot]) || 0
+    const iva   = Number(r[iIVA])    || 0
+    const total = Number(r[iTotal])  || 0
+    if (!name || total === 0) continue
+    result.push({
+      fecha:          '',          // ventas no tienen fecha única por fila
+      mes:            month,
+      tipo:           'INGRESO',
+      numeroFactura:  '',
+      contraparte:    name,
+      contraparteNIT: nit,
+      concepto:       `Ventas ${periodo}`,
+      subtotal:       sub,
+      iva:            iva,
+      total:          total,
+      archivo:        path.basename(filePath),
+    })
+  }
+  return result
+}
+
+// Parsea Documento soporte.xlsx → filas COSTO
+function parseDocSoporteXlsx(filePath, month) {
+  const rows = readWijmoSheet(filePath)
+  const hi = findHeaderRow(rows, 'Tipo de transacción')
+  if (hi < 0) return []
+
+  const h = rows[hi]
+  const iTipo     = colIdx(h, 'Tipo de transacción')
+  const iComp     = colIdx(h, 'Comprobante')
+  const iFacProv  = colIdx(h, 'Factura proveedor')
+  const iFecha    = colIdx(h, 'Fecha elaboración')
+  const iId       = colIdx(h, 'Identificación')
+  const iProv     = colIdx(h, 'Proveedor')
+  const iValor    = colIdx(h, 'Valor')
+
+  const result = []
+  for (let i = hi + 1; i < rows.length; i++) {
+    const r = rows[i]
+    if (!r[0] || String(r[0]).startsWith('Procesado')) continue
+    const tipo   = String(r[iTipo]    ?? '').trim()
+    const comp   = String(r[iComp]    ?? '').trim()
+    const facProv= String(r[iFacProv] ?? '').trim()
+    const fecha  = String(r[iFecha]   ?? '').trim()
+    const nit    = String(r[iId]      ?? '').trim()
+    const prov   = String(r[iProv]    ?? '').trim()
+    const valor  = Number(r[iValor])  || 0
+    if (!prov || valor === 0) continue
+
+    // Convertir fecha dd/mm/yyyy → yyyy-mm-dd
+    let fechaISO = ''
+    const fm = fecha.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+    if (fm) fechaISO = `${fm[3]}-${fm[2]}-${fm[1]}`
+
+    // Las notas débito son créditos (descuentos) — se registran con signo negativo
+    const signo = tipo === 'Nota débito' ? -1 : 1
+
+    result.push({
+      fecha:          fechaISO,
+      mes:            month,
+      tipo:           'COSTO',
+      numeroFactura:  facProv || comp,
+      contraparte:    prov,
+      contraparteNIT: nit,
+      concepto:       tipo,
+      subtotal:       signo * valor,
+      iva:            0,
+      total:          signo * valor,
+      archivo:        path.basename(filePath),
+    })
+  }
+  return result
+}
+
 // ─── Utilidades de filesystem ─────────────────────────────────────────────────
 
 function findXmls(dir) {
@@ -241,20 +377,42 @@ console.log(`\n📂 Meses: ${monthDirs.join(' | ')}\n`)
 const allRows = []
 
 for (const month of monthDirs) {
-  const monthDir = path.join(ROOT, month)
-  const xmlFiles = findXmls(monthDir)
+  const monthDir  = path.join(ROOT, month)
+  const ventasDir = path.join(monthDir, 'ventas')
+  const xmlFiles  = findXmls(monthDir)
   console.log(`⚡ ${month}  (${xmlFiles.length} XMLs)`)
 
   const monthRows = []
   let parsed = 0
 
+  // 1. XMLs DIAN
   for (const f of xmlFiles) {
     const row = parseXmlFile(f)
     if (row) { row.mes = month; monthRows.push(row); allRows.push(row); parsed++ }
   }
+  console.log(`   ✅ ${parsed} facturas DIAN  |  ⏭  ${xmlFiles.length - parsed} omitidos`)
+
+  // 2. Excel ventas/ (Ventas por cliente + Documento soporte)
+  if (fs.existsSync(ventasDir)) {
+    const xlsxFiles = fs.readdirSync(ventasDir).filter(f => f.endsWith('.xlsx') && !f.startsWith('~') && !f.startsWith('.~'))
+    let ventasRows = 0, soporteRows = 0
+    for (const f of xlsxFiles) {
+      const full = path.join(ventasDir, f)
+      if (/ventas por cliente/i.test(f)) {
+        const rows = parseVentasXlsx(full, month)
+        rows.forEach(r => { monthRows.push(r); allRows.push(r) })
+        ventasRows += rows.length
+      } else if (/documento soporte/i.test(f)) {
+        const rows = parseDocSoporteXlsx(full, month)
+        rows.forEach(r => { monthRows.push(r); allRows.push(r) })
+        soporteRows += rows.length
+      }
+    }
+    if (ventasRows)  console.log(`   📊 ${ventasRows} ventas (Ventas por cliente.xlsx)`)
+    if (soporteRows) console.log(`   📄 ${soporteRows} doc soporte (costos sin factura electrónica)`)
+  }
 
   monthRows.sort((a, b) => a.fecha.localeCompare(b.fecha))
-  console.log(`   ✅ ${parsed} facturas encontradas  |  ⏭  ${xmlFiles.length - parsed} omitidos`)
   summary(monthRows)
 
   const csvPath = path.join(monthDir, `_resumen_${month.replace(/\s+/g, '_')}.csv`)
