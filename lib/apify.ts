@@ -149,7 +149,7 @@ function buildActorInput(network: string, input: ApifyInput) {
           skipPinnedPosts: false,
         }
       }
-      return { hashtags: tags, resultsLimit: limit }
+      return { hashtags: tags, resultsLimit: limit, sort: 'RECENT' }
     case 'tiktok':
       return { hashtags: tags, maxItems: limit }
     case 'twitter':

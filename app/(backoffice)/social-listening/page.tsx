@@ -60,26 +60,10 @@ export default function SocialListeningPage() {
     clientName: '',
     dateFrom: '',
     dateTo: '',
-    monitoredTerms: [] as string[],
     selectedNetworks: [] as string[],
   })
 
-  const [termInput, setTermInput] = useState('')
 
-  const addTerm = () => {
-    const trimmed = termInput.trim()
-    if (!trimmed) return
-    if (form.monitoredTerms.includes(trimmed)) {
-      setTermInput('')
-      return
-    }
-    setForm(prev => ({ ...prev, monitoredTerms: [...prev.monitoredTerms, trimmed] }))
-    setTermInput('')
-  }
-
-  const removeTerm = (index: number) => {
-    setForm(prev => ({ ...prev, monitoredTerms: prev.monitoredTerms.filter((_, i) => i !== index) }))
-  }
 
   const selectNetwork = (id: string) => {
     setForm(prev => ({
@@ -91,31 +75,20 @@ export default function SocialListeningPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    const finalTerms = [...form.monitoredTerms]
-    if (termInput.trim() && !finalTerms.includes(termInput.trim())) {
-      finalTerms.push(termInput.trim())
-    }
-
-    // Mejora: Si no hay términos, usamos el nombre del cliente como término por defecto
-    if (finalTerms.length === 0 && form.clientName.trim()) {
-      finalTerms.push(form.clientName.trim())
+    if (!form.clientName.trim()) {
+      setError('Agrega el nombre de la cuenta a monitorear.')
+      return
     }
 
     if (form.selectedNetworks.length === 0) {
       setError('Selecciona al menos una red social.')
       return
     }
-    
-    if (finalTerms.length === 0) {
-      setError('Agrega al menos un término (keyword, hashtag o cuenta) a monitorear.')
-      return
-    }
 
     setIsSubmitting(true)
     setError('')
 
-    // Función para detectar si algo es probablemente una cuenta (sin espacios, puede tener guiones bajos)
-    const isProbablyAccount = (t: string) => t.startsWith('@') || (/^[a-zA-Z0-9._]+$/.test(t) && t.includes('_'))
+    const accountName = form.clientName.trim().replace('@', '')
 
     try {
       const res = await fetch('/api/reports', {
@@ -123,11 +96,10 @@ export default function SocialListeningPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          // Clasificación inteligente de términos
-          keywords: finalTerms.filter(t => !t.startsWith('#') && !t.startsWith('@') && !isProbablyAccount(t)),
-          hashtags: finalTerms.filter(t => t.startsWith('#')),
-          accounts: finalTerms.filter(t => t.startsWith('@') || isProbablyAccount(t)).map(t => t.replace('@', '')),
-          monitoredTerms: finalTerms
+          keywords: [],
+          hashtags: [],
+          accounts: [accountName],
+          monitoredTerms: [accountName]
         }),
       })
       if (!res.ok) throw new Error(await res.text())
@@ -148,13 +120,13 @@ export default function SocialListeningPage() {
 
       <form onSubmit={handleSubmit} style={{ maxWidth: '760px', marginTop: '2.5rem' }}>
         <div className="form-group">
-          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Nombre del Cliente o Marca *</label>
+          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Cuenta a Monitorear (Usuario) *</label>
           <input
             type="text"
             required
             value={form.clientName}
             onChange={e => setForm(p => ({ ...p, clientName: e.target.value }))}
-            placeholder="Ej: Bancolombia, Avianca, etc."
+            placeholder="Ej: vidriomejorplaneta"
             style={{ fontSize: '1.1rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}
           />
         </div>
@@ -182,44 +154,7 @@ export default function SocialListeningPage() {
           </div>
         </div>
 
-        <div className="form-group">
-          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Términos a monitorear *</label>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>Incluye @cuentas, #hashtags o palabras clave que desees analizar.</p>
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-            <input
-              type="text"
-              value={termInput}
-              onChange={e => setTermInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTerm() } }}
-              placeholder="Escribe y presiona Enter..."
-              style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}
-            />
-            <button 
-              type="button" 
-              onClick={addTerm} 
-              style={{ 
-                padding: '0.8rem 1.5rem', 
-                backgroundColor: 'var(--private-accent)', 
-                color: 'var(--private-bg)', 
-                border: 'none', 
-                borderRadius: '2px', 
-                cursor: 'pointer', 
-                fontWeight: 700,
-                fontSize: '1.2rem'
-              }}
-            >
-              +
-            </button>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {form.monitoredTerms.map((tag, i) => (
-              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.8rem', backgroundColor: 'rgba(238,241,81,0.08)', border: '1px solid rgba(238,241,81,0.3)', borderRadius: '2px', fontSize: '0.85rem', color: 'var(--private-accent)' }}>
-                {tag}
-                <button type="button" onClick={() => removeTerm(i)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, fontSize: '1.1rem', lineHeight: 1, marginLeft: '0.2rem' }}>×</button>
-              </span>
-            ))}
-          </div>
-        </div>
+
 
         <div className="form-group" style={{ marginTop: '2.5rem' }}>
           <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', display: 'block' }}>Seleccionar Plataforma (Solo una) *</label>
