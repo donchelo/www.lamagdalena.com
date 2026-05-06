@@ -190,7 +190,13 @@ function computeMetrics(rawData: any[], networks: string[], dateFrom?: string, d
 
 export async function analyzeData(rawData: unknown[], context: ReportContext): Promise<Analysis> {
   const items = rawData as any[]
-  const posts = items.filter(isPost).filter(v => {
+  const allPosts = items.filter(isPost)
+
+  if (allPosts.length === 0) {
+    throw new Error('No se encontraron publicaciones con los términos proporcionados.')
+  }
+
+  const filtered = allPosts.filter(v => {
     const d = toDateStr(v)
     if (!d) return true
     if (context.dateFrom && d < context.dateFrom) return false
@@ -198,9 +204,11 @@ export async function analyzeData(rawData: unknown[], context: ReportContext): P
     return true
   })
 
-  if (posts.length === 0) {
-    throw new Error('No se encontraron publicaciones en el rango de fechas seleccionado.')
-  }
+  // If date filter removes everything, fall back to all posts and note it in context
+  const posts = filtered.length > 0 ? filtered : allPosts
+  const dateWarning = filtered.length === 0
+    ? `\n⚠️ NOTA: No se encontraron publicaciones en el rango ${context.dateFrom}–${context.dateTo}. El análisis usa los ${allPosts.length} posts disponibles fuera de ese rango.`
+    : ''
 
   const comments = items.filter(i => !isPost(i) && i.text)
   const computed = computeMetrics(items, context.selectedNetworks, context.dateFrom, context.dateTo)
@@ -219,7 +227,7 @@ export async function analyzeData(rawData: unknown[], context: ReportContext): P
   const { output: qualitative } = await generateText({
     model: anthropic('claude-sonnet-4-6'),
     output: Output.object({ schema: QualitativeSchema }),
-    prompt: `Eres un Consultor Estratégico Senior de "La Magdalena". Genera un análisis para: ${context.clientName}.
+    prompt: `Eres un Consultor Estratégico Senior de "La Magdalena". Genera un análisis para: ${context.clientName}.${dateWarning}
 
 MÉTRICAS REALES (calculadas desde los datos — úsalas en el resumen ejecutivo):
 - Período: ${context.dateFrom} → ${context.dateTo}
