@@ -1,4 +1,39 @@
-const APIFY_TOKEN = process.env.APIFY_API_TOKEN
+const TOKENS = [
+  process.env.APIFY_API_TOKEN,
+  process.env.APIFY_API_TOKEN_FALLBACK,
+].filter(Boolean) as string[]
+
+async function apifyFetch(urlBuilder: (token: string) => string, options: RequestInit = {}) {
+  let lastError: Error | null = null
+
+  for (const token of TOKENS) {
+    const url = urlBuilder(token)
+    try {
+      const res = await fetch(url, options)
+      
+      if (res.ok) return res
+
+      const body = await res.text()
+      // Errors that might be resolved by changing the token
+      if (res.status === 401 || res.status === 403 || res.status === 402 || res.status === 429) {
+        console.warn(`Apify token fallback: Token starting with ${token.slice(0, 4)} failed with status ${res.status}. Retrying...`)
+        lastError = new Error(`Apify error (${res.status}): ${body}`)
+        continue
+      }
+
+      // Other errors should probably just throw
+      throw new Error(`Apify error (${res.status}): ${body}`)
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('Apify error')) {
+        lastError = e
+        continue
+      }
+      throw e
+    }
+  }
+
+  throw lastError || new Error('No valid Apify tokens found or all tokens failed.')
+}
 
 const ACTORS: Record<string, string> = {
   instagram: 'apify/instagram-hashtag-scraper',
@@ -22,8 +57,8 @@ interface ApifyInput {
 }
 
 export async function startInstagramCommentsRun(postUrls: string[], webhookUrl: string): Promise<string> {
-  const res = await fetch(
-    `https://api.apify.com/v2/acts/${encodeURIComponent(ACTORS.instagram_comments)}/runs?token=${APIFY_TOKEN}`,
+  const res = await apifyFetch(
+    (token) => `https://api.apify.com/v2/acts/${encodeURIComponent(ACTORS.instagram_comments)}/runs?token=${token}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,18 +77,13 @@ export async function startInstagramCommentsRun(postUrls: string[], webhookUrl: 
     }
   )
 
-  if (!res.ok) {
-    const body = await res.text()
-    throw new Error(`Apify error starting instagram comments: ${body}`)
-  }
-
   const data = await res.json()
   return data.data.id as string
 }
 
 export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: string): Promise<string> {
-  const res = await fetch(
-    `https://api.apify.com/v2/acts/${encodeURIComponent(ACTORS.tiktok_comments)}/runs?token=${APIFY_TOKEN}`,
+  const res = await apifyFetch(
+    (token) => `https://api.apify.com/v2/acts/${encodeURIComponent(ACTORS.tiktok_comments)}/runs?token=${token}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -73,11 +103,6 @@ export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: st
     }
   )
 
-  if (!res.ok) {
-    const body = await res.text()
-    throw new Error(`Apify error starting tiktok comments: ${body}`)
-  }
-
   const data = await res.json()
   return data.data.id as string
 }
@@ -90,8 +115,8 @@ export async function startActorRun(network: string, input: ApifyInput, webhookU
   
   if (!actorId) throw new Error(`Unknown network: ${network}`)
 
-  const res = await fetch(
-    `https://api.apify.com/v2/acts/${encodeURIComponent(actorId)}/runs?token=${APIFY_TOKEN}`,
+  const res = await apifyFetch(
+    (token) => `https://api.apify.com/v2/acts/${encodeURIComponent(actorId)}/runs?token=${token}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -106,11 +131,6 @@ export async function startActorRun(network: string, input: ApifyInput, webhookU
       }),
     }
   )
-
-  if (!res.ok) {
-    const body = await res.text()
-    throw new Error(`Apify error starting ${network}: ${body}`)
-  }
 
   const data = await res.json()
   return data.data.id as string
@@ -170,16 +190,26 @@ export async function fetchDatasetItems(datasetId: string, limit = 1000): Promis
       { url: 'https://www.tiktok.com/@test/video/2', title: 'Video Test 2' }
     ]
   }
-  const res = await fetch(
-    `https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}&limit=${limit}&format=json`
+  const res = await apifyFetch(
+    (token) => `https://api.apify.com/v2/datasets/${datasetId}/items?token=${token}&limit=${limit}&format=json`
   )
-  if (!res.ok) throw new Error(`Failed to fetch dataset ${datasetId}`)
   return res.json()
 }
 
-export async function getRunInfo(runId: string): Promise<{ status: string; defaultDatasetId: string }> {
-  const res = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`)
-  if (!res.ok) throw new Error(`Failed to get run info for ${runId}`)
+export async function getRunInfo(runId: string): Promise<{ status: string; defaultDatasetId: string; stats?: { usageUsd?: number } }> {
+  const res = await apifyFetch(
+    (token) => `https://api.apify.com/v2/actor-runs/${runId}?token=${token}`
+  )
   const data = await res.json()
   return data.data
 }
+
+export async function getRunCostUsd(runId: string): Promise<number> {
+  try {
+    const info = await getRunInfo(runId)
+    return info.stats?.usageUsd ?? 0
+  } catch {
+    return 0
+  }
+}
+

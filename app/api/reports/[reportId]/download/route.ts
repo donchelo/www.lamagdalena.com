@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 
 import { loadJob } from '@/lib/supabase'
+import { buildReportFilename } from '@/lib/report-filename'
 
 interface Params {
   params: Promise<{ reportId: string }>
@@ -20,7 +21,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
   return new NextResponse(pdfBuffer, {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="Reporte-LaMagdalena-${job.clientName.replace(/\s+/g, '-')}.pdf"`
+      'Content-Disposition': `attachment; filename="${buildReportFilename({ clientName: job.clientName, dateFrom: job.dateFrom, dateTo: job.dateTo, networks: job.selectedNetworks })}"`
     }
   })
 }

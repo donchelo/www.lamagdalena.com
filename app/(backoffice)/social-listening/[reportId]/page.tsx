@@ -16,6 +16,7 @@ interface JobData {
   apifyRunIds?: Record<string, string>
   error?: string
   pdfUrl?: string
+  generationCostUSD?: number
   createdAt: string
   updatedAt: string
 }
@@ -248,9 +249,14 @@ export default function ReportStatusPage() {
           }}>
             ANÁLISIS ESTRATÉGICO LISTO
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '2rem', fontSize: '0.95rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
             El reporte de 8 páginas para {job.clientName} ha sido generado con éxito.
           </p>
+          {job.generationCostUSD !== undefined && (
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', marginBottom: '2rem', letterSpacing: '0.03em' }}>
+              Costo de generación: ${job.generationCostUSD.toFixed(4)} USD
+            </p>
+          )}
           <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a
               href={`/api/reports/${reportId}/download`}

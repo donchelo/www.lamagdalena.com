@@ -2,7 +2,7 @@ import { NextRequest, NextResponse, after } from 'next/server'
 export const dynamic = 'force-dynamic'
 
 import { loadJob, updateJobStatus, saveRawData, saveAnalysis, savePdf, getRawData } from '@/lib/supabase'
-import { fetchDatasetItems } from '@/lib/apify'
+import { fetchDatasetItems, getRunCostUsd } from '@/lib/apify'
 import { analyzeData } from '@/lib/claude'
 import { getBaseUrl } from '@/lib/url'
 
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     after(async () => {
       try {
-        const analysis = await analyzeData(capturedData, {
+        const { analysis, claudeCostUSD } = await analyzeData(capturedData, {
           clientName: analyzingJob.clientName,
           dateFrom: analyzingJob.dateFrom,
           dateTo: analyzingJob.dateTo,
@@ -160,13 +160,20 @@ export async function POST(request: NextRequest, { params }: Params) {
           keywords: analyzingJob.keywords,
           hashtags: analyzingJob.hashtags,
         })
+
+        const allRunIds = Object.values(freshJob.apifyRunIds ?? {})
+        const apifyCostUSD = (
+          await Promise.all(allRunIds.map(id => getRunCostUsd(id)))
+        ).reduce((sum, c) => sum + c, 0)
+        const generationCostUSD = +(apifyCostUSD + claudeCostUSD).toFixed(4)
+
         await saveAnalysis(reportId, analysis)
         await updateJobStatus(reportId, { status: 'generating_pdf' })
 
         const { renderReportPdf } = await import('@/lib/pdf/render')
         const pdfBuffer = await renderReportPdf({ job: analyzingJob, analysis })
         const pdfUrl = await savePdf(reportId, pdfBuffer)
-        await updateJobStatus(reportId, { status: 'complete', pdfUrl, error: undefined })
+        await updateJobStatus(reportId, { status: 'complete', pdfUrl, error: undefined, generationCostUSD })
       } catch (err: any) {
         await updateJobStatus(reportId, { status: 'error', error: err?.message ?? 'Pipeline error' })
       }

@@ -6,7 +6,9 @@ import type { Analysis } from '@/lib/claude'
 
 const styles = StyleSheet.create({
   onePagerPage: {
-    padding: 40,
+    paddingTop: 30,
+    paddingBottom: 60,
+    paddingHorizontal: 40,
     backgroundColor: colors.bg,
     fontFamily: 'Neue Haas Display',
     color: colors.text,
@@ -15,118 +17,121 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 40,
+    marginBottom: 25,
     borderBottom: 1,
     borderBottomColor: colors.accent,
-    paddingBottom: 20,
+    paddingBottom: 15,
   },
   mainTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 900,
     color: colors.accent,
     letterSpacing: 1,
   },
   clientName: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 500,
     textTransform: 'uppercase',
     letterSpacing: 2,
     color: 'rgba(255,255,255,0.5)',
-    marginTop: 5,
+    marginTop: 4,
   },
   logoPlaceholder: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 700,
     color: colors.accent,
   },
   summarySection: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 700,
     color: colors.accent,
-    marginBottom: 10,
+    marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   summaryText: {
-    fontSize: 11,
-    lineHeight: 1.6,
+    fontSize: 10,
+    lineHeight: 1.5,
     color: 'rgba(255,255,255,0.9)',
   },
   kpiGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 30,
-    gap: 10,
+    marginBottom: 20,
+    gap: 8,
   },
   kpiBox: {
     width: '48%',
     backgroundColor: 'rgba(255,255,255,0.03)',
-    padding: 15,
+    padding: 12,
     borderRadius: 2,
     borderLeft: 2,
     borderLeftColor: colors.accent,
   },
   kpiValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 900,
     color: colors.accent,
   },
   kpiLabel: {
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: 500,
     color: 'rgba(255,255,255,0.4)',
     textTransform: 'uppercase',
     marginTop: 2,
   },
   insightsSection: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   insightItem: {
-    marginBottom: 8,
+    marginBottom: 6,
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
   insightBullet: {
     color: colors.accent,
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 900,
   },
   insightText: {
-    fontSize: 9,
-    lineHeight: 1.5,
+    fontSize: 8.5,
+    lineHeight: 1.4,
     flex: 1,
   },
   recommendationBox: {
     backgroundColor: colors.accent,
-    padding: 20,
+    padding: 15,
     borderRadius: 2,
     marginTop: 'auto',
   },
   recLabel: {
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: 900,
     color: colors.bg,
     textTransform: 'uppercase',
-    marginBottom: 5,
-  },
-  recTitle: {
-    fontSize: 12,
-    fontWeight: 900,
-    color: colors.bg,
     marginBottom: 4,
   },
-  recDesc: {
-    fontSize: 9,
+  recTitle: {
+    fontSize: 11,
+    fontWeight: 900,
     color: colors.bg,
-    lineHeight: 1.4,
+    marginBottom: 3,
+  },
+  recDesc: {
+    fontSize: 8.5,
+    color: colors.bg,
+    lineHeight: 1.3,
     fontWeight: 400,
   },
   footer: {
-    marginTop: 20,
+    position: 'absolute',
+    bottom: 30,
+    left: 40,
+    right: 40,
     borderTop: 0.5,
     borderTopColor: 'rgba(255,255,255,0.1)',
     paddingTop: 10,
@@ -140,6 +145,7 @@ const styles = StyleSheet.create({
   }
 })
 
+
 interface OnePagerProps {
   job: JobData
   analysis: Analysis
@@ -151,57 +157,59 @@ export const OnePagerDocument = ({ job, analysis }: OnePagerProps) => {
   return (
     <Document title={`One-pager - ${job.clientName}`}>
       <Page size="A4" style={styles.onePagerPage}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.mainTitle}>ESTRATEGIA NEON</Text>
-            <Text style={styles.clientName}>{job.clientName} | {job.dateFrom} - {job.dateTo}</Text>
-          </View>
-          <Text style={styles.logoPlaceholder}>LA MAGDALENA</Text>
-        </View>
-
-        <View style={styles.summarySection}>
-          <Text style={styles.sectionTitle}>Resumen Ejecutivo</Text>
-          <Text style={styles.summaryText}>
-            {analysis.executiveSummary?.split('\n')[0] || 'Sin resumen disponible.'}
-          </Text>
-        </View>
-
-        <View style={styles.kpiGrid}>
-          <View style={styles.kpiBox}>
-            <Text style={styles.kpiValue}>{analysis.volumeMetrics?.totalReach?.toLocaleString() || 0}</Text>
-            <Text style={styles.kpiLabel}>Alcance Total</Text>
-          </View>
-          <View style={styles.kpiBox}>
-            <Text style={styles.kpiValue}>{analysis.engagementMetrics?.avgEngagementRate || 0}%</Text>
-            <Text style={styles.kpiLabel}>Engagement</Text>
-          </View>
-          <View style={styles.kpiBox}>
-            <Text style={styles.kpiValue}>{analysis.volumeMetrics?.totalPosts || 0}</Text>
-            <Text style={styles.kpiLabel}>Publicaciones</Text>
-          </View>
-          <View style={styles.kpiBox}>
-            <Text style={styles.kpiValue}>{sentiment > 0 ? '+' : ''}{sentiment}%</Text>
-            <Text style={styles.kpiLabel}>Sentimiento Neto</Text>
-          </View>
-        </View>
-
-        <View style={styles.insightsSection}>
-          <Text style={styles.sectionTitle}>Hallazgos Clave</Text>
-          {(analysis.keyInsights || []).slice(0, 4).map((insight, i) => (
-            <View key={i} style={styles.insightItem}>
-              <Text style={styles.insightBullet}>//</Text>
-              <Text style={styles.insightText}>{insight}</Text>
+        <View wrap={false} style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.mainTitle}>ESTRATEGIA NEON</Text>
+              <Text style={styles.clientName}>{job.clientName} | {job.dateFrom} - {job.dateTo}</Text>
             </View>
-          ))}
+            <Text style={styles.logoPlaceholder}>LA MAGDALENA</Text>
+          </View>
+
+          <View style={styles.summarySection}>
+            <Text style={styles.sectionTitle}>Resumen Ejecutivo</Text>
+            <Text style={styles.summaryText}>
+              {analysis.executiveSummary?.split('\n')[0] || 'Sin resumen disponible.'}
+            </Text>
+          </View>
+
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiBox}>
+              <Text style={styles.kpiValue}>{analysis.volumeMetrics?.totalReach?.toLocaleString() || 0}</Text>
+              <Text style={styles.kpiLabel}>Alcance Total</Text>
+            </View>
+            <View style={styles.kpiBox}>
+              <Text style={styles.kpiValue}>{analysis.engagementMetrics?.avgEngagementRate || 0}%</Text>
+              <Text style={styles.kpiLabel}>Engagement</Text>
+            </View>
+            <View style={styles.kpiBox}>
+              <Text style={styles.kpiValue}>{analysis.volumeMetrics?.totalPosts || 0}</Text>
+              <Text style={styles.kpiLabel}>Publicaciones</Text>
+            </View>
+            <View style={styles.kpiBox}>
+              <Text style={styles.kpiValue}>{sentiment > 0 ? '+' : ''}{sentiment}%</Text>
+              <Text style={styles.kpiLabel}>Sentimiento Neto</Text>
+            </View>
+          </View>
+
+          <View style={styles.insightsSection}>
+            <Text style={styles.sectionTitle}>Hallazgos Clave</Text>
+            {(analysis.keyInsights || []).slice(0, 4).map((insight, i) => (
+              <View key={i} style={styles.insightItem}>
+                <Text style={styles.insightBullet}>//</Text>
+                <Text style={styles.insightText}>{insight}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.recommendationBox}>
+            <Text style={styles.recLabel}>Recomendación de Negocio</Text>
+            <Text style={styles.recTitle}>{analysis.recommendations?.[0]?.title || 'Optimización Continua'}</Text>
+            <Text style={styles.recDesc}>{analysis.recommendations?.[0]?.description || 'Seguir monitoreando las tendencias del mercado para ajustar la estrategia.'}</Text>
+          </View>
         </View>
 
-        <View style={styles.recommendationBox}>
-          <Text style={styles.recLabel}>Recomendación de Negocio</Text>
-          <Text style={styles.recTitle}>{analysis.recommendations?.[0]?.title || 'Optimización Continua'}</Text>
-          <Text style={styles.recDesc}>{analysis.recommendations?.[0]?.description || 'Seguir monitoreando las tendencias del mercado para ajustar la estrategia.'}</Text>
-        </View>
-
-        <View style={styles.footer}>
+        <View style={styles.footer} fixed>
           <Text style={styles.footerText}>Social Listening Intelligence — Reporte Confidencial</Text>
           <Text style={styles.footerText}>{new Date().toLocaleDateString()}</Text>
         </View>

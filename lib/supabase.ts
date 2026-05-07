@@ -36,6 +36,7 @@ export interface JobData {
   status: 'queued' | 'scraping' | 'scraping_posts' | 'scraping_comments' | 'analyzing' | 'generating_pdf' | 'complete' | 'error'
   error?: string
   pdfUrl?: string
+  generationCostUSD?: number
   createdAt: string
   updatedAt: string
 }
@@ -56,6 +57,7 @@ export async function saveJob(job: JobData): Promise<void> {
     processed_run_ids: job.processedRunIds,
     error: job.error,
     pdf_url: job.pdfUrl,
+    generation_cost_usd: job.generationCostUSD ?? null,
     updated_at: new Date().toISOString(),
     // created_at only on insert
     ...(job.createdAt ? { created_at: job.createdAt } : { created_at: new Date().toISOString() })
@@ -87,6 +89,7 @@ export async function loadJob(reportId: string): Promise<JobData | null> {
     processedRunIds: data.processed_run_ids,
     error: data.error,
     pdfUrl: data.pdf_url,
+    generationCostUSD: data.generation_cost_usd ?? undefined,
     createdAt: data.created_at,
     updatedAt: data.updated_at
   }
@@ -192,9 +195,10 @@ export async function listReports(): Promise<JobData[]> {
     selectedNetworks: row.selected_networks,
     apifyRunIds: row.apify_run_ids,
     apifyCompletedRuns: row.apify_completed_runs,
-    processed_run_ids: row.processed_run_ids,
+    processedRunIds: row.processed_run_ids,
     error: row.error,
     pdfUrl: row.pdf_url,
+    generationCostUSD: row.generation_cost_usd ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   }))

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 
 import { loadJob } from '@/lib/supabase'
+import { buildOnePagerFilename } from '@/lib/report-filename'
 import { renderOnePagerPdf } from '@/lib/pdf/render'
 
 interface Params {
@@ -26,7 +27,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="One-pager-LaMagdalena-${job.clientName.replace(/\s+/g, '-')}.pdf"`
+        'Content-Disposition': `attachment; filename="${buildOnePagerFilename({ clientName: job.clientName, dateFrom: job.dateFrom, dateTo: job.dateTo, networks: job.selectedNetworks })}"`
       }
     })
   } catch (error) {

@@ -107,7 +107,7 @@ export async function syncJobWithApify(reportId: string, job: JobData): Promise<
 
 async function processAnalysis(reportId: string, data: unknown[], job: JobData) {
   try {
-    const analysis = await analyzeData(data, {
+    const { analysis } = await analyzeData(data, {
       clientName: job.clientName,
       dateFrom: job.dateFrom,
       dateTo: job.dateTo,

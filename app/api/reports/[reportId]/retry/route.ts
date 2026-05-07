@@ -33,7 +33,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   after(async () => {
     try {
-      const analysis = await analyzeData(capturedData, {
+      const { analysis, claudeCostUSD } = await analyzeData(capturedData, {
         clientName: retryJob.clientName,
         dateFrom: retryJob.dateFrom,
         dateTo: retryJob.dateTo,
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       const { renderReportPdf } = await import('@/lib/pdf/render')
       const pdfBuffer = await renderReportPdf({ job: retryJob, analysis })
       const pdfUrl = await savePdf(reportId, pdfBuffer)
-      await updateJobStatus(reportId, { status: 'complete', pdfUrl, error: undefined })
+      await updateJobStatus(reportId, { status: 'complete', pdfUrl, error: undefined, generationCostUSD: +claudeCostUSD.toFixed(4) })
     } catch (err: any) {
       await updateJobStatus(reportId, { status: 'error', error: err.message })
     }
