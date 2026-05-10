@@ -11,6 +11,10 @@ Fotos gif/
 *.pdf
 !public/portfolio.pdf
 *.psd
+*.zip
+
+# Jarupia — contexto de referencia (PDFs, fotos raw, zips) no van a GitHub
+public/jarupia/contexto/
 
 # Prevenir imágenes muy pesadas (>1MB) de cámaras profesionales
 **/DSC*.jpg

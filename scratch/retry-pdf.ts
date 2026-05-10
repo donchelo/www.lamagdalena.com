@@ -29,7 +29,7 @@ async function retryPdf(reportId: string) {
     console.log(`2. Pidiendo a Claude que analice ${rawData.length} elementos...`)
     const { analyzeData } = await import('../lib/claude')
     // @ts-ignore
-    const analysis = await analyzeData(rawData, job)
+    const { analysis, claudeCostUSD } = await analyzeData(rawData, job)
     
     const { saveAnalysis } = await import('../lib/supabase')
     await saveAnalysis(reportId, analysis)
@@ -41,7 +41,10 @@ async function retryPdf(reportId: string) {
     const pdfUrl = await savePdf(reportId, pdfBuffer)
 
     console.log("3. Marcando como COMPLETO...")
-    await updateJobStatus(reportId, { status: 'complete' })
+    await updateJobStatus(reportId, { 
+      status: 'complete',
+      generationCostUSD: claudeCostUSD
+    })
 
     console.log("\n✅ ¡ÉXITO! Refresca tu navegador ahora.")
     console.log(`URL: http://localhost:3000/social-listening/${reportId}`)
