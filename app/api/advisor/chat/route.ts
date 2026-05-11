@@ -88,25 +88,33 @@ export async function POST(req: Request) {
   const body = await req.json()
   const { messages, model: requestedModel } = body
 
-  let modelId = 'claude-sonnet-4.6'
-  if (requestedModel === 'claude-opus-4.7') modelId = 'claude-opus-4.7'
-  if (requestedModel === 'claude-haiku-4.5') modelId = 'claude-haiku-4.5'
+  let modelId = 'claude-sonnet-4-6'
+  if (requestedModel === 'claude-opus-4-7') modelId = 'claude-opus-4-7'
+  if (requestedModel === 'claude-haiku-4-5') modelId = 'claude-haiku-4-5'
 
-  const [systemPrompt, modelMessages] = await Promise.all([
-    buildSystemPrompt(),
-    convertToModelMessages(messages),
-  ])
+  try {
+    const [systemPrompt, modelMessages] = await Promise.all([
+      buildSystemPrompt(),
+      convertToModelMessages(messages),
+    ])
 
-  const result = streamText({
-    model: anthropic(modelId),
-    system: systemPrompt,
-    messages: modelMessages,
-    providerOptions: {
-      anthropic: {
-        cacheControl: { type: 'ephemeral' },
+    const result = streamText({
+      model: anthropic(modelId),
+      system: systemPrompt,
+      messages: modelMessages,
+      providerOptions: {
+        anthropic: {
+          cacheControl: { type: 'ephemeral' },
+        },
       },
-    },
-  })
+    })
 
-  return result.toUIMessageStreamResponse()
+    return result.toUIMessageStreamResponse()
+  } catch (err) {
+    console.error('[advisor/chat] Error:', err)
+    return new Response(
+      JSON.stringify({ error: err instanceof Error ? err.message : 'Unknown error' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
 }

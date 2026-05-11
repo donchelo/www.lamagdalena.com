@@ -14,9 +14,9 @@ const SUGGESTED_QUESTIONS = [
 ]
 
 const MODELS = [
-  { id: 'claude-opus-4.7', name: 'Claude Opus 4.7 (Estratégico)', provider: 'Anthropic' },
-  { id: 'claude-sonnet-4.6', name: 'Claude Sonnet 4.6 (Veloz)', provider: 'Anthropic' },
-  { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5 (Liviano)', provider: 'Anthropic' },
+  { id: 'claude-opus-4-7', name: 'Claude Opus 4.7 (Estratégico)', provider: 'Anthropic' },
+  { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6 (Veloz)', provider: 'Anthropic' },
+  { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5 (Liviano)', provider: 'Anthropic' },
 ]
 
 const WELCOME_TEXT = 'Bienvenido, buscador de historias. Soy el **Sabio de La Magdalena**. Estoy aquí para asesorarte en la estrategia de este gran proyecto, compartir el alma de nuestras obras y ayudarte a escalar hacia nuevos horizontes. ¿Por dónde deseas empezar nuestro diálogo hoy?'
