@@ -8,6 +8,7 @@ const navItems = [
   { label: 'Panel', path: '/dashboard', icon: '◈' },
   { label: 'Social Listening', path: '/social-listening', icon: '◉' },
   { label: 'Proyección Financiera', path: '/proyeccion-financiera', icon: '◇' },
+  { label: 'Sabio IA', path: '/advisor', icon: '✦' },
   { label: 'Design System', path: '/design-system', icon: '❖' },
 ]
 
