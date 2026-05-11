@@ -12,25 +12,19 @@ export default function DashboardPage() {
         <Link href="/social-listening" style={{ display: 'block', padding: '2rem', border: '1px solid rgba(238, 241, 81, 0.3)', borderRadius: '4px', backgroundColor: 'rgba(238, 241, 81, 0.05)', textDecoration: 'none', transition: 'all 0.3s ease' }}>
           <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>◉</div>
           <h2 style={{ color: 'var(--private-accent)', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)', fontSize: '1.3rem' }}>Social Listening</h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', lineHeight: 1.5 }}>Genera reportes de 8 páginas con análisis de redes sociales usando Apify + Claude.</p>
+          <p style={{ color: 'var(--text-brown)', opacity: 0.6, fontSize: '0.9rem', lineHeight: 1.5 }}>Genera reportes de 8 páginas con análisis de redes sociales usando Apify + Claude.</p>
         </Link>
 
-        <div style={{ padding: '2rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', opacity: 0.4 }}>
-          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>◎</div>
-          <h2 style={{ color: 'var(--private-accent)', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)', fontSize: '1.3rem' }}>Agente de Conocimiento</h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', lineHeight: 1.5 }}>Próximamente · Sube documentos y consulta con IA.</p>
-        </div>
+        <Link href="/advisor" style={{ display: 'block', padding: '2rem', border: '1px solid rgba(212, 255, 0, 0.3)', borderRadius: '4px', backgroundColor: 'rgba(212, 255, 0, 0.05)', textDecoration: 'none', transition: 'all 0.3s ease' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>✦</div>
+          <h2 style={{ color: 'var(--private-accent)', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)', fontSize: '1.3rem' }}>Sabio IA</h2>
+          <p style={{ color: 'var(--text-brown)', opacity: 0.6, fontSize: '0.9rem', lineHeight: 1.5 }}>Consulta estrategias, finanzas y narrativa con el asesor experto de La Magdalena.</p>
+        </Link>
 
-        <div style={{ padding: '2rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', opacity: 0.4 }}>
-          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⬡</div>
-          <h2 style={{ color: 'var(--private-accent)', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)', fontSize: '1.3rem' }}>Conversor de Contenido</h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', lineHeight: 1.5 }}>Próximamente · Convierte ideas en guiones, storyboards y captions.</p>
-        </div>
-
-        <Link href="/proyeccion-financiera" style={{ display: 'block', padding: '2rem', border: '1px solid rgba(238, 241, 81, 0.3)', borderRadius: '4px', backgroundColor: 'rgba(238, 241, 81, 0.05)', textDecoration: 'none', transition: 'all 0.3s ease' }}>
+        <Link href="/proyeccion-financiera" style={{ display: 'block', padding: '2rem', border: '1px solid rgba(92, 74, 51, 0.1)', borderRadius: '4px', backgroundColor: 'rgba(92, 74, 51, 0.02)', textDecoration: 'none', transition: 'all 0.3s ease' }}>
           <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>◇</div>
           <h2 style={{ color: 'var(--private-accent)', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)', fontSize: '1.3rem' }}>Proyección Financiera</h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', lineHeight: 1.5 }}>Analiza ingresos y costos con IA. Proyecciones, márgenes y flujo de caja.</p>
+          <p style={{ color: 'var(--text-brown)', opacity: 0.6, fontSize: '0.9rem', lineHeight: 1.5 }}>Analiza ingresos y costos con IA. Proyecciones, márgenes y flujo de caja.</p>
         </Link>
       </div>
     </div>

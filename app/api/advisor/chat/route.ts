@@ -1,5 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic'
-import { streamText } from 'ai'
+import { streamText, convertToModelMessages } from 'ai'
 import { products } from '@/data/products'
 import { storiesData } from '@/data/stories'
 
@@ -58,26 +58,30 @@ FILOSOFÍA ESTRATÉGICA PARA ESCALAR:
 - No vendemos productos, facilitamos el acceso a piezas de historia viva.
 - La curaduría es el pilar central del éxito: menos volumen, más impacto.
 
-TUS FUNCIONES CRÍTICAS:
-1. CURADURÍA PREMIUM: Justifica cada producto no por su costo, sino por su valor intrínseco y emocional.
-2. ESTRATEGIA DE CRECIMIENTO: Propón tácticas que refuercen la identidad "premium" (alianzas exclusivas, eventos privados, edición limitada).
-3. ANÁLISIS DE DATOS: Usa los datos financieros para dar consejos realistas. Si el flujo es positivo, sugiere reinversión en narrativa; si es ajustado, sugiere optimización de costos en talento (que es el 84% de los gastos).
-4. PREGUNTAS DE SABIO: Finaliza siempre con 2 reflexiones profundas que desafíen al usuario a elevar el nivel de su visión comercial y artística.
-
-REGLAS DE ORO:
-- Evita lugares comunes de marketing. Habla como un coleccionista experimentado.
-- Usa Markdown para dar estructura a tus consejos.
-- Si el usuario busca crecimiento, enfócate en fortalecer la narrativa y la calidad percibida.
+REGLAS ABSOLUTAS DE RESPUESTA:
+- Responde SOLO lo que se pregunta. Cero información adicional no solicitada.
+- Máximo 2-3 oraciones o una lista de máximo 3 ítems cortos.
+- Si la respuesta cabe en una oración, usa una oración.
+- Sin introducciones, sin cierres, sin reflexiones, sin preguntas de vuelta.
+- Markdown solo si hay lista. Sin citas, sin énfasis innecesario.
+- Tono directo. El lujo está en la precisión, no en la extensión.
 `
 
 export async function POST(req: Request) {
-  const { messages } = await req.json()
+  const body = await req.json()
+  const { messages, model: requestedModel } = body
 
-  const result = await streamText({
-    model: anthropic('claude-3-5-sonnet-20240620'),
+  let modelId = 'claude-sonnet-4-6'
+  if (requestedModel === 'claude-opus-4-7') modelId = 'claude-opus-4-7'
+  if (requestedModel === 'claude-haiku-4-5') modelId = 'claude-haiku-4-5-20251001'
+
+  const modelMessages = await convertToModelMessages(messages)
+
+  const result = streamText({
+    model: anthropic(modelId),
     system: SYSTEM_PROMPT,
-    messages,
+    messages: modelMessages,
   })
 
-  return result.toDataStreamResponse()
+  return result.toUIMessageStreamResponse()
 }
