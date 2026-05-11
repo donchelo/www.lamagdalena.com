@@ -110,8 +110,12 @@ export default function AdvisorPage() {
   const handleSend = () => {
     const text = input.trim()
     if (!text || isLoading) return
+    const fullText = attachedDoc
+      ? `[DOCUMENTO ADJUNTO: ${attachedDoc.name}]\n\`\`\`\n${attachedDoc.content.slice(0, 12000)}\n\`\`\`\n\n${text}`
+      : text
     setInput('')
-    sendMessage({ text })
+    setAttachedDoc(null)
+    sendMessage({ text: fullText })
   }
 
   const handleNewChat = () => {
@@ -136,8 +140,22 @@ export default function AdvisorPage() {
     if (currentChatId === id) handleNewChat()
   }
 
+  const [attachedDoc, setAttachedDoc] = useState<{ name: string; content: string } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const content = ev.target?.result as string
+      setAttachedDoc({ name: file.name, content })
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -278,7 +296,31 @@ export default function AdvisorPage() {
               </div>
             )}
 
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".txt,.md,.csv,.json,.pdf"
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+            />
+
+            {attachedDoc && (
+              <div className="attached-doc-pill">
+                <span className="doc-icon">📄</span>
+                <span className="doc-name">{attachedDoc.name}</span>
+                <button className="doc-remove" onClick={() => setAttachedDoc(null)}>×</button>
+              </div>
+            )}
+
             <div className="pro-input-form">
+              <button
+                type="button"
+                className="attach-btn"
+                onClick={() => fileInputRef.current?.click()}
+                title="Adjuntar documento"
+              >
+                ⊕
+              </button>
               <textarea
                 ref={textareaRef}
                 className="pro-textarea"
@@ -716,6 +758,66 @@ export default function AdvisorPage() {
           color: black;
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(212, 255, 0, 0.2);
+        }
+
+        .attached-doc-pill {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(212, 255, 0, 0.12);
+          border: 1px solid rgba(212, 255, 0, 0.4);
+          border-radius: 100px;
+          padding: 0.4rem 0.8rem;
+          margin-bottom: 0.75rem;
+          width: fit-content;
+        }
+
+        .doc-icon { font-size: 0.9rem; }
+
+        .doc-name {
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: var(--private-text);
+          max-width: 200px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .doc-remove {
+          background: none;
+          border: none;
+          color: var(--private-text-muted);
+          font-size: 1.1rem;
+          cursor: pointer;
+          padding: 0;
+          line-height: 1;
+          opacity: 0.6;
+          transition: opacity 0.2s;
+        }
+
+        .doc-remove:hover { opacity: 1; }
+
+        .attach-btn {
+          width: 36px;
+          height: 36px;
+          background: #f5f5f5;
+          border: 1px solid var(--private-border);
+          border-radius: 10px;
+          font-size: 1.2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: var(--private-text-muted);
+          flex-shrink: 0;
+          transition: all 0.2s ease;
+        }
+
+        .attach-btn:hover {
+          background: white;
+          border-color: var(--private-accent);
+          color: var(--private-text);
         }
 
         .pro-input-form {
