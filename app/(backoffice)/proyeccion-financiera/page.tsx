@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { downloadReportExcel, printReportPDF } from '@/lib/report-excel'
+import { type FinancialSummary } from '@/lib/proyeccion'
 
 interface MonthFolder {
   name: string
@@ -43,6 +44,8 @@ export default function ProyeccionFinancieraPage() {
   const [reports, setReports] = useState<ReportEntry[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState('')
+  const [summary, setSummary] = useState<FinancialSummary | null>(null)
+  const [staticReports, setStaticReports] = useState<{id: string, title: string, content: string}[]>([])
   const reportsTopRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -53,7 +56,27 @@ export default function ProyeccionFinancieraPage() {
         setSelectedMonths(data.map(m => m.name))
       })
       .catch(() => {})
+
+    fetch('/api/proyeccion/informes')
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setStaticReports(data))
+      .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (selectedMonths.length === 0) {
+      setSummary(null)
+      return
+    }
+    fetch('/api/proyeccion/summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ months: selectedMonths }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setSummary(data))
+      .catch(() => setSummary(null))
+  }, [selectedMonths])
 
   // Scroll to first report when a new one is added
   useEffect(() => {
@@ -99,6 +122,18 @@ export default function ProyeccionFinancieraPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleLoadStaticReport = (report: {id: string, title: string, content: string}) => {
+    const entry: ReportEntry = {
+      id: Date.now().toString(),
+      timestamp: new Date(),
+      promptLabel: report.title,
+      months: ['Reporte Ejecutivo'],
+      content: report.content,
+      status: 'done',
+    }
+    setReports(prev => [entry, ...prev])
   }
 
   const toggleMonth = (name: string) => {
@@ -188,6 +223,43 @@ export default function ProyeccionFinancieraPage() {
               </button>
             </div>
           </div>
+
+          {/* Informes Especiales (Static) */}
+          {staticReports.length > 0 && (
+            <div style={{ padding: '1.25rem', border: '1px solid var(--private-accent)', borderRadius: '4px', backgroundColor: 'rgba(238,241,81,0.05)' }}>
+              <p style={{ fontSize: '0.6rem', color: 'var(--private-accent)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem', fontWeight: 600 }}>
+                Informes Ejecutivos Listos
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                {staticReports.map(report => (
+                  <button
+                    key={report.id}
+                    onClick={() => handleLoadStaticReport(report)}
+                    style={{
+                      padding: '0.6rem 0.75rem',
+                      backgroundColor: 'rgba(238,241,81,0.15)',
+                      border: '1px solid rgba(238,241,81,0.4)',
+                      borderRadius: '3px',
+                      color: 'var(--private-bg)',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseOver={e => {
+                      e.currentTarget.style.backgroundColor = 'var(--private-accent)'
+                    }}
+                    onMouseOut={e => {
+                      e.currentTarget.style.backgroundColor = 'rgba(238,241,81,0.15)'
+                    }}
+                  >
+                    📄 {report.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Análisis rápidos */}
           <div style={{ padding: '1.25rem', border: '1px solid var(--private-border)', borderRadius: '4px', backgroundColor: 'var(--private-glass)' }}>
@@ -281,6 +353,86 @@ export default function ProyeccionFinancieraPage() {
 
         {/* Panel derecho: historial de informes — crece con el contenido, la página hace scroll */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          
+          {/* Dashboard Summary Widget */}
+          {summary && selectedMonths.length > 0 && (
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem',
+              backgroundColor: 'var(--private-glass)', padding: '1.5rem',
+              borderRadius: '4px', border: '1px solid var(--private-border)',
+              marginBottom: '0.5rem'
+            }}>
+              <div>
+                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ingresos</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--private-text)', fontFamily: 'var(--font-heading)' }}>
+                  ${(summary.totals.ingresos / 1e6).toFixed(1)}M
+                </p>
+              </div>
+              <div>
+                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Costos</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--private-text)', fontFamily: 'var(--font-heading)' }}>
+                  ${(summary.totals.costos / 1e6).toFixed(1)}M
+                </p>
+              </div>
+              <div>
+                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Flujo Neto</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: summary.totals.flujoNeto >= 0 ? 'rgba(100,220,130,1)' : '#ff6b6b', fontFamily: 'var(--font-heading)' }}>
+                  {summary.totals.flujoNeto >= 0 ? '+' : '-'}${(Math.abs(summary.totals.flujoNeto) / 1e6).toFixed(1)}M
+                </p>
+              </div>
+              <div>
+                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Margen</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--private-text)', fontFamily: 'var(--font-heading)' }}>
+                  {summary.totals.margen.toFixed(1)}%
+                </p>
+              </div>
+              {summary.duplicados > 0 && (
+                <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', padding: '0.75rem', backgroundColor: 'rgba(255,100,100,0.1)', border: '1px solid rgba(255,100,100,0.2)', borderRadius: '3px', color: '#ff6b6b', fontSize: '0.75rem' }}>
+                  ⚠️ <strong>Alerta:</strong> Se detectaron {summary.duplicados} facturas duplicadas en el archivo consolidado. El cálculo anterior ya las ha omitido.
+                </div>
+              )}
+
+              {/* Breakdown de clientes y costos */}
+              <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--private-border)' }}>
+                {/* Clientes */}
+                <div>
+                  <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Concentración de Ingresos</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {summary.clienteIngresos.slice(0, 4).map(c => (
+                      <div key={c.nombre}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.3rem' }}>
+                          <span style={{ color: 'rgba(255,255,255,0.8)' }}>{c.nombre}</span>
+                          <span style={{ color: 'rgba(255,255,255,0.5)' }}>${(c.total / 1e6).toFixed(1)}M ({c.pct.toFixed(1)}%)</span>
+                        </div>
+                        <div style={{ width: '100%', height: '4px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                          <div style={{ width: `${c.pct}%`, height: '100%', backgroundColor: c.pct > 50 ? '#ffb86c' : 'var(--private-accent)', borderRadius: '2px' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Categorías */}
+                <div>
+                  <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Estructura de Costos</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {summary.costosPorCategoria.slice(0, 4).map(c => (
+                      <div key={c.categoria}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.3rem' }}>
+                          <span style={{ color: 'rgba(255,255,255,0.8)' }}>{c.categoria}</span>
+                          <span style={{ color: 'rgba(255,255,255,0.5)' }}>${(c.total / 1e6).toFixed(1)}M ({c.pct.toFixed(1)}%)</span>
+                        </div>
+                        <div style={{ width: '100%', height: '4px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                          <div style={{ width: `${c.pct}%`, height: '100%', backgroundColor: c.pct > 70 ? '#ffb86c' : 'rgba(100,180,255,1)', borderRadius: '2px' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div ref={reportsTopRef} />
 
           {reports.length === 0 ? (
