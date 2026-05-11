@@ -57,9 +57,20 @@ function categorize(name: string): string {
 
 // ─── CSV parser ───────────────────────────────────────────────────────────────
 
+function normalizeMonth(m: string): string {
+  // Remove leading numbers, dots, and spaces: "1.ENERO 2026" or "01 ENERO 26" -> "ENERO 2026"
+  let clean = m.replace(/^[\d\.]+\s*/, '').trim().toUpperCase()
+  // Ensure year is 4 digits if it's 2 digits: "ENERO 26" -> "ENERO 2026"
+  if (/\s\d{2}$/.test(clean)) {
+    clean = clean.replace(/\s(\d{2})$/, ' 20$1')
+  }
+  return clean
+}
+
 function parseCSVRows(content: string, months: string[]): CsvRow[] {
+  const normalizedSelected = months.map(normalizeMonth)
+  
   return content.trim().split('\n').slice(1)
-    .filter(line => months.some(m => line.includes(m)))
     .map(line => {
       const cols: string[] = []
       let cur = '', inQ = false
@@ -76,6 +87,11 @@ function parseCSVRows(content: string, months: string[]): CsvRow[] {
         iva: parseFloat(cols[8]) || 0, total: parseFloat(cols[9]) || 0,
         archivo: cols[10] ?? '',
       }
+    })
+    .filter(row => {
+      if (!row.mes) return false
+      const normMes = normalizeMonth(row.mes)
+      return normalizedSelected.includes(normMes)
     })
 }
 
@@ -106,20 +122,34 @@ export function computeSummary(months: string[]): FinancialSummary {
   }
 
   const totFacturacion = ingresos.reduce((s, r) => s + r.total, 0)
-  const totIngresos = ingresos.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
-  const totCostos   = costos.reduce((s, r) => s + r.total, 0)
-  const totFlujo    = totFacturacion - totCostos
+  const totIngresos     = ingresos.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
+  const totCostos       = costos.reduce((s, r) => s + r.total, 0)
+  const totCostosNetos  = costos.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
+  
+  // Real Profit (Net vs Net)
+  const realProfit = totIngresos - totCostosNetos
 
   // Monthly
   const monthly: MonthlySummary[] = months.map(m => {
-    const rMes = ingresos.filter(r => r.mes === m)
+    const normTarget = normalizeMonth(m)
+    const rMes = ingresos.filter(r => normalizeMonth(r.mes) === normTarget)
     const mFact = rMes.reduce((s, r) => s + r.total, 0)
     const mIng = rMes.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
-    const mC = costos.filter(r => r.mes === m).reduce((s, r) => s + r.total, 0)
-    const fl = mFact - mC
-    return { name: m, facturacion: mFact, ingresos: mIng, costos: mC, flujoNeto: fl,
-      margen: mIng > 0 ? (fl / mIng) * 100 : 0,
-      numFacturas: costos.filter(r => r.mes === m).length }
+    
+    const cMes = costos.filter(r => normalizeMonth(r.mes) === normTarget)
+    const mC = cMes.reduce((s, r) => s + r.total, 0)
+    const mCNet = cMes.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
+    
+    const prof = mIng - mCNet
+    return { 
+      name: m, 
+      facturacion: mFact, 
+      ingresos: mIng, 
+      costos: mC, 
+      flujoNeto: prof, // Usamos utilidad neta operativa
+      margen: mIng > 0 ? (prof / mIng) * 100 : 0,
+      numFacturas: cMes.length 
+    }
   })
 
   // Clients (based on Gross Facturacion)
@@ -149,8 +179,13 @@ export function computeSummary(months: string[]): FinancialSummary {
 
   return {
     months, monthly,
-    totals: { facturacion: totFacturacion, ingresos: totIngresos, costos: totCostos, flujoNeto: totFlujo,
-      margen: totIngresos > 0 ? (totFlujo / totIngresos) * 100 : 0 },
+    totals: { 
+      facturacion: totFacturacion, 
+      ingresos: totIngresos, 
+      costos: totCostos, 
+      flujoNeto: realProfit,
+      margen: totIngresos > 0 ? (realProfit / totIngresos) * 100 : 0 
+    },
     clienteIngresos, costosPorCategoria, topProveedores,
     iva: { cobrado: ivaCobrado, pagado: ivaPagado, neto: ivaCobrado - ivaPagado },
     facturas: costos, duplicados,
@@ -222,8 +257,14 @@ function readCSV(filePath: string): string {
 }
 
 function consolidadoHasMonth(csvContent: string, monthName: string): boolean {
+  const normalizedTarget = normalizeMonth(monthName)
   const lines = csvContent.split('\n').slice(1)
-  return lines.some(line => line.includes(monthName))
+  return lines.some(line => {
+    // Extract the Mes column (2nd column) to avoid false positives in other columns
+    const cols = line.split(',')
+    if (cols.length < 2) return false
+    return normalizeMonth(cols[1]) === normalizedTarget
+  })
 }
 
 // ─── Listar meses ─────────────────────────────────────────────────────────────
@@ -236,7 +277,7 @@ export function listMonths(): MonthFolder[] {
 
   return fs.readdirSync(DOCS_DIR)
     .filter(name => {
-      if (name.startsWith('.') || name.startsWith('_')) return false
+      if (name.startsWith('.') || name.startsWith('_') || name === 'informes') return false
       try { return fs.statSync(path.join(DOCS_DIR, name)).isDirectory() } catch { return false }
     })
     .map(name => {
@@ -279,10 +320,13 @@ export function loadIncomeContext(months: string[]): string {
 
   const lines  = content.split('\n')
   const header = lines[0]
-  // Solo filas de INGRESO para los meses seleccionados
-  const rows = lines.slice(1).filter(line =>
-    months.some(m => line.includes(m)) && line.includes('INGRESO')
-  )
+  const normalizedSelected = months.map(normalizeMonth)
+  const rows = lines.slice(1).filter(line => {
+    const cols = line.split(',')
+    if (cols.length < 2) return false
+    const normLineMes = normalizeMonth(cols[1])
+    return normalizedSelected.includes(normLineMes) && line.includes('INGRESO')
+  })
   if (rows.length === 0) return ''
   return [header, ...rows].join('\n')
 }
@@ -296,9 +340,13 @@ export function loadCostContext(months: string[]): string {
     if (content) {
       const lines  = content.split('\n')
       const header = lines[0]
-      const rows   = lines.slice(1).filter(line =>
-        months.some(m => line.includes(m)) && (line.includes('COSTO') || line.includes('EGRESO'))
-      )
+      const normalizedSelected = months.map(normalizeMonth)
+      const rows = lines.slice(1).filter(line => {
+        const cols = line.split(',')
+        if (cols.length < 2) return false
+        const normLineMes = normalizeMonth(cols[1])
+        return normalizedSelected.includes(normLineMes) && (line.includes('COSTO') || line.includes('EGRESO'))
+      })
       if (rows.length > 0) return [header, ...rows].join('\n')
     }
   }
