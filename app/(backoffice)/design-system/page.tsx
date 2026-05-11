@@ -198,7 +198,16 @@ export default function DesignSystemPage() {
             <section>
               <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', fontFamily: 'var(--font-heading)' }}>Nav Links (Desktop)</h2>
               <div style={{ backgroundColor: '#000', padding: '2rem', borderRadius: '8px', display: 'flex', justifyContent: 'center' }}>
-                <NavLinks mobile={false} />
+                <NavLinks 
+                  items={[
+                    { label: 'Inicio', path: '#' },
+                    { label: 'Somos', path: '#' },
+                    { label: 'Historias', path: '#' }
+                  ]}
+                  activeChecker={(path) => path === '#'}
+                  className="overlay-nav"
+                  itemClassName="menu-link"
+                />
               </div>
             </section>
 

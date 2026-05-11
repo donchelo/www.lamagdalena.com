@@ -359,13 +359,19 @@ export default function ProyeccionFinancieraPage() {
           {/* Dashboard Summary Widget */}
           {summary && selectedMonths.length > 0 && (
             <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem',
+              display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem',
               backgroundColor: 'var(--private-glass)', padding: '1.5rem',
               borderRadius: '4px', border: '1px solid var(--private-border)',
               marginBottom: '0.5rem'
             }}>
               <div>
-                <p style={{ fontSize: '0.65rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ingresos</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Facturación</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--private-text)', fontFamily: 'var(--font-heading)' }}>
+                  ${(summary.totals.facturacion / 1e6).toFixed(1)}M
+                </p>
+              </div>
+              <div>
+                <p style={{ fontSize: '0.65rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ingresos Neto</p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--private-text)', fontFamily: 'var(--font-heading)' }}>
                   ${(summary.totals.ingresos / 1e6).toFixed(1)}M
                 </p>

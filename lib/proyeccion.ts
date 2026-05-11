@@ -1,6 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 
+const DOCS_DIR = path.join(process.cwd(), 'data', 'proyeccion')
+
 export interface MonthFolder {
   name: string
   pdfCount: number
@@ -18,14 +20,14 @@ export interface CsvRow {
 }
 
 export interface MonthlySummary {
-  name: string; ingresos: number; costos: number; flujoNeto: number
+  name: string; facturacion: number; ingresos: number; costos: number; flujoNeto: number
   margen: number; numFacturas: number
 }
 
 export interface FinancialSummary {
   months: string[]
   monthly: MonthlySummary[]
-  totals: { ingresos: number; costos: number; flujoNeto: number; margen: number }
+  totals: { facturacion: number; ingresos: number; costos: number; flujoNeto: number; margen: number }
   clienteIngresos: { nombre: string; total: number; pct: number }[]
   costosPorCategoria: { categoria: string; total: number; pct: number; numTrans: number }[]
   topProveedores: { nombre: string; total: number; categoria: string }[]
@@ -82,7 +84,7 @@ function parseCSVRows(content: string, months: string[]): CsvRow[] {
 export function computeSummary(months: string[]): FinancialSummary {
   const empty: FinancialSummary = {
     months, monthly: [],
-    totals: { ingresos: 0, costos: 0, flujoNeto: 0, margen: 0 },
+    totals: { facturacion: 0, ingresos: 0, costos: 0, flujoNeto: 0, margen: 0 },
     clienteIngresos: [], costosPorCategoria: [], topProveedores: [],
     iva: { cobrado: 0, pagado: 0, neto: 0 }, facturas: [], duplicados: 0,
   }
@@ -103,25 +105,28 @@ export function computeSummary(months: string[]): FinancialSummary {
     seen.add(key); costos.push(c)
   }
 
-  const totIngresos = ingresos.reduce((s, r) => s + r.total, 0)
+  const totFacturacion = ingresos.reduce((s, r) => s + r.total, 0)
+  const totIngresos = ingresos.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
   const totCostos   = costos.reduce((s, r) => s + r.total, 0)
-  const totFlujo    = totIngresos - totCostos
+  const totFlujo    = totFacturacion - totCostos
 
   // Monthly
   const monthly: MonthlySummary[] = months.map(m => {
-    const mI = ingresos.filter(r => r.mes === m).reduce((s, r) => s + r.total, 0)
+    const rMes = ingresos.filter(r => r.mes === m)
+    const mFact = rMes.reduce((s, r) => s + r.total, 0)
+    const mIng = rMes.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
     const mC = costos.filter(r => r.mes === m).reduce((s, r) => s + r.total, 0)
-    const fl = mI - mC
-    return { name: m, ingresos: mI, costos: mC, flujoNeto: fl,
-      margen: mI > 0 ? (fl / mI) * 100 : 0,
+    const fl = mFact - mC
+    return { name: m, facturacion: mFact, ingresos: mIng, costos: mC, flujoNeto: fl,
+      margen: mIng > 0 ? (fl / mIng) * 100 : 0,
       numFacturas: costos.filter(r => r.mes === m).length }
   })
 
-  // Clients
+  // Clients (based on Gross Facturacion)
   const cliMap: Record<string, number> = {}
   for (const r of ingresos) cliMap[r.contraparte] = (cliMap[r.contraparte] || 0) + r.total
   const clienteIngresos = Object.entries(cliMap).sort((a, b) => b[1] - a[1])
-    .map(([nombre, total]) => ({ nombre, total, pct: totIngresos > 0 ? (total / totIngresos) * 100 : 0 }))
+    .map(([nombre, total]) => ({ nombre, total, pct: totFacturacion > 0 ? (total / totFacturacion) * 100 : 0 }))
 
   // Categories
   const catMap: Record<string, { total: number; count: number }> = {}
@@ -144,7 +149,7 @@ export function computeSummary(months: string[]): FinancialSummary {
 
   return {
     months, monthly,
-    totals: { ingresos: totIngresos, costos: totCostos, flujoNeto: totFlujo,
+    totals: { facturacion: totFacturacion, ingresos: totIngresos, costos: totCostos, flujoNeto: totFlujo,
       margen: totIngresos > 0 ? (totFlujo / totIngresos) * 100 : 0 },
     clienteIngresos, costosPorCategoria, topProveedores,
     iva: { cobrado: ivaCobrado, pagado: ivaPagado, neto: ivaCobrado - ivaPagado },
