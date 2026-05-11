@@ -13,6 +13,7 @@ const mainMenuItems = [
   { label: 'Inicio', path: '/', hash: '#inicio' },
   { label: 'Somos', path: '/somos', hash: '' },
   { label: 'Historias', path: '/historias', hash: '' },
+  { label: 'Jarupia', path: '/jarupia', hash: '' },
   { label: 'Servicios', path: '/', hash: '#servicios' },
 ]
 

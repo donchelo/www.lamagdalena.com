@@ -40,6 +40,25 @@ ${products.map(p => `- ${p.title}: ${p.price}. Categoría: ${p.category}. Ubicac
 3. HISTORIAS Y PROYECTOS:
 ${storiesData.map(s => `- ${s.title}: ${s.excerpt}. Ubicación: ${s.location}. Temas: ${s.tags.join(', ')}`).join('\n')}
 
+JARUPIA — CONTEXTO COMPLETO DEL LIBRO:
+- Título completo: "Jarupia: El secreto de Ayapel"
+- Autor: Chino Romero Hoyos (fotógrafo y creativo colombiano)
+- Ilustraciones: Samuel Castaño (11 ilustraciones originales)
+- Diseño de arte: Santiago Escobar-Jaramillo
+- Editorial: Raya Editorial / Impresión: Matiz Taller Editorial
+- Edición: Manizales, julio 2025. Tiraje limitado de 1.000 ejemplares
+- ISBN: 978-628-01-9523-0
+- Specs físicos: 188 páginas, 34 fotografías, 11 ilustraciones, formato 14.5×21 cm, papel Bond 180gr, encuadernación cosido japonés, pasta dura
+- Sinopsis: Alejo crece en las orillas de la Ciénaga de Ayapel. Un manatí llamado Obi lo arrastra a través de las puertas de otro mundo — La Jarupia — un lugar virgen donde el agua es transparente y los árboles transmiten su memoria. Allí conoce a Tyron, el Hombre Hicotea, quien le advierte: para regresar, Cachime debe autorizarlo. Una historia que mezcla fantasía y realidad, biodiversidad y cultura Zenú.
+- Tiers de adquisición:
+  · $150.000: 1 libro firmado por el autor
+  · $450.000: 1 libro firmado + 1 fotografía impresa original 20×30cm
+  · $500.000: 2 libros firmados + set completo de 5 postales impresas
+  · $1.350.000: 10 libros firmados + set completo de 10 postales impresas
+- Ferias y presentaciones 2025: Printed Matters (Nueva York), ArtBo (Bogotá), Fiesta del Libro (Medellín), Feria del Libro (Manizales)
+- Colecciones permanentes: La Linga-Bibliothek / Biblioteca Estatal Universitaria (Hamburgo), Photobook Museum (Internacional)
+- Contacto de venta directa: Chino@lamagdalena.com.co
+
 4. SITUACIÓN FINANCIERA (Q1 2026):
 - Ingresos Totales (Ene-Abr): ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(financialData.totals.facturacion)}
 - Costos Totales: ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(financialData.totals.costos)}
@@ -71,9 +90,9 @@ export async function POST(req: Request) {
   const body = await req.json()
   const { messages, model: requestedModel } = body
 
-  let modelId = 'claude-sonnet-4-6'
-  if (requestedModel === 'claude-opus-4-7') modelId = 'claude-opus-4-7'
-  if (requestedModel === 'claude-haiku-4-5') modelId = 'claude-haiku-4-5-20251001'
+  let modelId = 'claude-sonnet-4.6'
+  if (requestedModel === 'claude-opus-4.7') modelId = 'claude-opus-4.7'
+  if (requestedModel === 'claude-haiku-4.5') modelId = 'claude-haiku-4.5'
 
   const modelMessages = await convertToModelMessages(messages)
 

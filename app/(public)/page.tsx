@@ -50,6 +50,30 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section id="jarupia" style={{ padding: 'var(--section-padding) 0', backgroundColor: '#0e1a12', color: 'white', overflow: 'hidden' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6rem', alignItems: 'center' }}>
+            <div>
+              <span style={{ fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.5, display: 'block', marginBottom: '1.5rem' }}>Obra literaria</span>
+              <h2 style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', lineHeight: 0.9, fontWeight: 700, marginBottom: '2rem' }}>Jarupia</h2>
+              <p style={{ fontSize: '1.1rem', lineHeight: 1.7, opacity: 0.75, marginBottom: '1rem' }}>
+                El secreto de Ayapel. Una historia que nace en la Ciénaga de Ayapel donde la naturaleza tiene memoria y los territorios le hablan a quienes saben escuchar.
+              </p>
+              <p style={{ fontSize: '0.95rem', opacity: 0.5, marginBottom: '3rem' }}>
+                Chino Romero Hoyos · 188 páginas · Edición limitada 1.000 ejemplares
+              </p>
+              <a href="/jarupia/" className="cta-button" style={{ backgroundColor: 'white', color: '#0e1a12', padding: '1rem 2.5rem', fontSize: '0.85rem', borderRadius: '2px', display: 'inline-block' }}>
+                Ver el libro
+              </a>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <img src="/assets/photos/jarupia/image-1.webp" alt="Jarupia" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', borderRadius: '4px' }} />
+              <img src="/assets/photos/jarupia/image-2.webp" alt="Jarupia" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', borderRadius: '4px', marginTop: '3rem' }} />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <ServicesSection />
       <ContactSection />
     </main>
