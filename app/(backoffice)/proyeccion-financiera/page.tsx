@@ -7,9 +7,14 @@ import { downloadReportExcel, printReportPDF } from '@/lib/report-excel'
 
 interface MonthFolder {
   name: string
+  /** Docs de egresos en Egresos/FACTURAS/ */
   pdfCount: number
+  /** El _consolidado.csv tiene filas de este mes */
   csvReady: boolean
-  incomePDFCount: number
+  /** Hay archivo xlsx en Ingresos/ */
+  hasIncomeFile: boolean
+  /** Hay extracto bancario en Admon/ */
+  hasBankStatement: boolean
 }
 
 interface ReportEntry {
@@ -150,9 +155,17 @@ export default function ProyeccionFinancieraPage() {
                           {active ? '✓' : '○'}
                         </span>
                       </div>
-                      <div style={{ marginTop: '0.2rem', display: 'flex', gap: '0.6rem' }}>
-                        <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.7rem' }}>{m.pdfCount} docs</span>
-                        {m.csvReady && <span style={{ color: 'rgba(238,241,81,0.4)', fontSize: '0.7rem' }}>CSV ✓</span>}
+                      <div style={{ marginTop: '0.3rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.68rem' }}>{m.pdfCount} facturas</span>
+                        {m.hasIncomeFile && (
+                          <span style={{ color: 'rgba(100,220,130,0.6)', fontSize: '0.68rem' }}>↑ ventas</span>
+                        )}
+                        {m.hasBankStatement && (
+                          <span style={{ color: 'rgba(100,180,255,0.6)', fontSize: '0.68rem' }}>⬤ banco</span>
+                        )}
+                        {m.csvReady && (
+                          <span style={{ color: 'rgba(238,241,81,0.4)', fontSize: '0.68rem' }}>CSV ✓</span>
+                        )}
                       </div>
                     </button>
                   )
