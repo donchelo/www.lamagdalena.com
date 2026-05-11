@@ -2892,15 +2892,15 @@ figcaption {
 
 /* Private Dashboard */
 :root {
-  --private-bg: #0a0a0a;
-  --private-sidebar-bg: #121212;
-  --private-card-bg: rgba(255, 255, 255, 0.05);
-  --private-accent: #eef151;
-  --private-text: #ffffff;
-  --private-text-muted: rgba(255, 255, 255, 0.6);
-  --private-border: rgba(255, 255, 255, 0.1);
-  --private-glass: rgba(255, 255, 255, 0.03);
-  --private-glass-blur: blur(10px);
+  --private-bg: var(--bg-cream);
+  --private-sidebar-bg: #f9f8f6;
+  --private-card-bg: #ffffff;
+  --private-accent: var(--accent-lime);
+  --private-text: var(--text-brown);
+  --private-text-muted: rgba(92, 74, 51, 0.6);
+  --private-border: rgba(92, 74, 51, 0.15);
+  --private-glass: rgba(255, 255, 255, 0.9);
+  --private-glass-blur: blur(20px);
 }
 
 .private-dashboard {
@@ -3027,10 +3027,10 @@ figcaption {
 .private-input {
   width: 100%;
   padding: 0.8rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--private-card-bg);
   border: 1px solid var(--private-border);
   border-radius: 8px;
-  color: white;
+  color: var(--private-text);
   margin-bottom: 1rem;
 }
 
@@ -3052,7 +3052,8 @@ figcaption {
   height: 400px;
   display: flex;
   flex-direction: column;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--private-card-bg);
+  border: 1px solid var(--private-border);
   border-radius: 12px;
   padding: 1rem;
   margin-top: 1rem;
@@ -3069,13 +3070,13 @@ figcaption {
 .chat-message.user {
   align-self: flex-end;
   background: var(--private-accent);
-  color: black;
+  color: var(--text-brown);
 }
 
 .chat-message.ai {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--private-border);
+  color: var(--private-text);
 }
 
 @media (max-width: 1024px) {

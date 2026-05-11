@@ -156,12 +156,12 @@ export default function ProyeccionFinancieraPage() {
 
           {/* Selector de meses */}
           <div style={{ padding: '1.25rem', border: '1px solid var(--private-border)', borderRadius: '4px', backgroundColor: 'var(--private-glass)' }}>
-            <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
+            <p style={{ fontSize: '0.6rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
               Períodos · data/proyeccion/
             </p>
 
             {months.length === 0 ? (
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.82rem' }}>
+              <p style={{ color: 'var(--private-text-muted)', fontSize: '0.82rem' }}>
                 No se encontraron carpetas de meses.
               </p>
             ) : (
@@ -174,8 +174,8 @@ export default function ProyeccionFinancieraPage() {
                       onClick={() => toggleMonth(m.name)}
                       style={{
                         padding: '0.65rem 0.85rem',
-                        backgroundColor: active ? 'rgba(238,241,81,0.08)' : 'transparent',
-                        border: `1px solid ${active ? 'rgba(238,241,81,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                        backgroundColor: active ? 'rgba(212,255,0,0.1)' : 'transparent',
+                        border: `1px solid ${active ? 'var(--private-accent)' : 'var(--private-border)'}`,
                         borderRadius: '3px',
                         cursor: 'pointer',
                         textAlign: 'left',
@@ -183,15 +183,15 @@ export default function ProyeccionFinancieraPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ color: active ? 'var(--private-accent)' : 'rgba(255,255,255,0.5)', fontSize: '0.82rem', fontWeight: active ? 600 : 400 }}>
+                        <span style={{ color: active ? 'var(--private-text)' : 'var(--private-text-muted)', fontSize: '0.82rem', fontWeight: active ? 600 : 400 }}>
                           {m.name}
                         </span>
-                        <span style={{ color: active ? 'rgba(238,241,81,0.5)' : 'rgba(255,255,255,0.2)', fontSize: '0.7rem' }}>
+                        <span style={{ color: active ? 'var(--private-accent)' : 'var(--private-text-muted)', fontSize: '0.7rem' }}>
                           {active ? '✓' : '○'}
                         </span>
                       </div>
                       <div style={{ marginTop: '0.3rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.68rem' }}>{m.pdfCount} facturas</span>
+                        <span style={{ color: 'var(--private-text-muted)', fontSize: '0.68rem' }}>{m.pdfCount} facturas</span>
                         {m.hasIncomeFile && (
                           <span style={{ color: 'rgba(100,220,130,0.6)', fontSize: '0.68rem' }}>↑ ventas</span>
                         )}
@@ -211,13 +211,13 @@ export default function ProyeccionFinancieraPage() {
             <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.75rem' }}>
               <button
                 onClick={() => setSelectedMonths(months.map(m => m.name))}
-                style={{ flex: 1, padding: '0.4rem', backgroundColor: 'transparent', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '3px', color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '0.4rem', backgroundColor: 'transparent', border: '1px solid var(--private-border)', borderRadius: '3px', color: 'var(--private-text-muted)', fontSize: '0.7rem', cursor: 'pointer' }}
               >
                 Todos
               </button>
               <button
                 onClick={() => setSelectedMonths([])}
-                style={{ flex: 1, padding: '0.4rem', backgroundColor: 'transparent', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '3px', color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '0.4rem', backgroundColor: 'transparent', border: '1px solid var(--private-border)', borderRadius: '3px', color: 'var(--private-text-muted)', fontSize: '0.7rem', cursor: 'pointer' }}
               >
                 Ninguno
               </button>
@@ -237,10 +237,10 @@ export default function ProyeccionFinancieraPage() {
                     onClick={() => handleLoadStaticReport(report)}
                     style={{
                       padding: '0.6rem 0.75rem',
-                      backgroundColor: 'rgba(238,241,81,0.15)',
-                      border: '1px solid rgba(238,241,81,0.4)',
+                      backgroundColor: 'rgba(212,255,0,0.2)',
+                      border: '1px solid var(--private-accent)',
                       borderRadius: '3px',
-                      color: 'var(--private-bg)',
+                      color: 'var(--private-text)',
                       fontWeight: 600,
                       fontSize: '0.8rem',
                       cursor: 'pointer',
@@ -249,9 +249,11 @@ export default function ProyeccionFinancieraPage() {
                     }}
                     onMouseOver={e => {
                       e.currentTarget.style.backgroundColor = 'var(--private-accent)'
+                      e.currentTarget.style.color = 'var(--private-bg)'
                     }}
                     onMouseOut={e => {
-                      e.currentTarget.style.backgroundColor = 'rgba(238,241,81,0.15)'
+                      e.currentTarget.style.backgroundColor = 'rgba(212,255,0,0.2)'
+                      e.currentTarget.style.color = 'var(--private-text)'
                     }}
                   >
                     📄 {report.title}
@@ -263,7 +265,7 @@ export default function ProyeccionFinancieraPage() {
 
           {/* Análisis rápidos */}
           <div style={{ padding: '1.25rem', border: '1px solid var(--private-border)', borderRadius: '4px', backgroundColor: 'var(--private-glass)' }}>
-            <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
+            <p style={{ fontSize: '0.6rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
               Generar informe
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -277,9 +279,9 @@ export default function ProyeccionFinancieraPage() {
                     style={{
                       padding: '0.55rem 0.75rem',
                       backgroundColor: 'transparent',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      border: '1px solid var(--private-border)',
                       borderRadius: '3px',
-                      color: disabled ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.55)',
+                      color: disabled ? 'rgba(92, 74, 51, 0.3)' : 'var(--private-text-muted)',
                       fontSize: '0.8rem',
                       cursor: disabled ? 'not-allowed' : 'pointer',
                       textAlign: 'left',
@@ -287,13 +289,13 @@ export default function ProyeccionFinancieraPage() {
                     }}
                     onMouseOver={e => {
                       if (!disabled) {
-                        e.currentTarget.style.borderColor = 'rgba(238,241,81,0.3)'
-                        e.currentTarget.style.color = 'var(--private-accent)'
+                        e.currentTarget.style.borderColor = 'var(--private-accent)'
+                        e.currentTarget.style.color = 'var(--private-text)'
                       }
                     }}
                     onMouseOut={e => {
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-                      e.currentTarget.style.color = disabled ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.55)'
+                      e.currentTarget.style.borderColor = 'var(--private-border)'
+                      e.currentTarget.style.color = disabled ? 'rgba(92, 74, 51, 0.3)' : 'var(--private-text-muted)'
                     }}
                   >
                     {p.label}
@@ -305,7 +307,7 @@ export default function ProyeccionFinancieraPage() {
 
           {/* Input personalizado */}
           <div style={{ padding: '1.25rem', border: '1px solid var(--private-border)', borderRadius: '4px', backgroundColor: 'var(--private-glass)' }}>
-            <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
+            <p style={{ fontSize: '0.6rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
               Análisis personalizado
             </p>
             <textarea
@@ -323,14 +325,14 @@ export default function ProyeccionFinancieraPage() {
               style={{
                 width: '100%', boxSizing: 'border-box', resize: 'none',
                 padding: '0.65rem 0.8rem',
-                backgroundColor: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)', borderRadius: '3px',
-                color: 'rgba(255,255,255,0.88)', fontSize: '0.82rem',
+                backgroundColor: 'var(--private-card-bg)',
+                border: '1px solid var(--private-border)', borderRadius: '3px',
+                color: 'var(--private-text)', fontSize: '0.82rem',
                 fontFamily: 'var(--font-body)', lineHeight: 1.5, outline: 'none',
                 marginBottom: '0.5rem',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = 'rgba(238,241,81,0.3)' }}
-              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'var(--private-accent)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'var(--private-border)' }}
             />
             <button
               onClick={() => handleSend(inputValue)}
@@ -363,25 +365,25 @@ export default function ProyeccionFinancieraPage() {
               marginBottom: '0.5rem'
             }}>
               <div>
-                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ingresos</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ingresos</p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--private-text)', fontFamily: 'var(--font-heading)' }}>
                   ${(summary.totals.ingresos / 1e6).toFixed(1)}M
                 </p>
               </div>
               <div>
-                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Costos</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Costos</p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--private-text)', fontFamily: 'var(--font-heading)' }}>
                   ${(summary.totals.costos / 1e6).toFixed(1)}M
                 </p>
               </div>
               <div>
-                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Flujo Neto</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Flujo Neto</p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 700, color: summary.totals.flujoNeto >= 0 ? 'rgba(100,220,130,1)' : '#ff6b6b', fontFamily: 'var(--font-heading)' }}>
                   {summary.totals.flujoNeto >= 0 ? '+' : '-'}${(Math.abs(summary.totals.flujoNeto) / 1e6).toFixed(1)}M
                 </p>
               </div>
               <div>
-                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Margen</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Margen</p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--private-text)', fontFamily: 'var(--font-heading)' }}>
                   {summary.totals.margen.toFixed(1)}%
                 </p>
@@ -396,15 +398,15 @@ export default function ProyeccionFinancieraPage() {
               <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--private-border)' }}>
                 {/* Clientes */}
                 <div>
-                  <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Concentración de Ingresos</p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Concentración de Ingresos</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {summary.clienteIngresos.slice(0, 4).map(c => (
                       <div key={c.nombre}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.3rem' }}>
-                          <span style={{ color: 'rgba(255,255,255,0.8)' }}>{c.nombre}</span>
-                          <span style={{ color: 'rgba(255,255,255,0.5)' }}>${(c.total / 1e6).toFixed(1)}M ({c.pct.toFixed(1)}%)</span>
+                          <span style={{ color: 'var(--private-text)' }}>{c.nombre}</span>
+                          <span style={{ color: 'var(--private-text-muted)' }}>${(c.total / 1e6).toFixed(1)}M ({c.pct.toFixed(1)}%)</span>
                         </div>
-                        <div style={{ width: '100%', height: '4px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                        <div style={{ width: '100%', height: '4px', backgroundColor: 'var(--private-border)', borderRadius: '2px', overflow: 'hidden' }}>
                           <div style={{ width: `${c.pct}%`, height: '100%', backgroundColor: c.pct > 50 ? '#ffb86c' : 'var(--private-accent)', borderRadius: '2px' }} />
                         </div>
                       </div>
@@ -414,15 +416,15 @@ export default function ProyeccionFinancieraPage() {
 
                 {/* Categorías */}
                 <div>
-                  <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Estructura de Costos</p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>Estructura de Costos</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {summary.costosPorCategoria.slice(0, 4).map(c => (
                       <div key={c.categoria}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.3rem' }}>
-                          <span style={{ color: 'rgba(255,255,255,0.8)' }}>{c.categoria}</span>
-                          <span style={{ color: 'rgba(255,255,255,0.5)' }}>${(c.total / 1e6).toFixed(1)}M ({c.pct.toFixed(1)}%)</span>
+                          <span style={{ color: 'var(--private-text)' }}>{c.categoria}</span>
+                          <span style={{ color: 'var(--private-text-muted)' }}>${(c.total / 1e6).toFixed(1)}M ({c.pct.toFixed(1)}%)</span>
                         </div>
-                        <div style={{ width: '100%', height: '4px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                        <div style={{ width: '100%', height: '4px', backgroundColor: 'var(--private-border)', borderRadius: '2px', overflow: 'hidden' }}>
                           <div style={{ width: `${c.pct}%`, height: '100%', backgroundColor: c.pct > 70 ? '#ffb86c' : 'rgba(100,180,255,1)', borderRadius: '2px' }} />
                         </div>
                       </div>
@@ -438,7 +440,7 @@ export default function ProyeccionFinancieraPage() {
           {reports.length === 0 ? (
             <div style={{ margin: 'auto', textAlign: 'center', padding: '3rem' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '1rem', opacity: 0.25 }}>◇</div>
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.9rem', lineHeight: 1.8 }}>
+              <p style={{ color: 'var(--private-text-muted)', fontSize: '0.9rem', lineHeight: 1.8 }}>
                 {months.length === 0
                   ? 'No se encontraron carpetas de meses en data/proyeccion/'
                   : selectedMonths.length === 0
@@ -459,9 +461,9 @@ export default function ProyeccionFinancieraPage() {
                 {/* Header del informe */}
                 <div style={{
                   padding: '0.9rem 1.25rem',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  borderBottom: '1px solid var(--private-border)',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem',
-                  backgroundColor: 'rgba(255,255,255,0.02)',
+                  backgroundColor: 'var(--private-card-bg)',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
                     <span style={{ color: 'var(--private-accent)', fontSize: '0.85rem', fontWeight: 600, fontFamily: 'var(--font-heading)', whiteSpace: 'nowrap' }}>
@@ -471,9 +473,9 @@ export default function ProyeccionFinancieraPage() {
                       {entry.months.map(m => (
                         <span key={m} style={{
                           fontSize: '0.65rem', padding: '0.15rem 0.5rem',
-                          backgroundColor: 'rgba(238,241,81,0.08)',
-                          border: '1px solid rgba(238,241,81,0.2)',
-                          borderRadius: '2px', color: 'rgba(238,241,81,0.6)',
+                          backgroundColor: 'rgba(212,255,0,0.1)',
+                          border: '1px solid var(--private-accent)',
+                          borderRadius: '2px', color: 'var(--private-text)',
                           whiteSpace: 'nowrap',
                         }}>
                           {m}
@@ -482,7 +484,7 @@ export default function ProyeccionFinancieraPage() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-                    <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>
+                    <span style={{ color: 'var(--private-text-muted)', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>
                       {entry.timestamp.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     {entry.status === 'done' && (
@@ -492,9 +494,9 @@ export default function ProyeccionFinancieraPage() {
                           style={{
                             padding: '0.35rem 0.85rem',
                             backgroundColor: 'transparent',
-                            border: '1px solid rgba(255,255,255,0.2)',
+                            border: '1px solid var(--private-border)',
                             borderRadius: '3px',
-                            color: 'rgba(255,255,255,0.55)',
+                            color: 'var(--private-text-muted)',
                             fontSize: '0.75rem',
                             cursor: 'pointer',
                             fontFamily: 'var(--font-heading)',
@@ -503,12 +505,12 @@ export default function ProyeccionFinancieraPage() {
                             transition: 'all 0.2s',
                           }}
                           onMouseOver={e => {
-                            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'
-                            e.currentTarget.style.color = 'rgba(255,255,255,0.88)'
+                            e.currentTarget.style.backgroundColor = 'var(--private-border)'
+                            e.currentTarget.style.color = 'var(--private-text)'
                           }}
                           onMouseOut={e => {
                             e.currentTarget.style.backgroundColor = 'transparent'
-                            e.currentTarget.style.color = 'rgba(255,255,255,0.55)'
+                            e.currentTarget.style.color = 'var(--private-text-muted)'
                           }}
                         >
                           ↓ PDF
@@ -518,7 +520,7 @@ export default function ProyeccionFinancieraPage() {
                           style={{
                             padding: '0.35rem 0.85rem',
                             backgroundColor: 'transparent',
-                            border: '1px solid rgba(238,241,81,0.4)',
+                            border: '1px solid var(--private-accent)',
                             borderRadius: '3px',
                             color: 'var(--private-accent)',
                             fontSize: '0.75rem',
@@ -529,7 +531,7 @@ export default function ProyeccionFinancieraPage() {
                             transition: 'all 0.2s',
                           }}
                           onMouseOver={e => {
-                            e.currentTarget.style.backgroundColor = 'rgba(238,241,81,0.1)'
+                            e.currentTarget.style.backgroundColor = 'rgba(212,255,0,0.2)'
                           }}
                           onMouseOut={e => {
                             e.currentTarget.style.backgroundColor = 'transparent'
@@ -545,7 +547,7 @@ export default function ProyeccionFinancieraPage() {
                 {/* Cuerpo del informe */}
                 <div style={{ padding: '1.5rem 1.75rem' }}>
                   {entry.status === 'loading' && (
-                    <div style={{ padding: '2rem 0', textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: '0.875rem' }}>
+                    <div style={{ padding: '2rem 0', textAlign: 'center', color: 'var(--private-text-muted)', fontSize: '0.875rem' }}>
                       Generando informe
                       <span style={{ color: 'var(--private-accent)' }}> ···</span>
                     </div>
@@ -561,23 +563,23 @@ export default function ProyeccionFinancieraPage() {
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
-                        table: p => <div style={{ overflowX: 'auto', margin: '1rem 0' }}><table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.82rem', border: '1px solid rgba(255,255,255,0.08)' }} {...p} /></div>,
-                        thead: p => <thead style={{ backgroundColor: 'rgba(255,255,255,0.03)' }} {...p} />,
-                        th: p => <th style={{ padding: '0.6rem 0.8rem', borderBottom: '2px solid rgba(238,241,81,0.3)', borderRight: '1px solid rgba(255,255,255,0.05)', textAlign: 'left', color: 'var(--private-accent)', fontWeight: 600, whiteSpace: 'nowrap' }} {...p} />,
-                        td: p => <td style={{ padding: '0.6rem 0.8rem', borderBottom: '1px solid rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.82)' }} {...p} />,
-                        tr: p => <tr style={{ transition: 'background 0.15s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'} {...p} />,
+                        table: p => <div style={{ overflowX: 'auto', margin: '1rem 0' }}><table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.82rem', border: '1px solid var(--private-border)' }} {...p} /></div>,
+                        thead: p => <thead style={{ backgroundColor: 'var(--private-card-bg)' }} {...p} />,
+                        th: p => <th style={{ padding: '0.6rem 0.8rem', borderBottom: '2px solid var(--private-accent)', borderRight: '1px solid var(--private-border)', textAlign: 'left', color: 'var(--private-accent)', fontWeight: 600, whiteSpace: 'nowrap' }} {...p} />,
+                        td: p => <td style={{ padding: '0.6rem 0.8rem', borderBottom: '1px solid var(--private-border)', borderRight: '1px solid var(--private-border)', color: 'var(--private-text)' }} {...p} />,
+                        tr: p => <tr style={{ transition: 'background 0.15s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--private-border)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'} {...p} />,
                         code: ({ children, className }) => className
-                          ? <pre style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '3px', overflowX: 'auto', fontSize: '0.8rem', margin: '0.5rem 0', border: '1px solid rgba(255,255,255,0.05)' }}><code>{children}</code></pre>
-                          : <code style={{ background: 'rgba(238,241,81,0.1)', color: 'var(--private-accent)', padding: '0.1em 0.35em', borderRadius: '2px', fontSize: '0.85em' }}>{children}</code>,
-                        p: p => <p style={{ margin: '0 0 0.8rem', color: 'rgba(255,255,255,0.82)', lineHeight: 1.7, fontSize: '0.875rem' }} {...p} />,
-                        ul: p => <ul style={{ paddingLeft: '1.25rem', margin: '0.25rem 0 0.8rem', color: 'rgba(255,255,255,0.82)' }} {...p} />,
-                        ol: p => <ol style={{ paddingLeft: '1.25rem', margin: '0.25rem 0 0.8rem', color: 'rgba(255,255,255,0.82)' }} {...p} />,
+                          ? <pre style={{ background: 'var(--private-card-bg)', padding: '0.75rem', borderRadius: '3px', overflowX: 'auto', fontSize: '0.8rem', margin: '0.5rem 0', border: '1px solid var(--private-border)' }}><code>{children}</code></pre>
+                          : <code style={{ background: 'rgba(212,255,0,0.15)', color: 'var(--text-brown)', padding: '0.1em 0.35em', borderRadius: '2px', fontSize: '0.85em' }}>{children}</code>,
+                        p: p => <p style={{ margin: '0 0 0.8rem', color: 'var(--private-text)', lineHeight: 1.7, fontSize: '0.875rem' }} {...p} />,
+                        ul: p => <ul style={{ paddingLeft: '1.25rem', margin: '0.25rem 0 0.8rem', color: 'var(--private-text)' }} {...p} />,
+                        ol: p => <ol style={{ paddingLeft: '1.25rem', margin: '0.25rem 0 0.8rem', color: 'var(--private-text)' }} {...p} />,
                         li: p => <li style={{ marginBottom: '0.35rem', fontSize: '0.875rem' }} {...p} />,
-                        strong: p => <strong style={{ color: 'rgba(255,255,255,0.98)', fontWeight: 700 }} {...p} />,
-                        h1: p => <h1 style={{ color: 'var(--private-accent)', fontSize: '1.3rem', margin: '0 0 1rem', fontFamily: 'var(--font-heading)', borderBottom: '1px solid rgba(238,241,81,0.15)', paddingBottom: '0.4rem' }} {...p} />,
-                        h2: p => <h2 style={{ color: 'var(--private-accent)', fontSize: '1.1rem', margin: '1.5rem 0 0.75rem', fontFamily: 'var(--font-heading)', borderBottom: '1px solid rgba(238,241,81,0.1)', paddingBottom: '0.3rem' }} {...p} />,
-                        h3: p => <h3 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem', margin: '1.25rem 0 0.5rem', fontWeight: 600 }} {...p} />,
-                        blockquote: p => <blockquote style={{ borderLeft: '3px solid rgba(238,241,81,0.3)', paddingLeft: '1rem', margin: '0.75rem 0', color: 'rgba(255,255,255,0.55)', fontStyle: 'italic' }} {...p} />,
+                        strong: p => <strong style={{ color: 'var(--private-text)', fontWeight: 700 }} {...p} />,
+                        h1: p => <h1 style={{ color: 'var(--private-text)', fontSize: '1.3rem', margin: '0 0 1rem', fontFamily: 'var(--font-heading)', borderBottom: '1px solid var(--private-border)', paddingBottom: '0.4rem' }} {...p} />,
+                        h2: p => <h2 style={{ color: 'var(--private-text)', fontSize: '1.1rem', margin: '1.5rem 0 0.75rem', fontFamily: 'var(--font-heading)', borderBottom: '1px solid var(--private-border)', paddingBottom: '0.3rem' }} {...p} />,
+                        h3: p => <h3 style={{ color: 'var(--private-text)', fontSize: '0.95rem', margin: '1.25rem 0 0.5rem', fontWeight: 600 }} {...p} />,
+                        blockquote: p => <blockquote style={{ borderLeft: '3px solid var(--private-accent)', paddingLeft: '1rem', margin: '0.75rem 0', color: 'var(--private-text-muted)', fontStyle: 'italic' }} {...p} />,
                       }}
                     >
                       {entry.content}
