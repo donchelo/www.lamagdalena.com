@@ -38,7 +38,7 @@ export default function NavBar({ theme = 'dark' }: NavBarProps) {
     return pathname === path
   }
 
-  const isDetailPage = ['/historias/', '/shop/', '/jarupia-libro', '/portafolio'].some(
+  const isDetailPage = ['/historias/', '/shop/', '/jarupia', '/portafolio'].some(
     p => pathname.includes(p) && pathname !== '/historias' && pathname !== '/shop'
   )
 

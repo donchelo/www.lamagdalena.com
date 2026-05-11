@@ -92,7 +92,7 @@ export default function ShopPage() {
               <div className="featured-info">
                 <h2>Jarupia</h2>
                 <p>Una historia tejida en el territorio, donde la realidad y la fantasía se encuentran en la Ciénaga de Ayapel.</p>
-                <Link href="/jarupia-libro" className="learn-more">Explorar obra →</Link>
+                <Link href="/jarupia/" className="learn-more">Explorar obra →</Link>
               </div>
             </div>
           </div>
