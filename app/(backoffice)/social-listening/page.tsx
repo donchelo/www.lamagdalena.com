@@ -28,12 +28,12 @@ const statusLabel: Record<JobStatus, string> = {
 }
 
 const statusColor: Record<JobStatus, string> = {
-  queued: 'rgba(255,255,255,0.4)',
-  scraping: 'rgba(255,255,255,0.4)',
-  scraping_posts: 'rgba(255,255,255,0.4)',
-  scraping_comments: 'rgba(255,255,255,0.4)',
-  analyzing: 'rgba(255,255,255,0.4)',
-  generating_pdf: 'rgba(255,255,255,0.4)',
+  queued: 'var(--private-text-muted)',
+  scraping: 'var(--private-text-muted)',
+  scraping_posts: 'var(--private-text-muted)',
+  scraping_comments: 'var(--private-text-muted)',
+  analyzing: 'var(--private-text-muted)',
+  generating_pdf: 'var(--private-text-muted)',
   complete: 'var(--private-accent)',
   error: '#ff5050',
 }
@@ -120,36 +120,39 @@ export default function SocialListeningPage() {
 
       <form onSubmit={handleSubmit} style={{ maxWidth: '760px', marginTop: '2.5rem' }}>
         <div className="form-group">
-          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Cuenta a Monitorear (Usuario) *</label>
+          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--private-text-muted)', marginBottom: '0.5rem', display: 'block' }}>Cuenta a Monitorear (Usuario) *</label>
           <input
             type="text"
             required
+            className="private-input"
             value={form.clientName}
             onChange={e => setForm(p => ({ ...p, clientName: e.target.value }))}
             placeholder="Ej: vidriomejorplaneta"
-            style={{ fontSize: '1.1rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ fontSize: '1.1rem', padding: '1rem' }}
           />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
           <div className="form-group">
-            <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Rango de Análisis (Inicio) *</label>
+            <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--private-text-muted)', marginBottom: '0.5rem', display: 'block' }}>Rango de Análisis (Inicio) *</label>
             <input 
               type="date" 
               required 
+              className="private-input"
               value={form.dateFrom} 
               onChange={e => setForm(p => ({ ...p, dateFrom: e.target.value }))} 
-              style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.8rem' }}
+              style={{ padding: '0.8rem' }}
             />
           </div>
           <div className="form-group">
-            <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', display: 'block' }}>Rango de Análisis (Fin) *</label>
+            <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--private-text-muted)', marginBottom: '0.5rem', display: 'block' }}>Rango de Análisis (Fin) *</label>
             <input 
               type="date" 
               required 
+              className="private-input"
               value={form.dateTo} 
               onChange={e => setForm(p => ({ ...p, dateTo: e.target.value }))} 
-              style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.8rem' }}
+              style={{ padding: '0.8rem' }}
             />
           </div>
         </div>
@@ -157,7 +160,7 @@ export default function SocialListeningPage() {
 
 
         <div className="form-group" style={{ marginTop: '2.5rem' }}>
-          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', display: 'block' }}>Seleccionar Plataforma (Solo una) *</label>
+          <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--private-text-muted)', marginBottom: '1rem', display: 'block' }}>Seleccionar Plataforma (Solo una) *</label>
           <div style={{ display: 'flex', gap: '1rem' }}>
             {networks.map(n => (
               <button
@@ -167,10 +170,10 @@ export default function SocialListeningPage() {
                 style={{
                   flex: 1,
                   padding: '1.2rem',
-                  border: `1px solid ${form.selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'rgba(255,255,255,0.1)'}`,
+                  border: `1px solid ${form.selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'var(--private-border)'}`,
                   borderRadius: '4px',
-                  backgroundColor: form.selectedNetworks.includes(n.id) ? 'rgba(238,241,81,0.05)' : 'rgba(255,255,255,0.02)',
-                  color: form.selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'rgba(255,255,255,0.4)',
+                  backgroundColor: form.selectedNetworks.includes(n.id) ? 'rgba(238,241,81,0.05)' : 'var(--private-card-bg)',
+                  color: form.selectedNetworks.includes(n.id) ? 'var(--private-text)' : 'var(--private-text-muted)',
                   cursor: 'pointer',
                   fontFamily: 'var(--font-heading)',
                   fontSize: '0.9rem',
@@ -196,11 +199,12 @@ export default function SocialListeningPage() {
           <button
             type="submit"
             disabled={isSubmitting}
+            className="private-button"
             style={{
               width: '100%',
               padding: '1.2rem',
               backgroundColor: isSubmitting ? 'rgba(238,241,81,0.4)' : 'var(--private-accent)',
-              color: 'var(--private-bg)',
+              color: 'var(--text-brown)',
               border: 'none',
               borderRadius: '2px',
               fontFamily: 'var(--font-heading)',
@@ -218,21 +222,21 @@ export default function SocialListeningPage() {
       </form>
 
       {recentReports.length > 0 && (
-        <div style={{ maxWidth: '760px', marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Reportes recientes</p>
+        <div style={{ maxWidth: '760px', marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--private-border)' }}>
+          <p style={{ fontSize: '0.65rem', color: 'var(--private-text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Reportes recientes</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {recentReports.map(r => (
               <Link
                 key={r.reportId}
                 href={`/social-listening/${r.reportId}`}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.9rem 1rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '4px', textDecoration: 'none', transition: 'border-color 0.2s' }}
-                onMouseOver={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)')}
-                onMouseOut={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.9rem 1rem', backgroundColor: 'var(--private-card-bg)', border: '1px solid var(--private-border)', borderRadius: '4px', textDecoration: 'none', transition: 'all 0.2s' }}
+                onMouseOver={e => (e.currentTarget.style.borderColor = 'var(--private-accent)')}
+                onMouseOut={e => (e.currentTarget.style.borderColor = 'var(--private-border)')}
               >
                 <div>
-                  <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', fontWeight: 600 }}>{r.clientName}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', marginLeft: '0.75rem' }}>{r.dateFrom} → {r.dateTo}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem', marginLeft: '0.75rem' }}>{r.selectedNetworks.join(', ')}</span>
+                  <span style={{ color: 'var(--private-text)', fontSize: '0.9rem', fontWeight: 600 }}>{r.clientName}</span>
+                  <span style={{ color: 'var(--private-text-muted)', fontSize: '0.8rem', marginLeft: '0.75rem' }}>{r.dateFrom} → {r.dateTo}</span>
+                  <span style={{ color: 'var(--private-text-muted)', fontSize: '0.75rem', marginLeft: '0.75rem', opacity: 0.6 }}>{r.selectedNetworks.join(', ')}</span>
                 </div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: statusColor[r.status], letterSpacing: '0.05em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                   {statusLabel[r.status]}

@@ -2971,14 +2971,16 @@ figcaption {
   margin-bottom: 3rem;
 }
 
-.private-header h1 {
+.private-header h1, .private-title {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
   color: var(--private-text);
+  font-family: var(--font-heading);
 }
 
-.private-header p {
+.private-header p, .private-subtitle {
   color: var(--private-text-muted);
+  font-family: var(--font-body);
 }
 
 .private-card {
@@ -3015,7 +3017,7 @@ figcaption {
 
 .tool-card h3 {
   margin-bottom: 1rem;
-  color: var(--private-accent);
+  color: var(--private-text);
 }
 
 .tool-card p {
