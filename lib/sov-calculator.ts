@@ -59,6 +59,105 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
     }
   }
 
+  // Facebook (organic posts)
+  if (platform === 'facebook') {
+    return {
+      url: String(r.url ?? r.postUrl ?? ''),
+      platform: 'facebook',
+      likes: Number(r.likes ?? r.likesCount ?? 0),
+      comments: Number(r.comments ?? r.commentsCount ?? 0),
+      shares: Number(r.shares ?? r.sharesCount ?? 0),
+      date: String(r.time ?? r.timestamp ?? r.date ?? ''),
+      caption: String(r.message ?? r.text ?? r.caption ?? '').slice(0, 200),
+      followersCount: 0,
+    }
+  }
+
+  // Facebook Ads Library — no engagement data, treat each ad as 1 "mention"
+  if (platform === 'facebook_ads') {
+    const bodies = r.ad_creative_bodies as string[] | undefined
+    return {
+      url: String(r.ad_snapshot_url ?? r.url ?? ''),
+      platform: 'facebook_ads',
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      date: String(r.ad_delivery_start_time ?? r.startDate ?? ''),
+      caption: (bodies?.[0] ?? String(r.page_name ?? '')).slice(0, 200),
+      followersCount: 0,
+    }
+  }
+
+  // YouTube
+  if (platform === 'youtube') {
+    return {
+      url: String(r.url ?? r.videoUrl ?? ''),
+      platform: 'youtube',
+      likes: Number(r.likes ?? r.likeCount ?? 0),
+      comments: Number(r.commentsCount ?? r.commentCount ?? 0),
+      shares: 0,
+      date: String(r.date ?? r.publishedAt ?? r.uploadDate ?? ''),
+      caption: String(r.title ?? r.description ?? '').slice(0, 200),
+      followersCount: Number(r.channelSubscriberCount ?? 0),
+    }
+  }
+
+  // LinkedIn
+  if (platform === 'linkedin') {
+    return {
+      url: String(r.url ?? r.postUrl ?? ''),
+      platform: 'linkedin',
+      likes: Number(r.likeCount ?? r.likes ?? r.numLikes ?? 0),
+      comments: Number(r.commentCount ?? r.comments ?? r.numComments ?? 0),
+      shares: Number(r.shareCount ?? r.shares ?? r.numShares ?? 0),
+      date: String(r.postedAt ?? r.publishedAt ?? r.date ?? ''),
+      caption: String(r.text ?? r.content ?? r.description ?? '').slice(0, 200),
+      followersCount: 0,
+    }
+  }
+
+  // Reddit
+  if (platform === 'reddit') {
+    return {
+      url: String(r.url ?? r.postUrl ?? ''),
+      platform: 'reddit',
+      likes: Number(r.score ?? r.upvotes ?? r.ups ?? 0),
+      comments: Number(r.numComments ?? r.commentCount ?? r.comments ?? 0),
+      shares: 0,
+      date: String(r.createdAt ?? r.created ?? r.date ?? ''),
+      caption: String(r.title ?? r.body ?? r.text ?? '').slice(0, 200),
+      followersCount: 0,
+    }
+  }
+
+  // Google Search — results don't have engagement; count as mentions only
+  if (platform === 'google_search') {
+    return {
+      url: String(r.url ?? ''),
+      platform: 'google_search',
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      date: String(r.date ?? ''),
+      caption: String(r.title ?? r.description ?? '').slice(0, 200),
+      followersCount: 0,
+    }
+  }
+
+  // Google Maps — reviews as "engagement"
+  if (platform === 'google_maps') {
+    return {
+      url: String(r.url ?? r.website ?? ''),
+      platform: 'google_maps',
+      likes: Number(r.reviewsCount ?? r.totalScore ?? 0),
+      comments: Number(r.reviewsCount ?? 0),
+      shares: 0,
+      date: String(r.scrapedAt ?? ''),
+      caption: String(r.title ?? r.name ?? '').slice(0, 200),
+      followersCount: 0,
+    }
+  }
+
   return {
     url: String(r.url ?? ''),
     platform,

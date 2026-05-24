@@ -1,6 +1,5 @@
 import { ApifyClient } from 'apify-client'
 
-// Two clients for token rotation — fallback if primary hits rate limit or quota
 function makeClients(): ApifyClient[] {
   const tokens = [
     process.env.APIFY_API_TOKEN,
@@ -31,19 +30,42 @@ async function withFallback<T>(fn: (client: ApifyClient) => Promise<T>): Promise
   throw lastError ?? new Error('All Apify tokens failed')
 }
 
+// ---------------------------------------------------------------------------
+// Actor registry
+// ---------------------------------------------------------------------------
 const ACTORS: Record<string, string> = {
-  instagram: 'apify/instagram-hashtag-scraper',
-  instagram_posts: 'apify/instagram-post-scraper',
+  // Instagram
+  instagram:          'apify/instagram-hashtag-scraper',
+  instagram_posts:    'apify/instagram-post-scraper',
   instagram_comments: 'apify/instagram-comment-scraper',
-  tiktok_hashtags: 'clockworks/tiktok-scraper',
-  tiktok_profiles: 'clockworks/tiktok-profile-scraper',
-  tiktok_comments: 'clockworks/tiktok-comments-scraper',
-  twitter: 'apidojo/tweet-scraper',
-  facebook: 'apify/facebook-posts-scraper',
-  youtube: 'streamers/youtube-search-scraper',
+
+  // TikTok — upgraded to apidojo for better reliability & cost
+  tiktok_hashtags:    'apidojo/tiktok-scraper',
+  tiktok_profiles:    'apidojo/tiktok-profile-scraper',
+  tiktok_comments:    'clockworks/tiktok-comments-scraper',
+
+  // Twitter/X — upgraded to official Apify actor
+  twitter:            'apify/twitter-scraper',
+
+  // Facebook
+  facebook:           'apify/facebook-posts-scraper',
+  facebook_ads:       'curious_coder/facebook-ads-library-scraper',
+
+  // YouTube
+  youtube:            'streamers/youtube-search-scraper',
+
+  // LinkedIn
+  linkedin:           'apify/linkedin-company-posts-scraper',
+
+  // Reddit
+  reddit:             'trudax/reddit-scraper-lite',
+
+  // Search & Discovery
+  google_search:      'apify/google-search-scraper',
+  google_maps:        'apify/google-maps-scraper',
 }
 
-interface ApifyInput {
+export interface ApifyInput {
   hashtags?: string[]
   keywords?: string[]
   accounts?: string[]
@@ -52,18 +74,15 @@ interface ApifyInput {
   maxResults?: number
 }
 
+// ---------------------------------------------------------------------------
+// Public API (same surface as before — existing callers unchanged)
+// ---------------------------------------------------------------------------
+
 export async function startInstagramCommentsRun(postUrls: string[], webhookUrl: string): Promise<string> {
   return withFallback(async client => {
     const run = await client.actor(ACTORS.instagram_comments).start(
-      {
-        directUrls: postUrls,
-        resultsLimit: 200,
-        includeNestedComments: false,
-        isNewestComments: false,
-      },
-      {
-        webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }],
-      }
+      { directUrls: postUrls, resultsLimit: 200, includeNestedComments: false, isNewestComments: false },
+      { webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }] }
     )
     return run.id
   })
@@ -72,85 +91,24 @@ export async function startInstagramCommentsRun(postUrls: string[], webhookUrl: 
 export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: string): Promise<string> {
   return withFallback(async client => {
     const run = await client.actor(ACTORS.tiktok_comments).start(
-      {
-        postURLs: videoUrls,
-        commentsPerPost: 10000,
-        maxRepliesPerComment: 0,
-        excludePinnedPosts: false,
-        resultsPerPage: 1000,
-      },
-      {
-        webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }],
-      }
+      { postURLs: videoUrls, commentsPerPost: 10000, maxRepliesPerComment: 0, excludePinnedPosts: false, resultsPerPage: 1000 },
+      { webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }] }
     )
     return run.id
   })
 }
 
 export async function startActorRun(network: string, input: ApifyInput, webhookUrl: string): Promise<string> {
-  const isProfileSearch = (network === 'tiktok' || network === 'instagram') && input.accounts && input.accounts.length > 0
-  const actorId = isProfileSearch
-    ? (network === 'tiktok' ? ACTORS.tiktok_profiles : ACTORS.instagram_posts)
-    : ACTORS[network] ?? ACTORS[`${network}_hashtags`]
-
+  const actorId = resolveActorId(network, input)
   if (!actorId) throw new Error(`Unknown network: ${network}`)
 
   return withFallback(async client => {
     const run = await client.actor(actorId).start(
       buildActorInput(network, input),
-      {
-        webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }],
-      }
+      { webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }] }
     )
     return run.id
   })
-}
-
-function buildActorInput(network: string, input: ApifyInput): Record<string, unknown> {
-  const tags = [...(input.hashtags ?? []), ...(input.keywords ?? [])].slice(0, 50)
-  const limit = input.maxResults ?? 10000
-
-  if (network === 'tiktok' && input.accounts && input.accounts.length > 0) {
-    const formattedProfiles = input.accounts.map(acc =>
-      acc.startsWith('http') ? acc : `https://www.tiktok.com/@${acc.replace('@', '')}`
-    )
-    return {
-      profiles: formattedProfiles,
-      resultsPerPage: limit,
-      oldestPostDateUnified: input.dateFrom,
-      excludePinnedPosts: false,
-      profileSorting: 'latest',
-      shouldDownloadVideos: false,
-      shouldDownloadAvatars: false,
-      shouldDownloadCovers: false,
-      shouldDownloadSlideshowImages: false,
-      scrapeRelatedVideos: false,
-      proxyCountryCode: 'None',
-    }
-  }
-
-  switch (network) {
-    case 'instagram':
-      if (input.accounts && input.accounts.length > 0) {
-        return {
-          username: input.accounts,
-          resultsLimit: limit,
-          onlyPostsNewerThan: input.dateFrom,
-          skipPinnedPosts: false,
-        }
-      }
-      return { hashtags: tags, resultsLimit: limit, sort: 'RECENT' }
-    case 'tiktok':
-      return { hashtags: tags, maxItems: limit }
-    case 'twitter':
-      return { searchTerms: tags, maxItems: limit, dateFrom: input.dateFrom, dateTo: input.dateTo }
-    case 'facebook':
-      return { queries: tags, maxItems: limit }
-    case 'youtube':
-      return { searchTerms: tags, maxResults: limit }
-    default:
-      return { hashtags: tags, maxItems: limit }
-  }
 }
 
 export async function fetchDatasetItems(datasetId: string, limit = 1000): Promise<unknown[]> {
@@ -160,7 +118,6 @@ export async function fetchDatasetItems(datasetId: string, limit = 1000): Promis
       { url: 'https://www.tiktok.com/@test/video/2', title: 'Video Test 2' },
     ]
   }
-
   return withFallback(async client => {
     const { items } = await client.dataset(datasetId).listItems({ limit })
     return items as unknown[]
@@ -171,11 +128,7 @@ export async function getRunInfo(runId: string): Promise<{ status: string; defau
   return withFallback(async client => {
     const run = await client.run(runId).get()
     if (!run) throw new Error(`Run ${runId} not found`)
-    return {
-      status: run.status,
-      defaultDatasetId: run.defaultDatasetId,
-      stats: { usageUsd: run.stats?.computeUnits },
-    }
+    return { status: run.status, defaultDatasetId: run.defaultDatasetId, stats: { usageUsd: run.stats?.computeUnits } }
   })
 }
 
@@ -186,4 +139,111 @@ export async function getRunCostUsd(runId: string): Promise<number> {
   } catch {
     return 0
   }
+}
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+function resolveActorId(network: string, input: ApifyInput): string | undefined {
+  const isProfileSearch = (network === 'tiktok' || network === 'instagram') &&
+    input.accounts && input.accounts.length > 0
+
+  if (isProfileSearch) {
+    return network === 'tiktok' ? ACTORS.tiktok_profiles : ACTORS.instagram_posts
+  }
+  return ACTORS[network] ?? ACTORS[`${network}_hashtags`]
+}
+
+function slugify(name: string): string {
+  return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '')
+}
+
+function buildActorInput(network: string, input: ApifyInput): Record<string, unknown> {
+  const tags = [...(input.hashtags ?? []), ...(input.keywords ?? [])].slice(0, 50)
+  const limit = input.maxResults ?? 500
+  const mainQuery = tags[0] ?? input.accounts?.[0] ?? ''
+
+  // ── Instagram ────────────────────────────────────────────────────────────
+  if (network === 'instagram') {
+    if (input.accounts && input.accounts.length > 0) {
+      return { username: input.accounts, resultsLimit: limit, onlyPostsNewerThan: input.dateFrom, skipPinnedPosts: false }
+    }
+    return { hashtags: tags, resultsLimit: limit, sort: 'RECENT' }
+  }
+
+  // ── TikTok ───────────────────────────────────────────────────────────────
+  if (network === 'tiktok') {
+    if (input.accounts && input.accounts.length > 0) {
+      const profiles = input.accounts.map(acc =>
+        acc.startsWith('http') ? acc : `https://www.tiktok.com/@${acc.replace('@', '')}`
+      )
+      return { profiles, resultsPerPage: limit, oldestPostDateUnified: input.dateFrom, excludePinnedPosts: false, profileSorting: 'latest', shouldDownloadVideos: false, shouldDownloadAvatars: false, shouldDownloadCovers: false, scrapeRelatedVideos: false, proxyCountryCode: 'None' }
+    }
+    return { hashtags: tags, maxItems: limit }
+  }
+
+  // ── Twitter / X ──────────────────────────────────────────────────────────
+  if (network === 'twitter') {
+    return { searchTerms: tags, maxItems: limit, since: input.dateFrom, until: input.dateTo, lang: 'es' }
+  }
+
+  // ── Facebook (organic posts) ─────────────────────────────────────────────
+  if (network === 'facebook') {
+    return { queries: tags, maxItems: limit }
+  }
+
+  // ── Facebook Ads Library ─────────────────────────────────────────────────
+  if (network === 'facebook_ads') {
+    return {
+      searchQueries: input.accounts?.length ? input.accounts : [mainQuery],
+      country: 'CO',
+      adType: 'all',
+      maxResults: limit,
+    }
+  }
+
+  // ── YouTube ──────────────────────────────────────────────────────────────
+  if (network === 'youtube') {
+    return { searchTerms: tags, maxResults: limit }
+  }
+
+  // ── LinkedIn ─────────────────────────────────────────────────────────────
+  if (network === 'linkedin') {
+    const urls = input.accounts?.length
+      ? input.accounts.map(a => ({ url: a.startsWith('http') ? a : `https://www.linkedin.com/company/${slugify(a)}/` }))
+      : [{ url: `https://www.linkedin.com/company/${slugify(mainQuery)}/` }]
+    return { startUrls: urls, maxItems: limit }
+  }
+
+  // ── Reddit ───────────────────────────────────────────────────────────────
+  if (network === 'reddit') {
+    return { searches: tags.length ? tags : [mainQuery], maxItems: Math.min(limit, 200) }
+  }
+
+  // ── Google Search ────────────────────────────────────────────────────────
+  if (network === 'google_search') {
+    const queries = tags.length ? tags : [mainQuery]
+    return {
+      queries: queries.join('\n'),
+      countryCode: 'co',
+      languageCode: 'es',
+      maxPagesPerQuery: 2,
+      resultsPerPage: 10,
+    }
+  }
+
+  // ── Google Maps ──────────────────────────────────────────────────────────
+  if (network === 'google_maps') {
+    const searches = tags.length ? tags.map(t => `${t} Colombia`) : [`${mainQuery} Colombia`]
+    return {
+      searchStringsArray: searches,
+      maxCrawledPlaces: Math.min(limit, 50),
+      language: 'es',
+      countryCode: 'CO',
+    }
+  }
+
+  // Fallback
+  return { hashtags: tags, maxItems: limit }
 }

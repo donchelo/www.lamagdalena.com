@@ -39,10 +39,32 @@ const statusColor: Record<SovStatus, string> = {
   error: '#ff5050',
 }
 
-const networks = [
-  { id: 'instagram', label: 'Instagram' },
-  { id: 'tiktok', label: 'TikTok' },
-  { id: 'twitter', label: 'Twitter' },
+const networkGroups = [
+  {
+    label: 'Redes sociales',
+    networks: [
+      { id: 'instagram', label: 'Instagram' },
+      { id: 'tiktok', label: 'TikTok' },
+      { id: 'twitter', label: 'Twitter' },
+      { id: 'facebook', label: 'Facebook' },
+      { id: 'youtube', label: 'YouTube' },
+      { id: 'linkedin', label: 'LinkedIn' },
+      { id: 'reddit', label: 'Reddit' },
+    ],
+  },
+  {
+    label: 'Búsquedas',
+    networks: [
+      { id: 'google_search', label: 'Google Search' },
+      { id: 'google_maps', label: 'Google Maps' },
+    ],
+  },
+  {
+    label: 'Publicidad',
+    networks: [
+      { id: 'facebook_ads', label: 'Facebook Ads' },
+    ],
+  },
 ]
 
 function slugify(name: string): string {
@@ -189,18 +211,27 @@ export default function ShareOfVoicePage() {
         </div>
 
         {/* Redes */}
-        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.75rem' }}>
-          {networks.map(n => (
-            <button key={n.id} type="button" onClick={() => toggleNetwork(n.id)}
-              style={{
-                flex: 1, padding: '0.75rem',
-                border: `1px solid ${selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'var(--private-border)'}`,
-                borderRadius: '4px',
-                backgroundColor: selectedNetworks.includes(n.id) ? 'rgba(238,241,81,0.06)' : 'transparent',
-                color: selectedNetworks.includes(n.id) ? 'var(--private-text)' : 'var(--private-text-muted)',
-                cursor: 'pointer', fontFamily: 'var(--font-heading)', fontSize: '0.8rem', fontWeight: 600,
-                letterSpacing: '0.05em', transition: 'all 0.2s',
-              }}>{n.label}</button>
+        <div style={{ marginBottom: '1.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {networkGroups.map(group => (
+            <div key={group.label}>
+              <p style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--private-text-muted)', marginBottom: '0.4rem', opacity: 0.6 }}>
+                {group.label}
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {group.networks.map(n => (
+                  <button key={n.id} type="button" onClick={() => toggleNetwork(n.id)}
+                    style={{
+                      padding: '0.45rem 0.9rem',
+                      border: `1px solid ${selectedNetworks.includes(n.id) ? 'var(--private-accent)' : 'var(--private-border)'}`,
+                      borderRadius: '4px',
+                      backgroundColor: selectedNetworks.includes(n.id) ? 'rgba(238,241,81,0.06)' : 'transparent',
+                      color: selectedNetworks.includes(n.id) ? 'var(--private-text)' : 'var(--private-text-muted)',
+                      cursor: 'pointer', fontFamily: 'var(--font-heading)', fontSize: '0.75rem', fontWeight: 600,
+                      letterSpacing: '0.05em', transition: 'all 0.2s',
+                    }}>{n.label}</button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
