@@ -1,38 +1,34 @@
-const TOKENS = [
-  process.env.APIFY_API_TOKEN,
-  process.env.APIFY_API_TOKEN_FALLBACK,
-].filter(Boolean) as string[]
+import { ApifyClient } from 'apify-client'
 
-async function apifyFetch(urlBuilder: (token: string) => string, options: RequestInit = {}) {
+// Two clients for token rotation — fallback if primary hits rate limit or quota
+function makeClients(): ApifyClient[] {
+  const tokens = [
+    process.env.APIFY_API_TOKEN,
+    process.env.APIFY_API_TOKEN_FALLBACK,
+  ].filter(Boolean) as string[]
+
+  if (tokens.length === 0) throw new Error('No Apify tokens configured')
+  return tokens.map(token => new ApifyClient({ token }))
+}
+
+async function withFallback<T>(fn: (client: ApifyClient) => Promise<T>): Promise<T> {
+  const clients = makeClients()
   let lastError: Error | null = null
 
-  for (const token of TOKENS) {
-    const url = urlBuilder(token)
+  for (const client of clients) {
     try {
-      const res = await fetch(url, options)
-      
-      if (res.ok) return res
-
-      const body = await res.text()
-      // Errors that might be resolved by changing the token
-      if (res.status === 401 || res.status === 403 || res.status === 402 || res.status === 429) {
-        console.warn(`Apify token fallback: Token starting with ${token.slice(0, 4)} failed with status ${res.status}. Retrying...`)
-        lastError = new Error(`Apify error (${res.status}): ${body}`)
+      return await fn(client)
+    } catch (err) {
+      const e = err as { statusCode?: number; message?: string }
+      if (e.statusCode === 401 || e.statusCode === 403 || e.statusCode === 402 || e.statusCode === 429) {
+        lastError = err instanceof Error ? err : new Error(String(err))
         continue
       }
-
-      // Other errors should probably just throw
-      throw new Error(`Apify error (${res.status}): ${body}`)
-    } catch (e) {
-      if (e instanceof Error && e.message.includes('Apify error')) {
-        lastError = e
-        continue
-      }
-      throw e
+      throw err
     }
   }
 
-  throw lastError || new Error('No valid Apify tokens found or all tokens failed.')
+  throw lastError ?? new Error('All Apify tokens failed')
 }
 
 const ACTORS: Record<string, string> = {
@@ -57,91 +53,65 @@ interface ApifyInput {
 }
 
 export async function startInstagramCommentsRun(postUrls: string[], webhookUrl: string): Promise<string> {
-  const res = await apifyFetch(
-    (token) => `https://api.apify.com/v2/acts/${encodeURIComponent(ACTORS.instagram_comments)}/runs?token=${token}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+  return withFallback(async client => {
+    const run = await client.actor(ACTORS.instagram_comments).start(
+      {
         directUrls: postUrls,
         resultsLimit: 200,
         includeNestedComments: false,
         isNewestComments: false,
-        webhooks: [
-          {
-            eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
-            requestUrl: webhookUrl,
-          },
-        ],
-      }),
-    }
-  )
-
-  const data = await res.json()
-  return data.data.id as string
+      },
+      {
+        webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }],
+      }
+    )
+    return run.id
+  })
 }
 
 export async function startTikTokCommentsRun(videoUrls: string[], webhookUrl: string): Promise<string> {
-  const res = await apifyFetch(
-    (token) => `https://api.apify.com/v2/acts/${encodeURIComponent(ACTORS.tiktok_comments)}/runs?token=${token}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+  return withFallback(async client => {
+    const run = await client.actor(ACTORS.tiktok_comments).start(
+      {
         postURLs: videoUrls,
         commentsPerPost: 10000,
         maxRepliesPerComment: 0,
         excludePinnedPosts: false,
         resultsPerPage: 1000,
-        webhooks: [
-          {
-            eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
-            requestUrl: webhookUrl,
-          },
-        ],
-      }),
-    }
-  )
-
-  const data = await res.json()
-  return data.data.id as string
+      },
+      {
+        webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }],
+      }
+    )
+    return run.id
+  })
 }
 
 export async function startActorRun(network: string, input: ApifyInput, webhookUrl: string): Promise<string> {
   const isProfileSearch = (network === 'tiktok' || network === 'instagram') && input.accounts && input.accounts.length > 0
-  const actorId = isProfileSearch 
+  const actorId = isProfileSearch
     ? (network === 'tiktok' ? ACTORS.tiktok_profiles : ACTORS.instagram_posts)
-    : ACTORS[network] || ACTORS[`${network}_hashtags`]
-  
+    : ACTORS[network] ?? ACTORS[`${network}_hashtags`]
+
   if (!actorId) throw new Error(`Unknown network: ${network}`)
 
-  const res = await apifyFetch(
-    (token) => `https://api.apify.com/v2/acts/${encodeURIComponent(actorId)}/runs?token=${token}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...buildActorInput(network, input),
-        webhooks: [
-          {
-            eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
-            requestUrl: webhookUrl,
-          },
-        ],
-      }),
-    }
-  )
-
-  const data = await res.json()
-  return data.data.id as string
+  return withFallback(async client => {
+    const run = await client.actor(actorId).start(
+      buildActorInput(network, input),
+      {
+        webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }],
+      }
+    )
+    return run.id
+  })
 }
 
-function buildActorInput(network: string, input: ApifyInput) {
+function buildActorInput(network: string, input: ApifyInput): Record<string, unknown> {
   const tags = [...(input.hashtags ?? []), ...(input.keywords ?? [])].slice(0, 50)
   const limit = input.maxResults ?? 10000
 
   if (network === 'tiktok' && input.accounts && input.accounts.length > 0) {
-    const formattedProfiles = input.accounts.map(acc => 
+    const formattedProfiles = input.accounts.map(acc =>
       acc.startsWith('http') ? acc : `https://www.tiktok.com/@${acc.replace('@', '')}`
     )
     return {
@@ -155,7 +125,7 @@ function buildActorInput(network: string, input: ApifyInput) {
       shouldDownloadCovers: false,
       shouldDownloadSlideshowImages: false,
       scrapeRelatedVideos: false,
-      proxyCountryCode: "None"
+      proxyCountryCode: 'None',
     }
   }
 
@@ -187,21 +157,26 @@ export async function fetchDatasetItems(datasetId: string, limit = 1000): Promis
   if (datasetId === 'simulated-dataset-id') {
     return [
       { url: 'https://www.tiktok.com/@test/video/1', title: 'Video Test 1' },
-      { url: 'https://www.tiktok.com/@test/video/2', title: 'Video Test 2' }
+      { url: 'https://www.tiktok.com/@test/video/2', title: 'Video Test 2' },
     ]
   }
-  const res = await apifyFetch(
-    (token) => `https://api.apify.com/v2/datasets/${datasetId}/items?token=${token}&limit=${limit}&format=json`
-  )
-  return res.json()
+
+  return withFallback(async client => {
+    const { items } = await client.dataset(datasetId).listItems({ limit })
+    return items as unknown[]
+  })
 }
 
 export async function getRunInfo(runId: string): Promise<{ status: string; defaultDatasetId: string; stats?: { usageUsd?: number } }> {
-  const res = await apifyFetch(
-    (token) => `https://api.apify.com/v2/actor-runs/${runId}?token=${token}`
-  )
-  const data = await res.json()
-  return data.data
+  return withFallback(async client => {
+    const run = await client.run(runId).get()
+    if (!run) throw new Error(`Run ${runId} not found`)
+    return {
+      status: run.status,
+      defaultDatasetId: run.defaultDatasetId,
+      stats: { usageUsd: run.stats?.computeUnits },
+    }
+  })
 }
 
 export async function getRunCostUsd(runId: string): Promise<number> {
@@ -212,4 +187,3 @@ export async function getRunCostUsd(runId: string): Promise<number> {
     return 0
   }
 }
-
