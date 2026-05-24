@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSovJob, updateSovJob, appendSovRawData } from '@/lib/sov-supabase'
-import { fetchDatasetItems, getRunCostUsd } from '@/lib/apify'
+import { fetchDatasetItems, getRunCostUsd, getRunInfo } from '@/lib/apify'
 import { calculateSov, generateSovInsights } from '@/lib/sov-calculator'
 
 export async function POST(
@@ -59,14 +59,26 @@ export async function POST(
     return NextResponse.json({ ok: true, skipped: 'non-terminal event' })
   }
 
-  // Fetch dataset items
-  const resolvedDatasetId = datasetId ?? runId
+  // Fetch dataset items — prefer datasetId from payload, fallback to getRunInfo
+  let resolvedDatasetId = datasetId
+  if (!resolvedDatasetId && runId) {
+    try {
+      const runInfo = await getRunInfo(runId)
+      resolvedDatasetId = runInfo.defaultDatasetId
+    } catch (err) {
+      console.error(`[SOV Webhook] Could not resolve datasetId for run ${runId}:`, err)
+    }
+  }
   let items: unknown[] = []
-  try {
-    items = await fetchDatasetItems(resolvedDatasetId, 1000)
-    console.log(`[SOV Webhook] Fetched ${items.length} items for ${runKey}`)
-  } catch (err) {
-    console.error(`[SOV Webhook] Failed to fetch dataset for ${runKey}:`, err)
+  if (resolvedDatasetId) {
+    try {
+      items = await fetchDatasetItems(resolvedDatasetId, 1000)
+      console.log(`[SOV Webhook] Fetched ${items.length} items for ${runKey}`)
+    } catch (err) {
+      console.error(`[SOV Webhook] Failed to fetch dataset for ${runKey}:`, err)
+    }
+  } else {
+    console.error(`[SOV Webhook] No datasetId available for ${runKey}, storing 0 items`)
   }
 
   const { completedRuns, totalExpected } = await appendSovRawData(sovId, runKey, items, runKey)

@@ -2,6 +2,18 @@ import { generateText } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 import type { SovEntity, SovAnalysis, SovEntityResult, SovTopPost } from './sov-supabase'
 
+function parseDate(val: unknown): string {
+  if (!val) return ''
+  const n = Number(val)
+  // UNIX timestamp in seconds (10 digits) or milliseconds (13 digits)
+  if (!isNaN(n) && n > 1_000_000_000) {
+    const ms = n > 9_999_999_999 ? n : n * 1000
+    return new Date(ms).toISOString().substring(0, 10)
+  }
+  const s = String(val)
+  return s.length >= 10 ? s.substring(0, 10) : s
+}
+
 interface NormalizedPost {
   url: string
   platform: string
@@ -25,7 +37,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: Number(r.likesCount ?? r.likes ?? 0),
       comments: Number(r.commentsCount ?? r.comments ?? 0),
       shares: 0,
-      date: String(r.timestamp ?? r.takenAt ?? ''),
+      date: parseDate(r.timestamp ?? r.takenAt),
       caption: String(r.caption ?? r.alt ?? '').slice(0, 200),
       followersCount: Number(r.ownerFollowerCount ?? r.followersCount ?? 0),
     }
@@ -39,7 +51,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: Number(r.diggCount ?? r.likeCount ?? r.likes ?? 0),
       comments: Number(r.commentCount ?? r.comments ?? 0),
       shares: Number(r.shareCount ?? r.shares ?? 0),
-      date: String(r.createTimeISO ?? r.createTime ?? ''),
+      date: parseDate(r.createTimeISO ?? r.createTime),
       caption: String(r.text ?? r.desc ?? '').slice(0, 200),
       followersCount: Number((r.authorMeta as Record<string, unknown>)?.fans ?? r.followers ?? 0),
     }
@@ -53,7 +65,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: Number(r.likeCount ?? r.favoriteCount ?? 0),
       comments: Number(r.replyCount ?? r.replies ?? 0),
       shares: Number(r.retweetCount ?? r.retweets ?? 0),
-      date: String(r.createdAt ?? r.date ?? ''),
+      date: parseDate(r.createdAt ?? r.date),
       caption: String(r.fullText ?? r.text ?? '').slice(0, 200),
       followersCount: Number((r.user as Record<string, unknown>)?.followers_count ?? 0),
     }
@@ -67,7 +79,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: Number(r.likes ?? r.likesCount ?? 0),
       comments: Number(r.comments ?? r.commentsCount ?? 0),
       shares: Number(r.shares ?? r.sharesCount ?? 0),
-      date: String(r.time ?? r.timestamp ?? r.date ?? ''),
+      date: parseDate(r.time ?? r.timestamp ?? r.date),
       caption: String(r.message ?? r.text ?? r.caption ?? '').slice(0, 200),
       followersCount: 0,
     }
@@ -82,7 +94,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: 0,
       comments: 0,
       shares: 0,
-      date: String(r.ad_delivery_start_time ?? r.startDate ?? ''),
+      date: parseDate(r.ad_delivery_start_time ?? r.startDate),
       caption: (bodies?.[0] ?? String(r.page_name ?? '')).slice(0, 200),
       followersCount: 0,
     }
@@ -96,7 +108,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: Number(r.likes ?? r.likeCount ?? 0),
       comments: Number(r.commentsCount ?? r.commentCount ?? 0),
       shares: 0,
-      date: String(r.date ?? r.publishedAt ?? r.uploadDate ?? ''),
+      date: parseDate(r.date ?? r.publishedAt ?? r.uploadDate),
       caption: String(r.title ?? r.description ?? '').slice(0, 200),
       followersCount: Number(r.channelSubscriberCount ?? 0),
     }
@@ -110,7 +122,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: Number(r.likeCount ?? r.likes ?? r.numLikes ?? 0),
       comments: Number(r.commentCount ?? r.comments ?? r.numComments ?? 0),
       shares: Number(r.shareCount ?? r.shares ?? r.numShares ?? 0),
-      date: String(r.postedAt ?? r.publishedAt ?? r.date ?? ''),
+      date: parseDate(r.postedAt ?? r.publishedAt ?? r.date),
       caption: String(r.text ?? r.content ?? r.description ?? '').slice(0, 200),
       followersCount: 0,
     }
@@ -124,7 +136,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: Number(r.score ?? r.upvotes ?? r.ups ?? 0),
       comments: Number(r.numComments ?? r.commentCount ?? r.comments ?? 0),
       shares: 0,
-      date: String(r.createdAt ?? r.created ?? r.date ?? ''),
+      date: parseDate(r.createdAt ?? r.created ?? r.date),
       caption: String(r.title ?? r.body ?? r.text ?? '').slice(0, 200),
       followersCount: 0,
     }
@@ -138,7 +150,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: 0,
       comments: 0,
       shares: 0,
-      date: String(r.date ?? ''),
+      date: parseDate(r.date),
       caption: String(r.title ?? r.description ?? '').slice(0, 200),
       followersCount: 0,
     }
@@ -152,7 +164,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
       likes: Number(r.reviewsCount ?? r.totalScore ?? 0),
       comments: Number(r.reviewsCount ?? 0),
       shares: 0,
-      date: String(r.scrapedAt ?? ''),
+      date: parseDate(r.scrapedAt),
       caption: String(r.title ?? r.name ?? '').slice(0, 200),
       followersCount: 0,
     }
@@ -164,7 +176,7 @@ function normalizePost(raw: unknown, platform: string): NormalizedPost | null {
     likes: Number(r.likesCount ?? r.likes ?? r.likeCount ?? 0),
     comments: Number(r.commentsCount ?? r.comments ?? r.commentCount ?? 0),
     shares: Number(r.sharesCount ?? r.shares ?? r.shareCount ?? 0),
-    date: String(r.timestamp ?? r.createTime ?? r.date ?? ''),
+    date: parseDate(r.timestamp ?? r.createTime ?? r.date),
     caption: String(r.caption ?? r.text ?? r.desc ?? '').slice(0, 200),
     followersCount: 0,
   }
@@ -262,8 +274,8 @@ export function calculateSov(
   for (const entity of allEntities) {
     const data = entityResults.get(entity.id)!
     for (const post of data.posts) {
-      const date = post.date ? post.date.substring(0, 10) : null
-      if (!date || date === 'undefined') continue
+      const date = post.date || null
+      if (!date || date === 'undefined' || date.length < 10) continue
       if (!dateMap.has(date)) dateMap.set(date, {})
       const day = dateMap.get(date)!
       day[entity.id] = (day[entity.id] ?? 0) + 1

@@ -194,6 +194,20 @@ export default function SovDashboardPage() {
       {/* Dashboard (only when complete) */}
       {analysis && (
         <>
+          {/* Networks with 0 data warning */}
+          {(() => {
+            const networksWithData = new Set(
+              analysis.entities.flatMap(e => Object.keys(e.byNetwork).filter(n => e.byNetwork[n].postCount > 0))
+            )
+            const emptyNetworks = job.selectedNetworks.filter(n => !networksWithData.has(n))
+            if (emptyNetworks.length === 0) return null
+            return (
+              <div style={{ padding: '0.85rem 1rem', marginBottom: '1.5rem', backgroundColor: 'rgba(255,180,0,0.06)', border: '1px solid rgba(255,180,0,0.25)', borderRadius: '4px', fontSize: '0.8rem', color: 'rgba(255,200,80,0.9)' }}>
+                ⚠ Sin datos para: <strong>{emptyNetworks.join(', ')}</strong> — el scraper no retornó resultados (posible bloqueo o sin actividad en el período).
+              </div>
+            )
+          })()}
+
           {/* KPI cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
             <KpiCard label="Total Posts" value={fmt(analysis.totals.totalPosts)} />
