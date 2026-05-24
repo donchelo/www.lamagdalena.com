@@ -3087,7 +3087,139 @@ figcaption {
     padding: 2rem 0.5rem;
     align-items: center;
   }
-  .private-nav-link span { display: none; }
-  .private-content-wrapper { margin-left: 80px; }
-  .private-sidebar-logo span { display: none; }
+  /* Hide only the label text (second span) and leave the icons (first span) visible! */
+  .private-nav-link span:last-child {
+    display: none;
+  }
+  .private-content-wrapper {
+    margin-left: 80px;
+    padding: 2rem;
+  }
+  .private-sidebar-logo span {
+    display: none;
+  }
 }
+
+/* Mobile Header and Toggle Drawer Styles */
+.private-mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  background: var(--private-glass);
+  backdrop-filter: var(--private-glass-blur);
+  border-bottom: 1px solid var(--private-border);
+  z-index: 900;
+  padding: 0 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.private-mobile-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--private-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.private-mobile-toggle:hover {
+  background-color: var(--private-border);
+}
+
+.private-mobile-toggle:active {
+  transform: scale(0.95);
+}
+
+.private-mobile-close {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--private-text-muted);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.private-mobile-close:hover {
+  background-color: var(--private-border);
+  color: var(--private-text);
+}
+
+.private-sidebar-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(92, 74, 51, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 950;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.private-sidebar-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .private-mobile-header {
+    display: flex;
+  }
+  
+  .private-mobile-close {
+    display: flex;
+  }
+  
+  .private-sidebar-backdrop {
+    display: block;
+  }
+
+  .private-sidebar {
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    align-items: stretch;
+    padding: 1.5rem 1.5rem;
+  }
+
+  .private-sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 10px 0 30px rgba(92, 74, 51, 0.15);
+  }
+
+  /* Restore label visibility on mobile drawer slide-out */
+  .private-nav-link span:last-child {
+    display: inline;
+  }
+
+  .private-sidebar-logo span {
+    display: inline;
+  }
+
+  .private-content-wrapper {
+    margin-left: 0 !important;
+    padding: 6rem 1.5rem 2rem !important; /* Give spacing below fixed header */
+    width: 100%;
+  }
+}
+
