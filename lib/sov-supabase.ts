@@ -161,7 +161,7 @@ function rowToJob(row: Record<string, unknown>): SovJobData {
     totalExpectedRuns: (row.total_expected_runs as number) ?? 0,
     rawData: (row.raw_data as Record<string, unknown[]>) ?? {},
     analysis: row.analysis as SovAnalysis | undefined,
-    generationCostUsd: row.generation_cost_usd as number | undefined,
+    generationCostUsd: row.generation_cost_usd != null ? Number(row.generation_cost_usd) : undefined,
     error: row.error as string | undefined,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,

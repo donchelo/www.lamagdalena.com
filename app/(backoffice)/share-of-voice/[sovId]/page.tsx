@@ -145,9 +145,9 @@ export default function SovDashboardPage() {
             {job.selectedNetworks.join(', ')}
           </p>
         </div>
-        {job.generationCostUsd !== undefined && (
+        {job.generationCostUsd != null && (
           <span style={{ fontSize: '0.7rem', color: 'var(--private-text-muted)', opacity: 0.6 }}>
-            Costo: ${job.generationCostUsd.toFixed(4)} USD
+            Costo: ${Number(job.generationCostUsd).toFixed(4)} USD
           </span>
         )}
       </div>
