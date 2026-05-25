@@ -80,6 +80,8 @@ export default function SovDashboardPage() {
   const { sovId } = useParams<{ sovId: string }>()
   const [job, setJob] = useState<SovJob | null>(null)
   const [fetchError, setFetchError] = useState('')
+  const [recovering, setRecovering] = useState(false)
+  const [recoverMsg, setRecoverMsg] = useState('')
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const poll = useCallback(async () => {
@@ -101,6 +103,25 @@ export default function SovDashboardPage() {
     intervalRef.current = setInterval(poll, 5000)
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [poll])
+
+  const recover = async () => {
+    setRecovering(true)
+    setRecoverMsg('')
+    try {
+      const res = await fetch(`/api/sov/${sovId}/recover`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        setRecoverMsg(data.message ?? 'Recuperación iniciada.')
+        await poll()
+      } else {
+        setRecoverMsg(`Error: ${data.error ?? 'Falló la recuperación.'}`)
+      }
+    } catch {
+      setRecoverMsg('Error de red al recuperar.')
+    } finally {
+      setRecovering(false)
+    }
+  }
 
   if (fetchError) {
     return (
@@ -181,6 +202,27 @@ export default function SovDashboardPage() {
           <p style={{ fontSize: '0.8rem', color: 'var(--private-text-muted)', textAlign: 'center', marginTop: '0.5rem' }}>
             {job.apifyCompletedRuns.length}/{job.totalExpectedRuns} scrapers completados — actualizando cada 5 segundos...
           </p>
+          {/* Stuck job detector: warn if scraping for >15 min */}
+          {(() => {
+            const ageMin = (Date.now() - new Date(job.updatedAt).getTime()) / 60000
+            if (ageMin < 15) return null
+            return (
+              <div style={{ marginTop: '1.25rem', padding: '0.85rem 1rem', backgroundColor: 'rgba(255,180,0,0.06)', border: '1px solid rgba(255,180,0,0.2)', borderRadius: '4px' }}>
+                <p style={{ fontSize: '0.8rem', color: 'rgba(255,200,80,0.9)', marginBottom: '0.75rem' }}>
+                  ⚠ Sin actividad hace {Math.round(ageMin)} min — puede que algún webhook de Apify no haya llegado.
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <button onClick={recover} disabled={recovering}
+                    style={{ padding: '0.5rem 1.1rem', backgroundColor: 'rgba(255,180,0,0.15)', border: '1px solid rgba(255,180,0,0.4)', borderRadius: '3px', color: 'rgba(255,200,80,0.9)', fontSize: '0.75rem', fontFamily: 'var(--font-heading)', fontWeight: 700, letterSpacing: '0.08em', cursor: recovering ? 'not-allowed' : 'pointer', opacity: recovering ? 0.5 : 1 }}>
+                    {recovering ? 'VERIFICANDO...' : 'RECUPERAR JOB'}
+                  </button>
+                  {recoverMsg && (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--private-text-muted)' }}>{recoverMsg}</span>
+                  )}
+                </div>
+              </div>
+            )
+          })()}
         </div>
       )}
 
