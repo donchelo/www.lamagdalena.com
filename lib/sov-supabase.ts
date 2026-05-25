@@ -128,22 +128,37 @@ export async function appendSovRawData(
   items: unknown[],
   completedRunKey: string
 ): Promise<{ completedRuns: string[]; totalExpected: number }> {
-  const job = await getSovJob(sovId)
-  if (!job) throw new Error(`SOV job ${sovId} not found`)
+  // Use an atomic SQL function to avoid the read-modify-write race condition
+  // that occurs when multiple Apify webhooks arrive concurrently.
+  const { data, error } = await getSupabase().rpc('append_sov_run_data', {
+    p_id: sovId,
+    p_run_key: runKey,
+    p_items: items as never,
+    p_completed_run_key: completedRunKey,
+  })
 
-  const updatedRawData = { ...job.rawData, [runKey]: items }
-  const updatedCompleted = [...new Set([...job.apifyCompletedRuns, completedRunKey])]
+  if (error) {
+    // Fallback: if the RPC doesn't exist yet (migration not applied), use the
+    // old approach so the app keeps working while the migration is pending.
+    console.warn('[SOV] append_sov_run_data RPC unavailable, falling back:', error.message)
+    const job = await getSovJob(sovId)
+    if (!job) throw new Error(`SOV job ${sovId} not found`)
+    const updatedRawData = { ...job.rawData, [runKey]: items }
+    const updatedCompleted = [...new Set([...job.apifyCompletedRuns, completedRunKey])]
+    await getSupabase()
+      .from('sov_reports')
+      .update({ raw_data: updatedRawData, apify_completed_runs: updatedCompleted, updated_at: new Date().toISOString() })
+      .eq('id', sovId)
+    return { completedRuns: updatedCompleted, totalExpected: job.totalExpectedRuns }
+  }
 
-  await getSupabase()
-    .from('sov_reports')
-    .update({
-      raw_data: updatedRawData,
-      apify_completed_runs: updatedCompleted,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', sovId)
-
-  return { completedRuns: updatedCompleted, totalExpected: job.totalExpectedRuns }
+  const row = (data as Array<{ completed_count: number; total_expected: number }>)[0]
+  // Build a synthetic completedRuns array of the right length so callers can
+  // check completedRuns.length >= totalExpected without a second DB read.
+  return {
+    completedRuns: Array(row.completed_count).fill(''),
+    totalExpected: row.total_expected,
+  }
 }
 
 function rowToJob(row: Record<string, unknown>): SovJobData {

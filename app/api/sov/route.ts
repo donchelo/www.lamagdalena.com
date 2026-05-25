@@ -22,6 +22,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 })
     }
 
+    const diffDays = Math.round((new Date(dateTo).getTime() - new Date(dateFrom).getTime()) / 86400000)
+    if (diffDays < 0) {
+      return NextResponse.json({ error: 'La fecha de inicio debe ser anterior a la fecha de fin.' }, { status: 400 })
+    }
+    if (diffDays > 15) {
+      return NextResponse.json({ error: `El rango máximo es 15 días para conservar créditos de Apify. Rango actual: ${diffDays} días.` }, { status: 400 })
+    }
+
     const sovId = randomUUID()
     const now = new Date().toISOString()
 
@@ -59,7 +67,7 @@ export async function POST(request: NextRequest) {
             keywords: entity.keywords,
             dateFrom,
             dateTo,
-            maxResults: 500,
+            maxResults: 200,
           }
           try {
             const runId = await startActorRun(network, apifyInput, webhookUrl)

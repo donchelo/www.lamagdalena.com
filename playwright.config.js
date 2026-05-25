@@ -22,6 +22,12 @@ export default defineConfig({
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
+
+        /* HTTP Basic Auth for backoffice routes */
+        httpCredentials: {
+            username: 'admin',
+            password: process.env.BACKOFFICE_PASSWORD ?? 'magdalena',
+        },
     },
 
     /* Configure projects for major browsers */

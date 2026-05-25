@@ -39,13 +39,13 @@ const ACTORS: Record<string, string> = {
   instagram_posts:    'apify/instagram-post-scraper',
   instagram_comments: 'apify/instagram-comment-scraper',
 
-  // TikTok — upgraded to apidojo for better reliability & cost
+  // TikTok
   tiktok_hashtags:    'apidojo/tiktok-scraper',
   tiktok_profiles:    'apidojo/tiktok-profile-scraper',
   tiktok_comments:    'clockworks/tiktok-comments-scraper',
 
-  // Twitter/X — upgraded to official Apify actor
-  twitter:            'apify/twitter-scraper',
+  // Twitter/X
+  twitter:            'apidojo/tweet-scraper',
 
   // Facebook
   facebook:           'apify/facebook-posts-scraper',
@@ -54,8 +54,8 @@ const ACTORS: Record<string, string> = {
   // YouTube
   youtube:            'streamers/youtube-search-scraper',
 
-  // LinkedIn
-  linkedin:           'apify/linkedin-company-posts-scraper',
+  // LinkedIn — correct actor is data-slayer, apify slug returns 404
+  linkedin:           'data-slayer/linkedin-company-posts-scraper',
 
   // Reddit
   reddit:             'trudax/reddit-scraper-lite',
@@ -81,7 +81,7 @@ export interface ApifyInput {
 export async function startInstagramCommentsRun(postUrls: string[], webhookUrl: string): Promise<string> {
   return withFallback(async client => {
     const run = await client.actor(ACTORS.instagram_comments).start(
-      { directUrls: postUrls, resultsLimit: 200, includeNestedComments: false, isNewestComments: false },
+      { directUrls: postUrls, resultsLimit: 200, includeNestedComments: false },
       { webhooks: [{ eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'], requestUrl: webhookUrl }] }
     )
     return run.id
@@ -167,30 +167,54 @@ function buildActorInput(network: string, input: ApifyInput): Record<string, unk
   // ── Instagram ────────────────────────────────────────────────────────────
   if (network === 'instagram') {
     if (input.accounts && input.accounts.length > 0) {
+      // apify/instagram-post-scraper
       return { username: input.accounts, resultsLimit: limit, onlyPostsNewerThan: input.dateFrom, skipPinnedPosts: false }
     }
-    return { hashtags: tags, resultsLimit: limit, sort: 'RECENT' }
+    // apify/instagram-hashtag-scraper — no `sort` field in schema
+    return { hashtags: tags, resultsLimit: limit }
   }
 
   // ── TikTok ───────────────────────────────────────────────────────────────
   if (network === 'tiktok') {
     if (input.accounts && input.accounts.length > 0) {
-      const profiles = input.accounts.map(acc =>
-        acc.startsWith('http') ? acc : `https://www.tiktok.com/@${acc.replace('@', '')}`
+      // apidojo/tiktok-profile-scraper — uses startUrls or usernames + maxItems
+      const startUrls = input.accounts.map(acc =>
+        acc.startsWith('http') ? acc : `https://www.tiktok.com/@${acc.replace(/^@/, '')}`
       )
-      return { profiles, resultsPerPage: limit, oldestPostDateUnified: input.dateFrom, excludePinnedPosts: false, profileSorting: 'latest', shouldDownloadVideos: false, shouldDownloadAvatars: false, shouldDownloadCovers: false, scrapeRelatedVideos: false, proxyCountryCode: 'None' }
+      return {
+        startUrls,
+        maxItems: limit,
+        ...(input.dateFrom ? { since: input.dateFrom } : {}),
+        ...(input.dateTo ? { until: input.dateTo } : {}),
+      }
     }
-    return { hashtags: tags, maxItems: limit }
+    // apidojo/tiktok-scraper — uses `keywords`, not `hashtags`
+    return { keywords: tags, maxItems: limit, sortType: 'DATE_POSTED' }
   }
 
   // ── Twitter / X ──────────────────────────────────────────────────────────
+  // apidojo/tweet-scraper: tweetLanguage (not lang), start/end (not since/until)
   if (network === 'twitter') {
-    return { searchTerms: tags, maxItems: limit, since: input.dateFrom, until: input.dateTo, lang: 'es' }
+    return {
+      searchTerms: tags,
+      maxItems: limit,
+      tweetLanguage: 'es',
+      ...(input.dateFrom ? { start: input.dateFrom } : {}),
+      ...(input.dateTo ? { end: input.dateTo } : {}),
+    }
   }
 
   // ── Facebook (organic posts) ─────────────────────────────────────────────
+  // apify/facebook-posts-scraper: requires page URLs in `startUrls`, not keyword queries
   if (network === 'facebook') {
-    return { queries: tags, maxItems: limit }
+    const pageUrls = input.accounts?.length
+      ? input.accounts.map(a => ({ url: a.startsWith('http') ? a : `https://www.facebook.com/${a.replace(/^@/, '')}/` }))
+      : tags.map(t => ({ url: `https://www.facebook.com/search/posts/?q=${encodeURIComponent(t)}` }))
+    return {
+      startUrls: pageUrls,
+      resultsLimit: limit,
+      ...(input.dateFrom ? { onlyPostsNewerThan: input.dateFrom } : {}),
+    }
   }
 
   // ── Facebook Ads Library ─────────────────────────────────────────────────
@@ -209,36 +233,46 @@ function buildActorInput(network: string, input: ApifyInput): Record<string, unk
   }
 
   // ── LinkedIn ─────────────────────────────────────────────────────────────
+  // data-slayer/linkedin-company-posts-scraper: single `linkedin_url` string, `maxPages` (1-5)
   if (network === 'linkedin') {
-    const urls = input.accounts?.length
-      ? input.accounts.map(a => ({ url: a.startsWith('http') ? a : `https://www.linkedin.com/company/${slugify(a)}/` }))
-      : [{ url: `https://www.linkedin.com/company/${slugify(mainQuery)}/` }]
-    return { startUrls: urls, maxItems: limit }
+    const companyUrl = input.accounts?.length
+      ? (input.accounts[0].startsWith('http') ? input.accounts[0] : `https://www.linkedin.com/company/${slugify(input.accounts[0])}/`)
+      : `https://www.linkedin.com/company/${slugify(mainQuery)}/`
+    return { linkedin_url: companyUrl, maxPages: Math.min(5, Math.ceil(limit / 10)) }
   }
 
   // ── Reddit ───────────────────────────────────────────────────────────────
+  // trudax/reddit-scraper-lite: `proxy` is required
   if (network === 'reddit') {
-    return { searches: tags.length ? tags : [mainQuery], maxItems: Math.min(limit, 200) }
+    return {
+      searches: tags.length ? tags : [mainQuery],
+      maxItems: Math.min(limit, 200),
+      proxy: { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'] },
+      searchPosts: true,
+      searchComments: false,
+      sort: 'new',
+    }
   }
 
   // ── Google Search ────────────────────────────────────────────────────────
+  // apify/google-search-scraper: no `resultsPerPage` field; countryCode is uppercase
   if (network === 'google_search') {
     const queries = tags.length ? tags : [mainQuery]
     return {
       queries: queries.join('\n'),
-      countryCode: 'co',
+      countryCode: 'CO',
       languageCode: 'es',
       maxPagesPerQuery: 2,
-      resultsPerPage: 10,
     }
   }
 
   // ── Google Maps ──────────────────────────────────────────────────────────
+  // apify/google-maps-scraper: correct field is `maxCrawledPlacesPerSearch` (not maxCrawledPlaces)
   if (network === 'google_maps') {
     const searches = tags.length ? tags.map(t => `${t} Colombia`) : [`${mainQuery} Colombia`]
     return {
       searchStringsArray: searches,
-      maxCrawledPlaces: Math.min(limit, 50),
+      maxCrawledPlacesPerSearch: Math.min(limit, 50),
       language: 'es',
       countryCode: 'CO',
     }

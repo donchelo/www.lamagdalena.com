@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { getSovJob, updateSovJob, appendSovRawData } from '@/lib/sov-supabase'
 import { fetchDatasetItems, getRunCostUsd, getRunInfo } from '@/lib/apify'
 import { calculateSov, generateSovInsights } from '@/lib/sov-calculator'
@@ -50,7 +50,7 @@ export async function POST(
     console.error(`[SOV Webhook] Run ${runId} (${runKey}) failed`)
     const { completedRuns, totalExpected } = await appendSovRawData(sovId, runKey, [], runKey)
     if (completedRuns.length >= totalExpected) {
-      await triggerAnalysis(sovId)
+      after(() => triggerAnalysis(sovId))
     }
     return NextResponse.json({ ok: true })
   }
@@ -85,7 +85,7 @@ export async function POST(
   console.log(`[SOV Webhook] ${completedRuns.length}/${totalExpected} runs completed`)
 
   if (completedRuns.length >= totalExpected) {
-    await triggerAnalysis(sovId)
+    after(() => triggerAnalysis(sovId))
   }
 
   return NextResponse.json({ ok: true })
