@@ -88,9 +88,7 @@ export async function POST(req: Request) {
   const body = await req.json()
   const { messages, model: requestedModel } = body
 
-  let modelId = 'claude-sonnet-4-6'
-  if (requestedModel === 'claude-opus-4-7') modelId = 'claude-opus-4-7'
-  if (requestedModel === 'claude-haiku-4-5') modelId = 'claude-haiku-4-5'
+  const modelId = 'claude-sonnet-4.6'
 
   try {
     const [systemPrompt, modelMessages] = await Promise.all([
