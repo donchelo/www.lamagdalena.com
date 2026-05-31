@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // Replicates mc-sso verifySession using Web Crypto API (Edge-compatible, no node: imports)
 function b64urlToBytes(b64url: string): Uint8Array<ArrayBuffer> {
-  const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/') + '=='.slice((b64url.length % 4) || 4)
+  const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice(0, (4 - b64url.length % 4) % 4)
   return new Uint8Array(Array.from(atob(b64), c => c.charCodeAt(0)))
 }
 
