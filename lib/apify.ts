@@ -128,7 +128,8 @@ export async function getRunInfo(runId: string): Promise<{ status: string; defau
   return withFallback(async client => {
     const run = await client.run(runId).get()
     if (!run) throw new Error(`Run ${runId} not found`)
-    return { status: run.status, defaultDatasetId: run.defaultDatasetId, stats: { usageUsd: run.stats?.usageUsd } }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return { status: run.status, defaultDatasetId: run.defaultDatasetId, stats: { usageUsd: (run.stats as any)?.usageUsd } }
   })
 }
 
