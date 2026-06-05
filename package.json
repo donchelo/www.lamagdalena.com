@@ -13,6 +13,7 @@
     "@playwright/test": "^1.58.2"
   },
   "dependencies": {
+    "@ai4u/mc-sso": "github:donchelo/mc-sso",
     "@ai-sdk/anthropic": "^3.0.74",
     "@ai-sdk/react": "^3.0.177",
     "@react-pdf/renderer": "^4.5.1",
