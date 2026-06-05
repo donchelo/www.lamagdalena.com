@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
   },
-  serverExternalPackages: ['@react-pdf/renderer'],
+  serverExternalPackages: ['@react-pdf/renderer', '@ai4u/mc-sso'],
   outputFileTracingIncludes: {
     '**': ['./public/fonts/**', './public/assets/logos/**', './data/**'],
   },
