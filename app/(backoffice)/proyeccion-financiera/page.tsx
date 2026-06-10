@@ -172,7 +172,7 @@ export default function ProyeccionFinancieraPage() {
         <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'sticky', top: '2rem' }}>
           
           {/* Month Selector */}
-          <section className="dashboard-card" style={{ padding: '1.5rem', backgroundColor: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+          <section className="dashboard-card" style={{ padding: '1.5rem', backgroundColor: 'var(--ai4u-bg-surface)', border: '1px solid var(--ai4u-border-color)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
             <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-brown)', opacity: 0.5, marginBottom: '1.25rem' }}>Períodos de Análisis</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {months.map(m => {
@@ -196,13 +196,13 @@ export default function ProyeccionFinancieraPage() {
               })}
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
-              <button onClick={() => setSelectedMonths(months.map(m => m.name))} style={{ flex: 1, padding: '0.5rem', fontSize: '0.75rem', border: '1px solid #eee', borderRadius: '6px', color: '#888' }}>Todos</button>
-              <button onClick={() => setSelectedMonths([])} style={{ flex: 1, padding: '0.5rem', fontSize: '0.75rem', border: '1px solid #eee', borderRadius: '6px', color: '#888' }}>Ninguno</button>
+              <button onClick={() => setSelectedMonths(months.map(m => m.name))} style={{ flex: 1, padding: '0.5rem', fontSize: '0.75rem', border: '1px solid var(--ai4u-border-color)', borderRadius: '6px', color: 'var(--ai4u-cadet-gray)' }}>Todos</button>
+              <button onClick={() => setSelectedMonths([])} style={{ flex: 1, padding: '0.5rem', fontSize: '0.75rem', border: '1px solid var(--ai4u-border-color)', borderRadius: '6px', color: 'var(--ai4u-cadet-gray)' }}>Ninguno</button>
             </div>
           </section>
 
           {/* AI Tools */}
-          <section className="dashboard-card" style={{ padding: '1.5rem', backgroundColor: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+          <section className="dashboard-card" style={{ padding: '1.5rem', backgroundColor: 'var(--ai4u-bg-surface)', border: '1px solid var(--ai4u-border-color)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
             <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-brown)', opacity: 0.5, marginBottom: '1.25rem' }}>Generación de Informes</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               {QUICK_PROMPTS.map(p => (
@@ -213,10 +213,10 @@ export default function ProyeccionFinancieraPage() {
                   style={{
                     padding: '0.6rem 0.8rem', borderRadius: '6px', textAlign: 'left',
                     fontSize: '0.85rem', color: 'var(--text-brown)', border: '1px solid #f0f0f0',
-                    backgroundColor: '#fafafa', cursor: 'pointer', transition: 'all 0.2s'
+                    backgroundColor: 'var(--ai4u-bg-default)', cursor: 'pointer', transition: 'all 0.2s'
                   }}
                   onMouseOver={e => e.currentTarget.style.backgroundColor = '#f0f0f0'}
-                  onMouseOut={e => e.currentTarget.style.backgroundColor = '#fafafa'}
+                  onMouseOut={e => e.currentTarget.style.backgroundColor = 'var(--ai4u-bg-default)'}
                 >
                   {p.label}
                 </button>
@@ -247,8 +247,8 @@ export default function ProyeccionFinancieraPage() {
                   sub: summary.totals.ingresos > 0 ? `Margen: ${((summary.totals.flujoNeto / summary.totals.ingresos) * 100).toFixed(1)}%` : 'Margen: 0%'
                 },
               ].map(kpi => (
-                <div key={kpi.label} style={{ padding: '1.5rem', backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                  <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#888', marginBottom: '0.5rem' }}>{kpi.label}</p>
+                <div key={kpi.label} style={{ padding: '1.5rem', backgroundColor: 'var(--ai4u-bg-surface)', borderRadius: '12px', border: '1px solid #f0f0f0', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                  <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ai4u-cadet-gray)', marginBottom: '0.5rem' }}>{kpi.label}</p>
                   <p style={{ fontSize: '1.6rem', fontWeight: 800, color: kpi.color, margin: 0 }}>
                     ${(kpi.value / 1e6).toFixed(1)}M
                   </p>
@@ -308,7 +308,7 @@ export default function ProyeccionFinancieraPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem' }}>
               
               {/* Trend Chart */}
-              <div style={{ padding: '1.5rem', backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #f0f0f0', minHeight: '400px' }}>
+              <div style={{ padding: '1.5rem', backgroundColor: 'var(--ai4u-bg-surface)', borderRadius: '12px', border: '1px solid #f0f0f0', minHeight: '400px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                   <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-brown)', margin: 0 }}>Evolución Mensual</h3>
                   <div style={{ display: 'flex', gap: '1rem', fontSize: '0.7rem' }}>
@@ -325,8 +325,8 @@ export default function ProyeccionFinancieraPage() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888' }} tickFormatter={(v) => `$${v/1e6}M`} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--ai4u-cadet-gray)' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--ai4u-cadet-gray)' }} tickFormatter={(v) => `$${v/1e6}M`} />
                     <RechartsTooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                       formatter={(v: any) => formatCurrency(Number(v))}
@@ -338,7 +338,7 @@ export default function ProyeccionFinancieraPage() {
               </div>
 
               {/* Composition Chart & List */}
-              <div style={{ padding: '1.5rem', backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ padding: '1.5rem', backgroundColor: 'var(--ai4u-bg-surface)', borderRadius: '12px', border: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-brown)', margin: 0 }}>Distribución de Gastos</h3>
                 
                 <ResponsiveContainer width="100%" height={180}>
@@ -378,12 +378,12 @@ export default function ProyeccionFinancieraPage() {
 
           {/* Monthly Table */}
           {summary && (
-            <div style={{ padding: '1.5rem', backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #f0f0f0', overflow: 'hidden' }}>
+            <div style={{ padding: '1.5rem', backgroundColor: 'var(--ai4u-bg-surface)', borderRadius: '12px', border: '1px solid #f0f0f0', overflow: 'hidden' }}>
               <h3 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--text-brown)' }}>Detalle por Período</h3>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                   <thead>
-                    <tr style={{ borderBottom: '2px solid var(--accent-lime)', backgroundColor: '#fafafa' }}>
+                    <tr style={{ borderBottom: '2px solid var(--accent-lime)', backgroundColor: 'var(--ai4u-bg-default)' }}>
                       <th style={{ textAlign: 'left', padding: '1rem' }}>Mes</th>
                       <th style={{ textAlign: 'right', padding: '1rem' }}>Facturación</th>
                       <th style={{ textAlign: 'right', padding: '1rem' }}>Costos</th>
@@ -414,14 +414,14 @@ export default function ProyeccionFinancieraPage() {
             <div ref={reportsTopRef} />
             
             {reports.map(entry => (
-              <article key={entry.id} style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #f0f0f0', overflow: 'hidden' }}>
+              <article key={entry.id} style={{ backgroundColor: 'var(--ai4u-bg-surface)', borderRadius: '12px', border: '1px solid #f0f0f0', overflow: 'hidden' }}>
                 <header style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-brown)' }}>{entry.promptLabel}</h4>
-                    <span style={{ fontSize: '0.7rem', color: '#888' }}>{entry.timestamp.toLocaleTimeString()}</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--ai4u-cadet-gray)' }}>{entry.timestamp.toLocaleTimeString()}</span>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button onClick={() => printReportPDF(entry.content, entry.months)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', border: '1px solid #eee', borderRadius: '4px' }}>PDF</button>
+                    <button onClick={() => printReportPDF(entry.content, entry.months)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', border: '1px solid var(--ai4u-border-color)', borderRadius: '4px' }}>PDF</button>
                     <button onClick={() => downloadReportExcel(entry.content, entry.months)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', backgroundColor: 'var(--accent-lime)', borderRadius: '4px', fontWeight: 700 }}>Excel</button>
                   </div>
                 </header>
@@ -436,8 +436,8 @@ export default function ProyeccionFinancieraPage() {
                         remarkPlugins={[remarkGfm]}
                         components={{
                           table: p => <div style={{ overflowX: 'auto', margin: '1.5rem 0' }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }} {...p} /></div>,
-                          th: p => <th style={{ textAlign: 'left', padding: '0.75rem', borderBottom: '2px solid var(--accent-lime)', backgroundColor: '#fafafa' }} {...p} />,
-                          td: p => <td style={{ padding: '0.75rem', borderBottom: '1px solid #eee' }} {...p} />,
+                          th: p => <th style={{ textAlign: 'left', padding: '0.75rem', borderBottom: '2px solid var(--accent-lime)', backgroundColor: 'var(--ai4u-bg-default)' }} {...p} />,
+                          td: p => <td style={{ padding: '0.75rem', borderBottom: '1px solid var(--ai4u-border-color)' }} {...p} />,
                           p: p => <p style={{ lineHeight: 1.8, marginBottom: '1rem', color: '#444' }} {...p} />,
                           h1: p => <h1 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-brown)' }} {...p} />,
                           h2: p => <h2 style={{ fontSize: '1.2rem', marginTop: '2rem', marginBottom: '1rem', color: 'var(--text-brown)' }} {...p} />,
