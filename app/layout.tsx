@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import '@/styles/globals.css'
-import '@ai4u/design-system/styles'
 
 export const metadata: Metadata = {
   title: 'La Magdalena',

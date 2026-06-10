@@ -1,4 +1,5 @@
 @import './tokens.css';
+@import '@ai4u/design-system/dist/styles/base.css';
 
 html {
   scroll-behavior: smooth;
