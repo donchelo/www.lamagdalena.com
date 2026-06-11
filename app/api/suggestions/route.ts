@@ -1,24 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { anthropic } from "@ai-sdk/anthropic"
+
+const BACKEND_URL = process.env.MAGDALENA_BACKEND_URL ?? "https://magdalena-backend.vercel.app"
 
 export async function POST(req: NextRequest) {
   try {
-    const { tenantName } = await req.json().catch(() => ({}))
-    const today = new Date().toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" })
-
-    const { text } = await generateText({
-      model: anthropic("claude-haiku-4.5"),
-      system: `Eres un asesor estratégico de La Magdalena, una empresa colombiana especializada en libros de fotografía y narrativas de biodiversidad y patrimonio cultural. Generás preguntas estratégicas concisas (máximo 10 palabras cada una) para el equipo directivo. Hoy es ${today}.`,
-      prompt: `Genera 5 preguntas estratégicas breves y específicas para ${tenantName || "La Magdalena"} en este momento. Devuelve SOLO un JSON con este formato exacto, sin markdown ni explicaciones:\n{"questions":["pregunta 1","pregunta 2","pregunta 3","pregunta 4","pregunta 5"]}`,
-      temperature: 1,
+    const body = await req.text()
+    const upstream = await fetch(`${BACKEND_URL}/api/suggestions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.MAGDALENA_INTERNAL_SECRET
+          ? { "x-internal-secret": process.env.MAGDALENA_INTERNAL_SECRET }
+          : {}),
+      },
+      body,
     })
-
-    const clean = text.trim().replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim()
-    const parsed = JSON.parse(clean) as { questions: string[] }
-    const questions = Array.isArray(parsed.questions) ? parsed.questions.slice(0, 5) : fallbackQuestions
-
-    return NextResponse.json({ questions })
+    const data = await upstream.json()
+    return NextResponse.json(data)
   } catch {
     return NextResponse.json({ questions: fallbackQuestions })
   }
