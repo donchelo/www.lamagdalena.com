@@ -14,9 +14,8 @@ export async function POST(req: NextRequest) {
     },
     body,
   })
-  const responseHeaders = new Headers(upstream.headers)
-  responseHeaders.delete("content-encoding")
-  responseHeaders.delete("content-length")
-  responseHeaders.delete("transfer-encoding")
-  return new Response(upstream.body, { status: upstream.status, headers: responseHeaders })
+  const ct = upstream.headers.get("content-type") ?? "text/event-stream"
+  const responseHeaders = new Headers({ "Content-Type": ct })
+  const status = Math.min(Math.max(upstream.status, 200), 599)
+  return new Response(upstream.body, { status, headers: responseHeaders })
 }

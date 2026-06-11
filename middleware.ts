@@ -34,6 +34,13 @@ export async function middleware(request: NextRequest) {
   const secret = process.env.MISSION_CONTROL_SECRET ?? ''
 
   if (!(await verifySession(token, secret))) {
+    const isApi = request.nextUrl.pathname.startsWith('/api/')
+    if (isApi) {
+      return NextResponse.json(
+        { error: 'Sesión no válida. Accede desde Mission Control.' },
+        { status: 401 },
+      )
+    }
     return new NextResponse(
       '<!doctype html><meta charset="utf-8"><p>Acceso denegado. Ingresa desde <a href="https://ai4u.com.co">Mission Control</a>.</p>',
       { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } },
@@ -50,5 +57,7 @@ export const config = {
     '/proyeccion-financiera/:path*',
     '/share-of-voice/:path*',
     '/advisor/:path*',
+    '/api/advisor/:path*',
+    '/api/suggestions',
   ],
 }
