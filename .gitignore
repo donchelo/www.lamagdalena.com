@@ -34,3 +34,6 @@ build
 # Vercel
 .vercel
 .env*.local
+# Secretos locales / volcados de Vercel — no commitear
+.env.temp
+.env.vercel.production
