@@ -346,6 +346,47 @@ function writeCsv(filePath, rows) {
   fs.writeFileSync(filePath, lines.join('\n'), 'utf-8')
 }
 
+function parseCsvLine(line) {
+  const cols = []
+  let cur = '', inQ = false
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]
+    if (ch === '"') {
+      if (inQ && line[i + 1] === '"') { cur += '"'; i++; continue }
+      inQ = !inQ; continue
+    }
+    if (ch === ',' && !inQ) { cols.push(cur); cur = ''; continue }
+    cur += ch
+  }
+  cols.push(cur)
+  return cols
+}
+
+/** Lee un CSV con las columnas de HEADERS (con o sin `mes`) → filas objeto. */
+function readCsvRows(filePath) {
+  if (!fs.existsSync(filePath)) return []
+  const lines = fs.readFileSync(filePath, 'utf-8').trim().split('\n')
+  if (lines.length <= 1) return []
+  const header = parseCsvLine(lines[0])
+  return lines.slice(1).map(line => {
+    const cols = parseCsvLine(line)
+    const row = {}
+    header.forEach((h, i) => { row[h.trim()] = cols[i] ?? '' })
+    row.subtotal = parseFloat(row.subtotal) || 0
+    row.iva      = parseFloat(row.iva) || 0
+    row.total    = parseFloat(row.total) || 0
+    return row
+  })
+}
+
+// Parsea cuentas_cobro.csv (curado a mano desde los PDF de cuenta de cobro,
+// mientras contabilidad entrega el export "Documento soporte" de Siigo) → filas COSTO
+function parseCuentasCobroCsv(filePath, month) {
+  return readCsvRows(filePath)
+    .filter(r => r.contraparte && r.total !== 0)
+    .map(r => ({ ...r, mes: month, tipo: r.tipo || 'COSTO' }))
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 function summary(rows) {
@@ -364,21 +405,33 @@ console.log('\n🔍 Parser Facturas DIAN — La Magdalena\n')
 
 if (!fs.existsSync(ROOT)) { console.error(`❌ No existe: ${ROOT}`); process.exit(1) }
 
+// --months "5.MAYO 2026,6.JUNIO 2026" → modo incremental: solo procesa esos
+// meses y conserva las filas de los demás meses del _consolidado.csv existente
+// (los xlsx fuente de meses viejos pueden ya no estar en el repo).
+const monthsArgIdx = process.argv.indexOf('--months')
+const onlyMonths = monthsArgIdx > -1
+  ? process.argv[monthsArgIdx + 1].split(',').map(s => s.trim()).filter(Boolean)
+  : null
+
 // Extraer ZIPs
 console.log('📦 Extrayendo ZIPs...')
 extractZips(ROOT)
 
 const monthDirs = fs.readdirSync(ROOT)
-  .filter(n => !n.startsWith('.') && !n.startsWith('_') && fs.statSync(path.join(ROOT, n)).isDirectory())
+  .filter(n => !n.startsWith('.') && !n.startsWith('_') && n !== 'informes' && fs.statSync(path.join(ROOT, n)).isDirectory())
+  .filter(n => !onlyMonths || onlyMonths.includes(n))
   .sort()
 
-console.log(`\n📂 Meses: ${monthDirs.join(' | ')}\n`)
+console.log(`\n📂 Meses: ${monthDirs.join(' | ')}${onlyMonths ? '  (modo incremental)' : ''}\n`)
 
 const allRows = []
 
 for (const month of monthDirs) {
   const monthDir  = path.join(ROOT, month)
-  const ventasDir = path.join(monthDir, 'ventas')
+  // Los xlsx de Siigo viven en Ingresos/ (layout actual) o ventas/ (layout viejo)
+  const ventasDir = ['Ingresos', 'ventas']
+    .map(d => path.join(monthDir, d))
+    .find(d => fs.existsSync(d)) ?? path.join(monthDir, 'ventas')
   const xmlFiles  = findXmls(monthDir)
   console.log(`⚡ ${month}  (${xmlFiles.length} XMLs)`)
 
@@ -412,6 +465,13 @@ for (const month of monthDirs) {
     if (soporteRows) console.log(`   📄 ${soporteRows} doc soporte (costos sin factura electrónica)`)
   }
 
+  // 3. cuentas_cobro.csv (curado a mano desde PDFs de cuenta de cobro)
+  const ccRows = parseCuentasCobroCsv(path.join(monthDir, 'cuentas_cobro.csv'), month)
+  if (ccRows.length) {
+    ccRows.forEach(r => { monthRows.push(r); allRows.push(r) })
+    console.log(`   🧾 ${ccRows.length} cuentas de cobro (cuentas_cobro.csv)`)
+  }
+
   monthRows.sort((a, b) => a.fecha.localeCompare(b.fecha))
   summary(monthRows)
 
@@ -422,9 +482,17 @@ for (const month of monthDirs) {
 
 allRows.sort((a, b) => a.fecha.localeCompare(b.fecha))
 const consolidado = path.join(ROOT, '_consolidado.csv')
-writeCsv(consolidado, allRows)
+
+let finalRows = allRows
+if (onlyMonths) {
+  // Conservar intactas las filas de los meses NO procesados
+  const kept = readCsvRows(consolidado).filter(r => !onlyMonths.includes(r.mes))
+  finalRows = [...kept, ...allRows]
+  console.log(`♻️  Modo incremental: ${kept.length} filas previas conservadas + ${allRows.length} nuevas`)
+}
+writeCsv(consolidado, finalRows)
 
 console.log('══════════════════════════════════════════════════')
-console.log('📊 CONSOLIDADO ENERO–ABRIL 2026')
-summary(allRows)
-console.log(`\n💾 data/proyeccion/_consolidado.csv  (${allRows.length} registros)\n`)
+console.log('📊 CONSOLIDADO')
+summary(finalRows)
+console.log(`\n💾 data/proyeccion/_consolidado.csv  (${finalRows.length} registros)\n`)
