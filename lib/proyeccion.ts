@@ -9,6 +9,7 @@ export interface MonthFolder {
   csvReady: boolean
   hasIncomeFile: boolean
   hasBankStatement: boolean
+  hasCashFlow: boolean
 }
 
 // ─── Financial summary types ──────────────────────────────────────────────────
@@ -32,9 +33,36 @@ export interface FinancialSummary {
   costosPorCategoria: { categoria: string; total: number; pct: number; numTrans: number }[]
   topProveedores: { nombre: string; total: number; categoria: string }[]
   iva: { cobrado: number; pagado: number; neto: number }
+  ivaMonthly: IvaMonth[]
+  ivaBimestres: IvaBimestre[]
   facturas: CsvRow[]
   duplicados: number
+  cashFlow: CashFlowSummary
 }
+
+// ─── Flujo de caja (extractos bancarios) ──────────────────────────────────────
+// NOTA: "flujoNeto"/"facturacion" arriba son CAUSACIÓN (facturas emitidas/recibidas,
+// aunque no se hayan cobrado o pagado). `cashFlow` es la plata real que entró/salió
+// del banco según los extractos — son dos cosas distintas y no deben confundirse.
+
+export interface CashFlowMonth {
+  name: string
+  hasData: boolean
+  saldoInicial: number
+  entradas: number
+  salidas: number
+  trasladosNetos: number
+  netoCaja: number
+  saldoFinal: number
+}
+
+export interface CashFlowSummary {
+  months: CashFlowMonth[]
+  totals: { entradas: number; salidas: number; netoCaja: number }
+}
+
+export interface IvaMonth { name: string; cobrado: number; pagado: number; neto: number; acumulado: number }
+export interface IvaBimestre { bimestre: string; cobrado: number; pagado: number; aPagar: number }
 
 // ─── Categorization ───────────────────────────────────────────────────────────
 
@@ -42,7 +70,7 @@ const CAT_KEYWORDS: Record<string, string[]> = {
   'Talento humano': ['ANDRES CAMILO ROMERO', 'CAROLINA ROMERO', 'CATALINA ROMERO', 'DANIELA RESTREPO', 'NICOLAS GUTIERREZ', 'JUAN PEDRO SIERRA', 'MARIA CAMILA ESCOBAR', 'MARIANO GARCIA', 'DIEGO ALEJANDRO CORREA', 'EDISON ANDRES VASCO', 'VERONICA', 'VERÓNICA'],
   'Transporte y combustible': ['DISTRACOM', 'JETSMART', 'SERVICENTROS', 'GRUPO ZUPETROL', 'EDS EL PRADO', 'EDS SAN SEBASTIAN', 'LILIANA MONTOYA', 'ESTACION DE SERVICIO'],
   'Almacenamiento': ['MEGA STORAGE'],
-  'Tecnología': ['GOOGLE', 'ADOBE', 'SHOPIFY', 'PHMUSEUM'],
+  'Tecnología': ['GOOGLE', 'ADOBE', 'SHOPIFY', 'PHMUSEUM', 'ANTHROPIC'],
   'Alimentación': ['CREPES', 'CASA BRAVA', 'COCOROLLO', 'AYAPEL', 'FRANQUICIAS', 'SANCHO PAISA', 'GANSO', 'DISTRITO CULINARIO', 'MARRIAGA', 'INVERSIONES MIRANORTE', 'GRUPO LHL'],
   'Producción creativa': ['LA R FRESH', 'REDACOL', 'GRAPH'],
 }
@@ -102,7 +130,8 @@ export function computeSummary(months: string[]): FinancialSummary {
     months, monthly: [],
     totals: { facturacion: 0, ingresos: 0, costos: 0, flujoNeto: 0, margen: 0 },
     clienteIngresos: [], costosPorCategoria: [], topProveedores: [],
-    iva: { cobrado: 0, pagado: 0, neto: 0 }, facturas: [], duplicados: 0,
+    iva: { cobrado: 0, pagado: 0, neto: 0 }, ivaMonthly: [], ivaBimestres: [],
+    facturas: [], duplicados: 0, cashFlow: computeCashFlow(months),
   }
   const consolidado = path.join(DOCS_DIR, '_consolidado.csv')
   if (!fs.existsSync(consolidado)) return empty
@@ -130,27 +159,39 @@ export function computeSummary(months: string[]): FinancialSummary {
   const realProfit = totIngresos - totCostosNetos
 
   // Monthly
+  let ivaAcumulado = 0
+  const ivaMonthly: IvaMonth[] = []
   const monthly: MonthlySummary[] = months.map(m => {
     const normTarget = normalizeMonth(m)
     const rMes = ingresos.filter(r => normalizeMonth(r.mes) === normTarget)
     const mFact = rMes.reduce((s, r) => s + r.total, 0)
     const mIng = rMes.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
-    
+
     const cMes = costos.filter(r => normalizeMonth(r.mes) === normTarget)
     const mC = cMes.reduce((s, r) => s + r.total, 0)
     const mCNet = cMes.reduce((s, r) => s + (r.subtotal || (r.total - r.iva)), 0)
-    
+
+    // IVA del mes: lo cobrado en ventas (débito fiscal) vs lo pagado en compras
+    // (descontable). "neto" es lo que tocaría pagarle a la DIAN si este mes
+    // fuera un período de declaración; "acumulado" es el corrido del año.
+    const ivaCobradoMes = rMes.reduce((s, r) => s + r.iva, 0)
+    const ivaPagadoMes  = cMes.reduce((s, r) => s + r.iva, 0)
+    ivaAcumulado += ivaCobradoMes - ivaPagadoMes
+    ivaMonthly.push({ name: m, cobrado: ivaCobradoMes, pagado: ivaPagadoMes, neto: ivaCobradoMes - ivaPagadoMes, acumulado: ivaAcumulado })
+
     const prof = mIng - mCNet
-    return { 
-      name: m, 
-      facturacion: mFact, 
-      ingresos: mIng, 
-      costos: mC, 
-      flujoNeto: prof, // Usamos utilidad neta operativa
+    return {
+      name: m,
+      facturacion: mFact,
+      ingresos: mIng,
+      costos: mC,
+      flujoNeto: prof, // Usamos utilidad neta operativa (causación, NO caja real — ver cashFlow)
       margen: mIng > 0 ? (prof / mIng) * 100 : 0,
-      numFacturas: cMes.length 
+      numFacturas: cMes.length
     }
   })
+
+  const ivaBimestres = groupIvaByBimestre(ivaMonthly)
 
   // Clients (based on Gross Facturacion)
   const cliMap: Record<string, number> = {}
@@ -188,8 +229,83 @@ export function computeSummary(months: string[]): FinancialSummary {
     },
     clienteIngresos, costosPorCategoria, topProveedores,
     iva: { cobrado: ivaCobrado, pagado: ivaPagado, neto: ivaCobrado - ivaPagado },
+    ivaMonthly, ivaBimestres,
     facturas: costos, duplicados,
+    cashFlow: computeCashFlow(months),
   }
+}
+
+const BIMESTRE_LABELS = ['ENE-FEB', 'MAR-ABR', 'MAY-JUN', 'JUL-AGO', 'SEP-OCT', 'NOV-DIC']
+const MONTH_NAMES = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE']
+
+/** Agrupa el IVA mensual en los bimestres de declaración de la DIAN (ene-feb, mar-abr, ...). */
+function groupIvaByBimestre(ivaMonthly: IvaMonth[]): IvaBimestre[] {
+  const groups: Record<string, { cobrado: number; pagado: number }> = {}
+  for (const m of ivaMonthly) {
+    const match = normalizeMonth(m.name).match(/^([A-ZÁÉÍÓÚ]+)\s+(\d{4})$/)
+    if (!match) continue
+    const idx = MONTH_NAMES.indexOf(match[1])
+    if (idx < 0) continue
+    const label = `${BIMESTRE_LABELS[Math.floor(idx / 2)]} ${match[2]}`
+    if (!groups[label]) groups[label] = { cobrado: 0, pagado: 0 }
+    groups[label].cobrado += m.cobrado
+    groups[label].pagado += m.pagado
+  }
+  return Object.entries(groups).map(([bimestre, d]) => ({ bimestre, cobrado: d.cobrado, pagado: d.pagado, aPagar: d.cobrado - d.pagado }))
+}
+
+// ─── Flujo de caja: lectura de flujo_caja.csv (generado por parse-extracto.mjs) ─
+
+function splitCsvLine(line: string): string[] {
+  const cols: string[] = []
+  let cur = '', inQ = false
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]
+    if (ch === '"') {
+      if (inQ && line[i + 1] === '"') { cur += '"'; i++; continue }
+      inQ = !inQ; continue
+    }
+    if (ch === ',' && !inQ) { cols.push(cur); cur = ''; continue }
+    cur += ch
+  }
+  cols.push(cur)
+  return cols
+}
+
+function parseFlujoCajaCsv(filePath: string): { descripcion: string; valor: number; categoria: string }[] | null {
+  if (!fs.existsSync(filePath)) return null
+  const content = fs.readFileSync(filePath, 'utf-8').trim()
+  const lines = content.split('\n')
+  if (lines.length <= 1) return null
+  return lines.slice(1).map(line => {
+    const cols = splitCsvLine(line)
+    return { descripcion: cols[1] ?? '', valor: parseFloat(cols[2]) || 0, categoria: cols[3] ?? '' }
+  })
+}
+
+const CASH_ENTRADA_CATS = ['INGRESO_OPERATIVO', 'RENDIMIENTO', 'OTRO_INGRESO']
+const CASH_SALIDA_CATS  = ['EGRESO_OPERATIVO', 'IMPUESTO', 'COSTO_FINANCIERO', 'OTRO_EGRESO']
+
+export function computeCashFlow(months: string[]): CashFlowSummary {
+  const cfMonths: CashFlowMonth[] = months.map(name => {
+    const rows = parseFlujoCajaCsv(path.join(DOCS_DIR, name, 'flujo_caja.csv'))
+    if (!rows) {
+      return { name, hasData: false, saldoInicial: 0, entradas: 0, salidas: 0, trasladosNetos: 0, netoCaja: 0, saldoFinal: 0 }
+    }
+    const saldoInicial = rows.find(r => r.categoria === 'SALDO' && r.descripcion === 'SALDO_ANTERIOR')?.valor ?? 0
+    const saldoFinal   = rows.find(r => r.categoria === 'SALDO' && r.descripcion === 'SALDO_ACTUAL')?.valor ?? 0
+    const entradas = rows.filter(r => CASH_ENTRADA_CATS.includes(r.categoria)).reduce((s, r) => s + r.valor, 0)
+    const salidas  = Math.abs(rows.filter(r => CASH_SALIDA_CATS.includes(r.categoria)).reduce((s, r) => s + r.valor, 0))
+    const trasladosNetos = rows.filter(r => r.categoria === 'TRASLADO_INTERNO').reduce((s, r) => s + r.valor, 0)
+    return { name, hasData: true, saldoInicial, entradas, salidas, trasladosNetos, netoCaja: entradas - salidas, saldoFinal }
+  })
+
+  const totals = cfMonths.reduce((acc, m) => {
+    acc.entradas += m.entradas; acc.salidas += m.salidas; acc.netoCaja += m.netoCaja
+    return acc
+  }, { entradas: 0, salidas: 0, netoCaja: 0 })
+
+  return { months: cfMonths, totals }
 }
 
 // ─── Helpers de filesystem ────────────────────────────────────────────────────
@@ -295,6 +411,9 @@ export function listMonths(): MonthFolder[] {
       const admonDir       = path.join(monthDir, 'Admon')
       const hasBankStatement = hasFilesInDir(admonDir)
 
+      // Flujo de caja: ¿el extracto ya fue parseado a flujo_caja.csv?
+      const hasCashFlow = fs.existsSync(path.join(monthDir, 'flujo_caja.csv'))
+
       // CSV: ¿el consolidado tiene filas de este mes?
       const csvReady = consolidadoText ? consolidadoHasMonth(consolidadoText, name) : false
 
@@ -304,6 +423,7 @@ export function listMonths(): MonthFolder[] {
         csvReady,
         hasIncomeFile,
         hasBankStatement,
+        hasCashFlow,
       }
     })
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -383,6 +503,33 @@ export function buildSystemPrompt(months: string[], costCSV: string, _incomePDFC
   // Cargar ingresos también del consolidado
   const incomeCSV = loadIncomeContext(months)
 
+  // Flujo de caja (extractos bancarios) e IVA — se calculan aparte de los CSVs
+  // de arriba para poder darle al modelo la distinción explícita entre
+  // facturación (causación) y caja real, y el detalle de IVA cobrado/pagado.
+  const cashFlow = computeCashFlow(months)
+  const cashFlowSection = cashFlow.months.some(m => m.hasData)
+    ? `FLUJO DE CAJA — DATOS ESTRUCTURADOS (banco real, extractos en carpeta Admon/):
+| Mes | Saldo inicial | Entradas | Salidas | Traslados internos | Neto de caja | Saldo final |
+|---|---|---|---|---|---|---|
+${cashFlow.months.map(m => m.hasData
+      ? `| ${m.name} | ${Math.round(m.saldoInicial)} | ${Math.round(m.entradas)} | ${Math.round(m.salidas)} | ${Math.round(m.trasladosNetos)} | ${Math.round(m.netoCaja)} | ${Math.round(m.saldoFinal)} |`
+      : `| ${m.name} | sin extracto bancario disponible |  |  |  |  |  |`).join('\n')}`
+    : 'No hay extractos bancarios parseados para los meses seleccionados.'
+
+  // IVA cobrado (ventas) vs pagado (compras), mensual, acumulado y por bimestre DIAN
+  const { ivaMonthly, ivaBimestres } = computeSummary(months)
+  const ivaSection = ivaMonthly.length
+    ? `IVA — COBRADO VS PAGADO (débito fiscal vs descontable):
+| Mes | IVA cobrado (ventas) | IVA pagado (compras) | Neto del mes | Acumulado del año |
+|---|---|---|---|---|
+${ivaMonthly.map(m => `| ${m.name} | ${Math.round(m.cobrado)} | ${Math.round(m.pagado)} | ${Math.round(m.neto)} | ${Math.round(m.acumulado)} |`).join('\n')}
+
+Por bimestre de declaración DIAN (lo que efectivamente toca pagar o queda a favor cada declaración):
+| Bimestre | IVA cobrado | IVA pagado | A pagar a la DIAN |
+|---|---|---|---|
+${ivaBimestres.map(b => `| ${b.bimestre} | ${Math.round(b.cobrado)} | ${Math.round(b.pagado)} | ${Math.round(b.aPagar)} |`).join('\n')}`
+    : 'No hay datos de IVA disponibles para los meses seleccionados.'
+
   const costSection = costCSV
     ? `EGRESOS / COSTOS — DATOS ESTRUCTURADOS (facturas electrónicas DIAN, carpeta Egresos/FACTURAS/):
 Columnas: fecha, mes, tipo, numeroFactura, contraparte, contraparteNIT, concepto, subtotal, iva, total, archivo
@@ -414,6 +561,10 @@ ${incomeSection}
 
 ${costSection}
 
+${cashFlowSection}
+
+${ivaSection}
+
 INSTRUCCIONES DE FORMATO (CRÍTICO):
 - OBLIGATORIO: Tu PRIMERA línea debe ser exactamente: # PERÍODO ANALIZADO: ${monthsDesc}
   No pongas nada antes. No lo omitas. No lo muevas.
@@ -427,7 +578,19 @@ INSTRUCCIONES DE FORMATO (CRÍTICO):
 
 INSTRUCCIONES DE ANÁLISIS:
 - Los INGRESOS y COSTOS están en los CSVs estructurados — úsalos directamente.
-- Flujo Neto = Total Ingresos - Total Costos.
+- CRÍTICO — no confundas facturación con flujo de caja, son conceptos DISTINTOS:
+  · "Flujo Neto" / "Resultado" (tabla de EGRESOS/INGRESOS) = Total Ingresos − Total Costos, en CAUSACIÓN
+    (factura emitida o recibida, se haya cobrado/pagado o no).
+  · "Flujo de caja" (tabla FLUJO DE CAJA) = plata que realmente entró/salió del banco según el extracto.
+    "Entradas" y "Salidas" excluyen los "Traslados internos" (movimientos a/desde fondo de inversión,
+    Nequi, cajero propio — no son ingreso ni gasto real).
+  Si el usuario pregunta por "flujo de caja", "plata real", "lo que entró al banco" o similar, usa
+  SIEMPRE la tabla de FLUJO DE CAJA, nunca el Flujo Neto de facturación. Si pregunta por "facturación",
+  "resultado" o "utilidad", usa la tabla de INGRESOS/COSTOS. Si el extracto de un mes no está disponible,
+  dilo explícitamente en vez de inferir caja a partir de facturación.
+- IVA: distingue siempre IVA cobrado (en ventas) de IVA pagado (en compras). El monto "a pagar a la DIAN"
+  es por bimestre de declaración (tabla IVA — bimestres), no el total acumulado del año salvo que te pidan
+  el acumulado explícitamente.
 - Si hay duplicados en el CSV (mismo número de factura), cuéntalos una sola vez.
 - Al proyectar, muestra explícitamente los supuestos (ej: "Basado en el promedio de los últimos 3 meses...").
 - Responde siempre en español.`

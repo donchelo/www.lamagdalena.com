@@ -379,9 +379,10 @@ function readCsvRows(filePath) {
   })
 }
 
-// Parsea cuentas_cobro.csv (curado a mano desde los PDF de cuenta de cobro,
-// mientras contabilidad entrega el export "Documento soporte" de Siigo) → filas COSTO
-function parseCuentasCobroCsv(filePath, month) {
+// Parsea egresos_manuales.csv (curado a mano desde PDFs de cuenta de cobro y
+// facturas en USD convertidas a TRM oficial, mientras contabilidad entrega el
+// export "Documento soporte" de Siigo) → filas COSTO
+function parseEgresosManualesCsv(filePath, month) {
   return readCsvRows(filePath)
     .filter(r => r.contraparte && r.total !== 0)
     .map(r => ({ ...r, mes: month, tipo: r.tipo || 'COSTO' }))
@@ -465,11 +466,11 @@ for (const month of monthDirs) {
     if (soporteRows) console.log(`   📄 ${soporteRows} doc soporte (costos sin factura electrónica)`)
   }
 
-  // 3. cuentas_cobro.csv (curado a mano desde PDFs de cuenta de cobro)
-  const ccRows = parseCuentasCobroCsv(path.join(monthDir, 'cuentas_cobro.csv'), month)
+  // 3. egresos_manuales.csv (cuentas de cobro sin XML + facturas USD a TRM oficial)
+  const ccRows = parseEgresosManualesCsv(path.join(monthDir, 'egresos_manuales.csv'), month)
   if (ccRows.length) {
     ccRows.forEach(r => { monthRows.push(r); allRows.push(r) })
-    console.log(`   🧾 ${ccRows.length} cuentas de cobro (cuentas_cobro.csv)`)
+    console.log(`   🧾 ${ccRows.length} egresos manuales (egresos_manuales.csv)`)
   }
 
   monthRows.sort((a, b) => a.fecha.localeCompare(b.fecha))
