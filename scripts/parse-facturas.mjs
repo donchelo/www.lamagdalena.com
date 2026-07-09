@@ -203,7 +203,13 @@ function colIdx(headers, name) {
   return headers.findIndex(h => String(h).trim() === name)
 }
 
-// Parsea Ventas por cliente.xlsx → filas INGRESO
+// IVA estándar en Colombia (19%). Se usa SOLO para el export "Ventas.xlsx" de
+// Siigo (ver abajo), que no trae el desglose subtotal/IVA por fila — a
+// diferencia del export histórico "Ventas por cliente.xlsx" que sí lo trae.
+const IVA_RATE = 0.19
+
+// Parsea Ventas por cliente.xlsx (formato histórico, con Subtotal/Impuesto
+// cargo por fila) → filas INGRESO
 function parseVentasXlsx(filePath, month) {
   const rows = readWijmoSheet(filePath)
   const hi = findHeaderRow(rows, 'Identificación')
@@ -241,6 +247,62 @@ function parseVentasXlsx(filePath, month) {
       subtotal:       sub,
       iva:            iva,
       total:          total,
+      archivo:        path.basename(filePath),
+    })
+  }
+  return result
+}
+
+// Parsea Ventas.xlsx (export "Tipo de transacción" de Siigo, sin desglose de
+// IVA por fila — solo trae el Total con impuestos incluidos). El subtotal/IVA
+// se calcula aplicando el 19% estándar colombiano (verificado contra el
+// export histórico: el mismo cliente/período da el mismo Total con esa tasa).
+// Notas crédito restan (mismo criterio que parseDocSoporteXlsx).
+function parseVentasSiigoXlsx(filePath, month) {
+  const rows = readWijmoSheet(filePath)
+  const hi = findHeaderRow(rows, 'Tipo de transacción')
+  if (hi < 0) return []
+
+  const h = rows[hi]
+  const iTipo   = colIdx(h, 'Tipo de transacción')
+  const iComp   = colIdx(h, 'Comprobante')
+  const iFecha  = colIdx(h, 'Fecha elaboración')
+  const iId     = colIdx(h, 'Identificación')
+  const iCliente = colIdx(h, 'Cliente')
+  const iTotal  = colIdx(h, 'Total')
+
+  const result = []
+  for (let i = hi + 1; i < rows.length; i++) {
+    const r = rows[i]
+    if (!r[0] || String(r[0]).startsWith('Procesado')) continue
+    const tipo   = String(r[iTipo]    ?? '').trim()
+    const comp   = String(r[iComp]    ?? '').trim()
+    const fecha  = String(r[iFecha]   ?? '').trim()
+    const nit    = String(r[iId]      ?? '').trim()
+    const name   = String(r[iCliente] ?? '').trim()
+    const total  = Number(r[iTotal])  || 0
+    if (!name || total === 0) continue
+
+    let fechaISO = ''
+    const fm = fecha.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+    if (fm) fechaISO = `${fm[3]}-${fm[2]}-${fm[1]}`
+
+    const signo = /nota\s*cr[ée]dito/i.test(tipo) ? -1 : 1
+    const totalSigned = signo * total
+    const sub = totalSigned / (1 + IVA_RATE)
+    const iva = totalSigned - sub
+
+    result.push({
+      fecha:          fechaISO,
+      mes:            month,
+      tipo:           'INGRESO',
+      numeroFactura:  comp,
+      contraparte:    name,
+      contraparteNIT: nit,
+      concepto:       `Ventas ${month} (IVA 19% estimado — export sin desglose)`,
+      subtotal:       sub,
+      iva:            iva,
+      total:          totalSigned,
       archivo:        path.basename(filePath),
     })
   }
@@ -456,13 +518,18 @@ for (const month of monthDirs) {
         const rows = parseVentasXlsx(full, month)
         rows.forEach(r => { monthRows.push(r); allRows.push(r) })
         ventasRows += rows.length
+      } else if (/^ventas\b/i.test(f)) {
+        // Formato nuevo de Siigo ("Ventas.xlsx"): sin desglose de IVA por fila.
+        const rows = parseVentasSiigoXlsx(full, month)
+        rows.forEach(r => { monthRows.push(r); allRows.push(r) })
+        ventasRows += rows.length
       } else if (/documento soporte/i.test(f)) {
         const rows = parseDocSoporteXlsx(full, month)
         rows.forEach(r => { monthRows.push(r); allRows.push(r) })
         soporteRows += rows.length
       }
     }
-    if (ventasRows)  console.log(`   📊 ${ventasRows} ventas (Ventas por cliente.xlsx)`)
+    if (ventasRows)  console.log(`   📊 ${ventasRows} ventas (Ventas por cliente.xlsx / Ventas.xlsx)`)
     if (soporteRows) console.log(`   📄 ${soporteRows} doc soporte (costos sin factura electrónica)`)
   }
 
