@@ -16,7 +16,7 @@
     "@ai-sdk/anthropic": "^3.0.74",
     "@ai-sdk/react": "^3.0.177",
     "@ai4u/design-system": "github:donchelo/sistemaDiseno",
-    "@ai4u/mc-sso": "github:donchelo/mc-sso",
+    "@ai4u/mc-sso": "github:ai4u-com-co/mc-sso#v1.1.0",
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.105.3",
     "@types/node": "^25.6.0",
