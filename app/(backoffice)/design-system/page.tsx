@@ -131,19 +131,19 @@ export default function DesignSystemPage() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', alignItems: 'center', backgroundColor: 'var(--bg-cream)', padding: '2rem', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
                   <Button variant="primary">Primary Button</Button>
-                  <code style={{ fontSize: '0.7rem', color: 'gray' }}>variant="primary"</code>
+                  <code style={{ fontSize: '0.7rem', color: 'gray' }}>variant=&quot;primary&quot;</code>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
                   <Button variant="secondary">Secondary Button</Button>
-                  <code style={{ fontSize: '0.7rem', color: 'gray' }}>variant="secondary"</code>
+                  <code style={{ fontSize: '0.7rem', color: 'gray' }}>variant=&quot;secondary&quot;</code>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
                   <Button variant="commercial">Commercial Button</Button>
-                  <code style={{ fontSize: '0.7rem', color: 'gray' }}>variant="commercial"</code>
+                  <code style={{ fontSize: '0.7rem', color: 'gray' }}>variant=&quot;commercial&quot;</code>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center', backgroundColor: '#000', padding: '1rem', borderRadius: '8px' }}>
                   <Button variant="nav">Nav Button</Button>
-                  <code style={{ fontSize: '0.7rem', color: 'gray' }}>variant="nav"</code>
+                  <code style={{ fontSize: '0.7rem', color: 'gray' }}>variant=&quot;nav&quot;</code>
                 </div>
               </div>
             </section>
@@ -156,7 +156,7 @@ export default function DesignSystemPage() {
                   <Input placeholder="Enter your text here..." className="contact-input" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.8rem', color: 'gray', fontFamily: 'var(--font-body)' }}>Textarea (as="textarea")</label>
+                  <label style={{ fontSize: '0.8rem', color: 'gray', fontFamily: 'var(--font-body)' }}>Textarea (as=&quot;textarea&quot;)</label>
                   <Input as="textarea" rows={4} placeholder="Type your message..." className="contact-input" />
                 </div>
               </div>

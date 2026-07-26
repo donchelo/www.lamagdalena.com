@@ -28,7 +28,6 @@ async function retryPdf(reportId: string) {
 
     console.log(`2. Pidiendo a Claude que analice ${rawData.length} elementos...`)
     const { analyzeData } = await import('../lib/claude')
-    // @ts-ignore
     const { analysis, claudeCostUSD } = await analyzeData(rawData, job)
     
     const { saveAnalysis } = await import('../lib/supabase')

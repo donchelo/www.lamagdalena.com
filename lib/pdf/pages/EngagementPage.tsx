@@ -83,7 +83,7 @@ export const EngagementPage = ({ avgEngagementRate, topPosts }: EngagementPagePr
         {topPosts.map((post, i) => (
           <View key={i} style={styles.tableRow}>
             <Text style={styles.colPlatform}>{post.platform}</Text>
-            {/* @ts-ignore */}
+            {/* @ts-expect-error numberOfLines no está en los tipos de <Text> de react-pdf, pero el runtime sí lo soporta */}
             <Text style={styles.colCaption} numberOfLines={2}>
               {post.caption || 'Sin texto'}
             </Text>

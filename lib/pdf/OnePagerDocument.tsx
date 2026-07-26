@@ -196,7 +196,7 @@ export const OnePagerDocument = ({ job, analysis }: OnePagerProps) => {
             <Text style={styles.sectionTitle}>Hallazgos Clave</Text>
             {(analysis.keyInsights || []).slice(0, 4).map((insight, i) => (
               <View key={i} style={styles.insightItem}>
-                <Text style={styles.insightBullet}>//</Text>
+                <Text style={styles.insightBullet}>{'//'}</Text>
                 <Text style={styles.insightText}>{insight}</Text>
               </View>
             ))}

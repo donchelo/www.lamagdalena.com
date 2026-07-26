@@ -215,7 +215,7 @@ export default function StoryView({ story }: StoryViewProps) {
         return (
           <section key={index} className={`story-quote-block ${containerClass}`}>
             <blockquote>
-              <p className="quote-text">"{parseText(block.text ?? '')}"</p>
+              <p className="quote-text">&quot;{parseText(block.text ?? '')}&quot;</p>
               {block.author && <cite className="quote-author">— {block.author}</cite>}
             </blockquote>
           </section>
