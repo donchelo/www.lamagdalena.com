@@ -19,7 +19,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.74",
     "@ai-sdk/react": "^3.0.177",
-    "@ai4u/design-system": "github:ai4u-com-co/sistemaDiseno#v1.2.1",
+    "@ai4u/design-system": "github:ai4u-com-co/sistemaDiseno#v1.3.0",
     "@ai4u/mc-sso": "github:ai4u-com-co/mc-sso#v1.1.0",
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.105.3",
