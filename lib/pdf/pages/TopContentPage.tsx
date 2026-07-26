@@ -66,7 +66,7 @@ export const TopContentPage = ({ posts }: TopContentPageProps) => (
       {posts.map((post, i) => (
         <View key={i} style={styles.postCard}>
           <Text style={styles.platformBadge}>{post.platform.toUpperCase()}</Text>
-          {/* @ts-ignore */}
+          {/* @ts-expect-error numberOfLines no está en los tipos de <Text> de react-pdf, pero el runtime sí lo soporta */}
           <Text style={styles.postCaption} numberOfLines={4}>
             {post.caption || 'Contenido visual sin texto descriptivo.'}
           </Text>

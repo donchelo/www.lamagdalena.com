@@ -13,7 +13,6 @@ interface RenderInput {
 export async function renderReportPdf({ job, analysis }: RenderInput): Promise<Buffer> {
   try {
     // Generar el buffer del PDF usando el componente raíz y los datos proporcionados
-    // @ts-ignore - DocumentProps mismatch due to React 19 vs react-pdf types
     const buffer = await renderToBuffer(<ReportDocument job={job} analysis={analysis} />)
     return buffer as Buffer
   } catch (error) {
@@ -26,7 +25,6 @@ export async function renderReportPdf({ job, analysis }: RenderInput): Promise<B
 
 export async function renderOnePagerPdf({ job, analysis }: RenderInput): Promise<Buffer> {
   try {
-    // @ts-ignore
     const buffer = await renderToBuffer(<OnePagerDocument job={job} analysis={analysis} />)
     return buffer as Buffer
   } catch (error) {

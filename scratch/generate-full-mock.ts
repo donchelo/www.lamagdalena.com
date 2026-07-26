@@ -84,7 +84,7 @@ async function generateProfessionalMock() {
   await saveRawData(reportId, [])
 
   console.log("2. Renderizando PDF de 8 páginas...")
-  // @ts-ignore
+  // @ts-expect-error el mock no cumple el tipo completo de analysis; es un borrador, no código de la app
   const pdfBuffer = await renderReportPdf({ job, analysis })
   const pdfUrl = await savePdf(reportId, pdfBuffer)
 
